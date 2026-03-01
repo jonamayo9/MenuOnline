@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Productos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+<div class="max-w-6xl mx-auto p-6">
+
+  <!-- HEADER -->
+  <div class="bg-white rounded-3xl shadow-sm p-6 mb-6 border border-slate-200">
+    <div class="flex justify-between items-center flex-wrap gap-4">
+
+      <!-- 👇 agregado: botón volver + título -->
+      <div class="flex items-center gap-4">
+        <a href="./home.html"
+           class="h-11 w-11 grid place-items-center rounded-2xl bg-slate-100 text-slate-800 text-lg font-bold
+                  hover:bg-slate-200 transition"
+           title="Volver">
+          ←
+        </a>
+
+        <div>
+          <h1 class="text-3xl font-extrabold">Productos</h1>
+          <p class="text-sm text-slate-500 mt-1">Creá y administrá tu menú.</p>
+        </div>
+      </div>
+      <!-- 👆 agregado -->
+
+      <button id="refresh"
+        class="px-4 py-2 rounded-xl bg-slate-900 text-white font-semibold hover:shadow-lg transition text-sm">
+        Actualizar
+      </button>
+    </div>
+  </div>
+
+  <!-- FORM CREAR -->
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 mb-6">
+    <div class="text-lg font-extrabold mb-4">Nuevo producto</div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+      <div>
+        <label class="text-xs text-slate-400 mb-1 block">Nombre</label>
+        <input id="name" placeholder="Ej: Hamburguesa clásica"
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+      </div>
+
+      <div>
+        <label class="text-xs text-slate-400 mb-1 block">Precio</label>
+        <input id="price" type="text" inputmode="decimal" placeholder="Ej: 4500"
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+        <p class="text-[11px] text-slate-400 mt-1">Acepta números y decimales (ej: 4500 o 4500,50).</p>
+      </div>
+
+      <div>
+        <label class="text-xs text-slate-400 mb-1 block">Categoría</label>
+        <select id="category"
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
+          <option value="">Seleccionar categoría</option>
+        </select>
+      </div>
+
+      <div class="md:col-span-3">
+        <label class="text-xs text-slate-400 mb-1 block">Descripción</label>
+        <textarea id="description" rows="2" placeholder="Ej: Con cheddar, panceta y papas"
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"></textarea>
+      </div>
+
+      <div>
+        <label class="text-xs text-slate-400 mb-1 block">Imagen</label>
+        <input id="imageFile" type="file" accept="image/*"
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+        <p class="text-xs text-slate-400 mt-1">Opcional. Si no cargás imagen se usará la predeterminada.</p>
+      </div>
+
+      <div>
+        <label class="text-xs text-slate-400 mb-1 block">Estado</label>
+        <select id="enabled"
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
+          <option value="true">Activo</option>
+          <option value="false">Inactivo</option>
+        </select>
+      </div>
+
+      <div class="flex items-end justify-end">
+        <button id="save"
+          class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 hover:shadow-lg active:scale-[0.99] transition text-sm">
+          Crear
+        </button>
+      </div>
+
+    </div>
+
+    <img id="imagePreview" class="mt-4 w-24 h-24 object-cover rounded-xl border border-slate-200 hidden"/>
+  </div>
+
+  <!-- TOOLBAR LISTADO -->
+  <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 mb-4">
+    <div class="flex flex-wrap items-end gap-4 justify-between">
+      <div>
+        <div class="font-extrabold">Listado</div>
+        <div class="text-sm text-slate-500">Filtrá por categoría.</div>
+      </div>
+
+      <div class="flex items-end gap-3">
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Filtro categoría</label>
+          <select id="filterCategory"
+            class="min-w-[240px] bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
+            <option value="">Todas</option>
+          </select>
+        </div>
+
+        <button id="clearFilter"
+          class="px-4 py-2 rounded-xl bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200 transition text-sm">
+          Limpiar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LISTA -->
+  <div id="list" class="space-y-4"></div>
+
+</div>
+
+<!-- MODAL EDITAR -->
+<div id="editModal" class="hidden fixed inset-0 z-50">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+  <div class="relative max-w-xl mx-auto mt-16 bg-white rounded-3xl shadow-2xl border border-slate-200 p-6">
+    <div class="flex justify-between items-center mb-4">
+      <div class="text-xl font-extrabold">Editar producto</div>
+      <button id="closeModal" class="px-3 py-2 hover:bg-slate-100 rounded-xl">✕</button>
+    </div>
+
+    <input type="hidden" id="editId"/>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="md:col-span-2">
+        <label class="text-xs text-slate-400 mb-1 block">Nombre</label>
+        <input id="editName"
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+      </div>
+
+      <div>
+        <label class="text-xs text-slate-400 mb-1 block">Precio</label>
+        <input id="editPrice" type="text" inputmode="decimal"
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+      </div>
+
+      <div>
+        <label class="text-xs text-slate-400 mb-1 block">Categoría</label>
+        <select id="editCategory"
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"></select>
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="text-xs text-slate-400 mb-1 block">Descripción</label>
+        <textarea id="editDescription" rows="2"
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"></textarea>
+      </div>
+
+      <div>
+        <label class="text-xs text-slate-400 mb-1 block">Imagen</label>
+        <input id="editImageFile" type="file" accept="image/*"
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+      </div>
+
+      <div>
+        <label class="text-xs text-slate-400 mb-1 block">Estado</label>
+        <select id="editEnabled"
+          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
+          <option value="true">Activo</option>
+          <option value="false">Inactivo</option>
+        </select>
+      </div>
+
+      <div class="md:col-span-2 flex items-center gap-3">
+        <img id="editPreview"
+          class="w-20 h-20 object-cover rounded-xl border border-slate-200"
+          src="/img/default-product.png"/>
+        <div class="text-xs text-slate-500">Si cargás una imagen nueva, se reemplaza.</div>
+      </div>
+    </div>
+
+    <div class="mt-5 text-right">
+      <button id="update"
+        class="px-4 py-2 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 hover:shadow-lg transition text-sm">
+        Guardar cambios
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toastContainer" class="fixed top-6 right-6 z-50"></div>
+
+<script>
+  let CONFIG = null;
+
+  let selectedImage = null;
+  let selectedEditImage = null;
+
+  let itemsCache = [];
+  let categoriesCache = [];
+
+  let filterCategoryId = ""; // "" = todas
+
+  // =========================
+  // AUTH GUARD (UNICO - sin duplicados)
+  // =========================
+  const TOKEN_KEY = "menuonline_token";
+  const SLUG_KEY  = "menuonline_companySlug";
+  const LOGIN_PAGE = "./login.html";
+  const CONFIG_PATH = "../config.json"; // este html está dentro de /admin
+
+  function logoutToLogin(){
+    localStorage.removeItem(TOKEN_KEY);
+    location.replace(LOGIN_PAGE);
+  }
+
+  function parseJwt(token){
+    try{
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const json = decodeURIComponent(atob(base64).split("").map(c =>
+        "%" + c.charCodeAt(0).toString(16).padStart(2,"0")
+      ).join(""));
+      return JSON.parse(json);
+    }catch{ return null; }
+  }
+
+  function isTokenValid(){
+    const t = localStorage.getItem(TOKEN_KEY);
+    if(!t) return false;
+
+    const payload = parseJwt(t);
+    const exp = payload?.exp; // epoch seconds
+    if(!exp) return false;
+
+    const now = Math.floor(Date.now()/1000);
+    return exp > now;
+  }
+
+  function requireAuth(){
+    if(!isTokenValid()){
+      logoutToLogin();
+      return false;
+    }
+    return true;
+  }
+
+  function authHeaders(extra = {}){
+    const token = localStorage.getItem(TOKEN_KEY);
+    return { ...extra, "Authorization": "Bearer " + token };
+  }
+
+  async function fetchAuth(url, options = {}){
+    if(!requireAuth()) return null;
+
+    const res = await fetch(url, {
+      ...options,
+      headers: authHeaders(options.headers || {})
+    });
+
+    if(res.status === 401 || res.status === 403){
+      logoutToLogin();
+      return null;
+    }
+    return res;
+  }
+
+  function getSlug(){
+    // primero localStorage; si no, cae a CONFIG cuando ya cargó
+    return localStorage.getItem(SLUG_KEY) || (CONFIG ? CONFIG.companySlug : "");
+  }
+
+  // -------------------------
+  // utils
+  // -------------------------
+  async function loadConfig(){
+    const r = await fetch(CONFIG_PATH, { cache: "no-store" });
+    if(!r.ok) throw new Error("No pude leer config.json");
+    return await r.json();
+  }
+
+  function resolveImgUrl(u){
+  const s = String(u || "").trim();
+  if(!s) return "";
+  if(s.startsWith("http://") || s.startsWith("https://")) return s;
+
+  const base = String(CONFIG?.apiBaseUrl || "").replace(/\/+$/,"");
+  if(!base) return s;
+
+  if(s.startsWith("/")) return base + s;
+  return base + "/" + s;
+}
+
+  function toast(msg, type="info", ms=1800){
+    const c = document.getElementById("toastContainer");
+    c.innerHTML = "";
+    const colors = { info:"bg-slate-900", success:"bg-emerald-600", error:"bg-rose-600" };
+    const el = document.createElement("div");
+    el.className = `${colors[type]} text-white px-5 py-4 rounded-2xl shadow-2xl`;
+    el.innerText = msg;
+    c.appendChild(el);
+    if(ms) setTimeout(() => el.remove(), ms);
+  }
+
+  function parsePriceToNumber(raw){
+    const cleaned = String(raw ?? "")
+      .replace(/\s/g, "")
+      .replace(",", ".")
+      .replace(/[^0-9.]/g, "");
+
+    if(!cleaned) return NaN;
+    const parts = cleaned.split(".");
+    const normalized = parts.length <= 2 ? cleaned : (parts[0] + "." + parts.slice(1).join(""));
+    return Number(normalized);
+  }
+
+  function guardPriceInput(el){
+    el.addEventListener("keydown", (e) => {
+      const blocked = ["e","E","+","-"];
+      if(blocked.includes(e.key)) e.preventDefault();
+    });
+    el.addEventListener("input", (e) => {
+      e.target.value = e.target.value.replace(/[^0-9.,]/g, "");
+    });
+  }
+
+  function categoryNameById(categoryId){
+    const c = categoriesCache.find(x => x.id === categoryId);
+    return c ? c.name : "—";
+  }
+
+  function badgeEnabled(enabled){
+    return enabled
+      ? `<span class="text-xs px-2 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-semibold">Activo</span>`
+      : `<span class="text-xs px-2 py-1 rounded-lg bg-slate-100 text-slate-600 font-semibold">Inactivo</span>`;
+  }
+
+  function formatPrice(n){
+    const num = Number(n);
+    if(Number.isNaN(num)) return n;
+    return num.toLocaleString("es-AR");
+  }
+
+function imgBoxRow(imgUrl){
+  const src = resolveImgUrl(imgUrl);
+
+  if(!src){
+    return `<div class="w-16 h-16 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-400 text-xs font-semibold">IMG</div>`;
+  }
+
+  return `
+    <div class="w-16 h-16 rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center">
+      <img src="${src}" class="w-full h-full object-cover"
+        onerror="this.parentElement.outerHTML='<div class=&quot;w-16 h-16 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-400 text-xs font-semibold&quot;>IMG</div>'"/>
+    </div>
+  `;
+}
+
+  // -------------------------
+  // api (todo con fetchAuth)
+  // -------------------------
+  async function upload(file){
+    const fd = new FormData();
+    fd.append("file", file);
+
+    const r = await fetchAuth(`${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/uploads/image`, {
+      method: "POST",
+      body: fd
+    });
+    if(!r) return null;
+    if(!r.ok) throw new Error("upload_failed");
+    return (await r.json()).url;
+  }
+
+  async function loadCategories(){
+    const r = await fetchAuth(`${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/categories`);
+    if(!r) return;
+    if(!r.ok) throw new Error("categories_failed");
+
+    categoriesCache = await r.json();
+
+    const select = document.getElementById("category");
+    const editSelect = document.getElementById("editCategory");
+    const filterSelect = document.getElementById("filterCategory");
+
+    select.innerHTML = `<option value="">Seleccionar categoría</option>`;
+    editSelect.innerHTML = ``;
+    filterSelect.innerHTML = `<option value="">Todas</option>`;
+
+    categoriesCache.forEach(c => {
+      if(!c.enabled) return;
+      select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+      editSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+      filterSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+    });
+
+    filterSelect.value = filterCategoryId;
+  }
+
+  async function refresh(){
+    const r = await fetchAuth(`${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/items`);
+    if(!r) return;
+    if(!r.ok) throw new Error("items_failed");
+    itemsCache = await r.json();
+    render();
+  }
+
+  async function createItem(payload){
+    return await fetchAuth(`${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/items`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+  }
+
+  async function updateItem(id, payload){
+    return await fetchAuth(`${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/items/${id}`, {
+      method: "PUT",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+  }
+
+  async function deleteItem(id){
+    return await fetchAuth(`${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/items/${id}`, {
+      method: "DELETE"
+    });
+  }
+
+  // -------------------------
+  // render
+  // -------------------------
+  function render(){
+    const el = document.getElementById("list");
+
+    let list = itemsCache;
+    if(filterCategoryId){
+      const cid = Number(filterCategoryId);
+      list = list.filter(x => x.categoryId === cid);
+    }
+
+    if(!list.length){
+      el.innerHTML = `<div class="bg-white p-6 rounded-3xl border border-slate-200">No hay productos para ese filtro</div>`;
+      return;
+    }
+
+    el.innerHTML = list.map(i => {
+      const catName = categoryNameById(i.categoryId);
+
+      return `
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 hover:shadow-md transition flex justify-between items-center gap-5">
+          <div class="flex items-start gap-4 min-w-0">
+            ${imgBoxRow(i.imageUrl)}
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <div class="text-lg font-extrabold truncate">${i.name}</div>
+                ${badgeEnabled(i.enabled)}
+                <span class="text-xs px-2 py-1 rounded-xl bg-slate-100 text-slate-700 font-semibold">${catName}</span>
+              </div>
+
+              ${i.description
+                ? `<div class="text-sm text-slate-500 mt-2 line-clamp-2">${i.description}</div>`
+                : `<div class="text-sm text-slate-300 mt-2">(Sin descripción)</div>`
+              }
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 shrink-0">
+            <div class="text-3xl font-extrabold text-slate-900 whitespace-nowrap">
+              $ ${formatPrice(i.price)}
+            </div>
+
+            <button data-toggle="${i.id}"
+              class="px-3 py-2 rounded-xl text-sm font-semibold ${
+                i.enabled ? "bg-slate-100 hover:bg-slate-200" : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+              } transition">
+              ${i.enabled ? "Desactivar" : "Activar"}
+            </button>
+
+            <button data-edit="${i.id}"
+              class="px-3 py-2 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:shadow-lg transition">
+              Editar
+            </button>
+
+            <button data-del="${i.id}"
+              class="px-3 py-2 bg-rose-100 text-rose-800 rounded-xl text-sm font-semibold hover:bg-rose-200 transition">
+              Eliminar
+            </button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    document.querySelectorAll("[data-edit]").forEach(b => b.onclick = () => openEdit(Number(b.dataset.edit)));
+    document.querySelectorAll("[data-del]").forEach(b => b.onclick = () => removeItem(Number(b.dataset.del)));
+    document.querySelectorAll("[data-toggle]").forEach(b => b.onclick = () => toggleEnabled(Number(b.dataset.toggle)));
+  }
+
+  // -------------------------
+  // actions
+  // -------------------------
+  async function removeItem(id){
+    if(!confirm("¿Eliminar producto?")) return;
+
+    try{
+      const r = await deleteItem(id);
+      if(!r) return;
+
+      if(r.status === 409){
+        toast("No se puede eliminar: está en pedidos", "error", 2500);
+        return;
+      }
+      if(!r.ok){
+        toast("Error eliminando", "error");
+        return;
+      }
+      toast("Producto eliminado", "success");
+      await refresh();
+    }catch{
+      toast("Error eliminando", "error");
+    }
+  }
+
+  async function toggleEnabled(id){
+    const item = itemsCache.find(x => x.id === id);
+    if(!item) return;
+
+    try{
+      toast("Guardando...", "info", 900);
+
+      const payload = {
+        name: item.name,
+        description: item.description || "",
+        price: item.price,
+        categoryId: item.categoryId,
+        enabled: !item.enabled,
+        imageUrl: item.imageUrl || null
+      };
+
+      const r = await updateItem(id, payload);
+      if(!r) return;
+
+      if(!r.ok){
+        toast("Error cambiando estado", "error");
+        return;
+      }
+
+      toast(item.enabled ? "Producto desactivado" : "Producto activado", "success");
+      await refresh();
+    }catch{
+      toast("Error cambiando estado", "error");
+    }
+  }
+
+  function openEdit(id){
+    const i = itemsCache.find(x => x.id === id);
+    if(!i) return;
+
+    document.getElementById("editId").value = String(i.id);
+    document.getElementById("editName").value = i.name ?? "";
+    document.getElementById("editPrice").value = String(i.price ?? "");
+    document.getElementById("editDescription").value = i.description ?? "";
+    document.getElementById("editCategory").value = String(i.categoryId ?? "");
+    document.getElementById("editEnabled").value = String(!!i.enabled);
+    document.getElementById("editPreview").src = i.imageUrl || "/img/default-product.png";
+
+    selectedEditImage = null;
+    document.getElementById("editImageFile").value = "";
+
+    document.getElementById("editModal").classList.remove("hidden");
+  }
+
+  document.getElementById("closeModal").onclick = () => {
+    document.getElementById("editModal").classList.add("hidden");
+  };
+
+  // -------------------------
+  // events
+  // -------------------------
+  document.getElementById("refresh").addEventListener("click", async () => {
+    try{
+      await loadCategories();
+      await refresh();
+      toast("Actualizado", "success");
+    }catch{
+      toast("Error actualizando", "error");
+    }
+  });
+
+  document.getElementById("filterCategory").addEventListener("change", (e) => {
+    filterCategoryId = e.target.value;
+    render();
+  });
+
+  document.getElementById("clearFilter").addEventListener("click", () => {
+    filterCategoryId = "";
+    document.getElementById("filterCategory").value = "";
+    render();
+  });
+
+  document.getElementById("imageFile").addEventListener("change", (e) => {
+    selectedImage = e.target.files?.[0] ?? null;
+    const preview = document.getElementById("imagePreview");
+
+    if(selectedImage){
+      preview.src = URL.createObjectURL(selectedImage);
+      preview.classList.remove("hidden");
+    } else {
+      preview.classList.add("hidden");
+    }
+  });
+
+  document.getElementById("editImageFile").addEventListener("change", (e) => {
+    selectedEditImage = e.target.files?.[0] ?? null;
+    if(selectedEditImage){
+      document.getElementById("editPreview").src = URL.createObjectURL(selectedEditImage);
+    }
+  });
+
+  document.getElementById("save").addEventListener("click", async () => {
+    try{
+      if(!requireAuth()) return;
+
+      const name = document.getElementById("name").value.trim();
+      const desc = document.getElementById("description").value.trim();
+      const cat = document.getElementById("category").value;
+      const enabled = document.getElementById("enabled").value === "true";
+      const price = parsePriceToNumber(document.getElementById("price").value);
+
+      if(!name){ toast("Escribí un nombre", "error"); return; }
+      if(!cat){ toast("Seleccioná categoría", "error"); return; }
+      if(!desc){ toast("La descripción es obligatoria", "error"); return; }
+      if(Number.isNaN(price) || price <= 0){ toast("Precio inválido", "error"); return; }
+
+      toast("Creando producto...");
+
+      let imageUrl = null;
+      if(selectedImage) imageUrl = await upload(selectedImage);
+
+      const payload = { name, description: desc, price, categoryId: Number(cat), enabled, imageUrl };
+
+      const r = await createItem(payload);
+      if(!r) return;
+
+      if(!r.ok){
+        const t = await r.text().catch(()=> "");
+        console.error(t);
+        toast("Error creando (mirá consola)", "error", 2500);
+        return;
+      }
+
+      toast("Producto creado", "success");
+
+      document.getElementById("name").value = "";
+      document.getElementById("description").value = "";
+      document.getElementById("price").value = "";
+      document.getElementById("category").value = "";
+      document.getElementById("enabled").value = "true";
+      document.getElementById("imageFile").value = "";
+      selectedImage = null;
+      document.getElementById("imagePreview").classList.add("hidden");
+
+      await refresh();
+    }catch(e){
+      console.error(e);
+      toast("Error creando", "error", 2500);
+    }
+  });
+
+  document.getElementById("update").addEventListener("click", async () => {
+    try{
+      if(!requireAuth()) return;
+
+      const id = Number(document.getElementById("editId").value);
+      const name = document.getElementById("editName").value.trim();
+      const desc = document.getElementById("editDescription").value.trim();
+      const cat = document.getElementById("editCategory").value;
+      const enabled = document.getElementById("editEnabled").value === "true";
+      const price = parsePriceToNumber(document.getElementById("editPrice").value);
+
+      if(!name){ toast("Escribí un nombre", "error"); return; }
+      if(!cat){ toast("Seleccioná categoría", "error"); return; }
+      if(!desc){ toast("La descripción es obligatoria", "error"); return; }
+      if(Number.isNaN(price) || price <= 0){ toast("Precio inválido", "error"); return; }
+
+      toast("Guardando...");
+
+      let imageUrl = document.getElementById("editPreview").src || null;
+      if(selectedEditImage){
+        imageUrl = await upload(selectedEditImage);
+      }
+      if(imageUrl && imageUrl.includes("/img/default-product.png")) imageUrl = null;
+
+      const payload = { name, description: desc, price, categoryId: Number(cat), enabled, imageUrl };
+
+      const r = await updateItem(id, payload);
+      if(!r) return;
+
+      if(!r.ok){
+        const t = await r.text().catch(()=> "");
+        console.error(t);
+        toast("Error guardando (mirá consola)", "error", 2500);
+        return;
+      }
+
+      toast("Actualizado", "success");
+      document.getElementById("editModal").classList.add("hidden");
+      await refresh();
+    }catch(e){
+      console.error(e);
+      toast("Error guardando", "error", 2500);
+    }
+  });
+
+  // -------------------------
+  // init
+  // -------------------------
+  guardPriceInput(document.getElementById("price"));
+  guardPriceInput(document.getElementById("editPrice"));
+
+  (async function init(){
+    try{
+      if(!requireAuth()) return;
+
+      CONFIG = await loadConfig();
+      await loadCategories();
+      await refresh();
+    }catch(e){
+      console.error(e);
+      toast("Error cargando", "error", 2500);
+    }
+  })();
+</script>
+
+</body>
+</html>

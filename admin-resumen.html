@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resumen diario</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+<div class="max-w-6xl mx-auto p-6">
+
+  <!-- HEADER -->
+  <div class="bg-white rounded-3xl shadow-sm p-6 mb-6 border border-slate-200">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+
+      <!-- 👇 modificado: botón volver + título (sin borrar nada del resto) -->
+      <div class="flex items-center gap-4">
+        <a href="./home.html"
+           class="h-11 w-11 grid place-items-center rounded-2xl bg-slate-100 text-slate-800 text-lg font-bold
+                  hover:bg-slate-200 transition"
+           title="Volver">
+          ←
+        </a>
+
+        <div>
+          <h1 class="text-3xl font-extrabold">Resumen diario</h1>
+          <p class="text-sm text-slate-500 mt-1">Pedidos del día y estados.</p>
+        </div>
+      </div>
+      <!-- 👆 fin -->
+
+      <div class="flex flex-wrap items-end gap-3">
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Fecha</label>
+          <input id="date" type="date"
+            class="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2 text-sm"/>
+        </div>
+
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Estado</label>
+          <select id="status"
+            class="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2 text-sm min-w-[200px]">
+            <option value="">Todos</option>
+            <option value="0">Nuevo</option>
+            <option value="1">Preparando</option>
+            <option value="2">Entregado</option>
+            <option value="3">Cancelado</option>
+          </select>
+        </div>
+
+        <button id="refresh"
+          class="px-4 py-2 rounded-2xl bg-slate-900 text-white font-semibold hover:shadow-lg transition text-sm">
+          Actualizar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIS -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div class="bg-white rounded-3xl border border-slate-200 p-5">
+      <div class="text-xs text-slate-400 font-semibold">Pedidos</div>
+      <div id="kpiCount" class="text-3xl font-extrabold mt-1">0</div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-200 p-5">
+      <div class="text-xs text-slate-400 font-semibold">Total del día (sin cancelados)</div>
+      <div id="kpiTotal" class="text-3xl font-extrabold mt-1">$ 0</div>
+      <div id="kpiNote" class="text-xs text-slate-400 mt-2">Cancelados: 0</div>
+    </div>
+  </div>
+
+  <!-- LISTA -->
+  <div id="list" class="space-y-4"></div>
+
+</div>
+
+<!-- MODAL DETALLE -->
+<div id="modal" class="hidden fixed inset-0 z-50">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+  <div class="relative max-w-xl mx-auto mt-10 bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+    <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+      <div>
+        <div id="mTitle" class="text-xl font-extrabold">Pedido</div>
+        <div id="mSub" class="text-sm text-slate-500 mt-1"></div>
+      </div>
+      <button id="close" class="px-3 py-2 rounded-xl hover:bg-slate-100">✕</button>
+    </div>
+
+    <div class="p-6 space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+          <div class="text-xs text-slate-400 font-semibold">Cliente</div>
+          <div id="mCustomer" class="font-extrabold mt-1">—</div>
+          <div id="mAddress" class="text-sm text-slate-600 mt-1">—</div>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+          <div class="text-xs text-slate-400 font-semibold">Pago</div>
+          <div id="mPayment" class="font-extrabold mt-1">—</div>
+          <div id="mTotal" class="text-2xl font-extrabold mt-2">$ 0</div>
+          <div class="mt-3">
+            <span id="mStatusBadge" class="text-xs px-2 py-1 rounded-xl font-semibold bg-slate-100 text-slate-700">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 font-extrabold">Items</div>
+        <div id="mItems" class="p-4 space-y-2"></div>
+      </div>
+
+      <div class="flex flex-wrap justify-end gap-2">
+        <button id="btnNew" class="px-4 py-2 rounded-2xl bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200 transition text-sm">
+          Nuevo
+        </button>
+        <button id="btnPrep" class="px-4 py-2 rounded-2xl bg-amber-100 text-amber-900 font-semibold hover:bg-amber-200 transition text-sm">
+          Preparando
+        </button>
+        <button id="btnDel" class="px-4 py-2 rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition text-sm">
+          Entregado
+        </button>
+        <button id="btnCan" class="px-4 py-2 rounded-2xl bg-rose-100 text-rose-800 font-semibold hover:bg-rose-200 transition text-sm">
+          Cancelado
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let CONFIG = null;
+  let ordersCache = [];
+
+  const STATUS = { NEW:0, PREPARING:1, DELIVERED:2, CANCELED:3 };
+
+  // ===== AUTH (igual idea que Home) =====
+  const TOKEN_KEY = "menuonline_token";
+  const SLUG_KEY  = "menuonline_companySlug";
+  const LOGIN_PAGE = "./login.html";
+const EXP_KEY   = "menuonline_token_exp_utc";
+const LEEWAY_MS = 30000;
+
+
+function logoutToLogin(){
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(EXP_KEY);
+  location.replace(LOGIN_PAGE);
+}
+
+function isSessionValid(){
+  const token = localStorage.getItem(TOKEN_KEY);
+  const expUtc = localStorage.getItem(EXP_KEY);
+  if(!token || !expUtc) return false;
+
+  const expMs = Date.parse(expUtc);
+  if(Number.isNaN(expMs)) return false;
+
+  return (Date.now() + LEEWAY_MS) < expMs;
+}
+
+function requireAuth(){
+  if(!isSessionValid()){
+    logoutToLogin();
+    return false;
+  }
+  return true;
+}
+
+  function logoutToLogin(){
+    localStorage.removeItem(TOKEN_KEY);
+    location.href = LOGIN_PAGE;
+  }
+
+  function parseJwt(token){
+    try{
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const json = decodeURIComponent(atob(base64).split("").map(c => "%" + c.charCodeAt(0).toString(16).padStart(2,"0")).join(""));
+      return JSON.parse(json);
+    }catch{ return null; }
+  }
+
+  function isTokenValid(token){
+    const payload = parseJwt(token);
+    const exp = payload?.exp;
+    if(!exp) return false;
+    const now = Math.floor(Date.now()/1000);
+    return exp > now;
+  }
+
+  function requireAuth(){
+    const t = localStorage.getItem(TOKEN_KEY);
+    if(!t || !isTokenValid(t)){
+      logoutToLogin();
+      return false;
+    }
+    return true;
+  }
+
+  function authHeaders(){
+    const token = localStorage.getItem(TOKEN_KEY);
+    return { "Authorization": "Bearer " + token };
+  }
+
+  // ===== CONFIG PATH =====
+  // Si este resumen está en /admin/resumen.html => config en ../config.json
+  // Si está en raíz => ponelo en "./config.json"
+  const CONFIG_PATH = "../config.json";
+
+  async function loadConfig(){
+    const r = await fetch(CONFIG_PATH, { cache:"no-store" });
+    if(!r.ok) throw new Error("No pude leer config.json");
+    return await r.json();
+  }
+
+  function fmtMoney(n){
+    const num = Number(n);
+    if(Number.isNaN(num)) return n;
+    return num.toLocaleString("es-AR");
+  }
+
+  function statusLabel(s){
+    const map = {
+      0:{t:"Nuevo",cls:"bg-slate-100 text-slate-700"},
+      1:{t:"Preparando",cls:"bg-amber-100 text-amber-900"},
+      2:{t:"Entregado",cls:"bg-emerald-100 text-emerald-900"},
+      3:{t:"Cancelado",cls:"bg-rose-100 text-rose-800"}
+    };
+    return map[s] || map[0];
+  }
+
+  function todayInputValue(){
+    const d = new Date();
+    return d.toISOString().slice(0,10);
+  }
+
+  async function getOrders(){
+    if(!requireAuth()) return;
+
+    const date = document.getElementById("date").value;
+    const status = document.getElementById("status").value;
+
+    const qs = new URLSearchParams();
+    if(date) qs.set("date", date);
+    if(status !== "") qs.set("status", status);
+
+    const slug = localStorage.getItem(SLUG_KEY) || CONFIG.companySlug;
+
+    const url = `${CONFIG.apiBaseUrl}/api/admin/${slug}/orders` + (qs.toString() ? `?${qs}` : "");
+    const r = await fetch(url, { headers: authHeaders() });
+
+    if(r.status === 401 || r.status === 403){
+      logoutToLogin();
+      return;
+    }
+    if(!r.ok) throw new Error("Error cargando pedidos");
+
+    ordersCache = await r.json();
+    render();
+  }
+
+  function render(){
+    document.getElementById("kpiCount").innerText = ordersCache.length;
+
+    const canceledCount = ordersCache.filter(o => o.status === STATUS.CANCELED).length;
+    const total = ordersCache
+      .filter(o => o.status !== STATUS.CANCELED)
+      .reduce((acc,o)=>acc+Number(o.total||0),0);
+
+    document.getElementById("kpiTotal").innerText = "$ " + fmtMoney(total);
+    document.getElementById("kpiNote").innerText = `Cancelados: ${canceledCount}`;
+
+    const el = document.getElementById("list");
+    el.innerHTML = ordersCache.map(o=>{
+      const s = statusLabel(o.status);
+      return `
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 hover:shadow-md transition">
+          <div class="flex justify-between items-center">
+            <div>
+              <div class="flex items-center gap-2">
+                <div class="font-extrabold">Pedido #${o.orderNumber}</div>
+                <span class="text-xs px-2 py-1 rounded-xl font-semibold ${s.cls}">${s.t}</span>
+              </div>
+              <div class="text-sm text-slate-500 mt-1">${new Date(o.createdAt).toLocaleTimeString()}</div>
+            </div>
+            <div class="text-2xl font-extrabold">$ ${fmtMoney(o.total)}</div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  document.getElementById("refresh").onclick = getOrders;
+  document.getElementById("date").addEventListener("change", getOrders);
+  document.getElementById("status").addEventListener("change", getOrders);
+
+  (async function init(){
+    // ✅ Guard al cargar
+    if(!requireAuth()) return;
+
+    CONFIG = await loadConfig();
+    document.getElementById("date").value = todayInputValue();
+    await getOrders();
+  })();
+</script>
+
+</body>
+</html>

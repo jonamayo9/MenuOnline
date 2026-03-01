@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menú Online</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+    :root { --accent: #d97706; --primary: #0f172a; --bg: #f8fafc; }
+    body{ font-family:'Plus Jakarta Sans',sans-serif; background:var(--bg); color:var(--primary); margin:0; }
+    .no-scrollbar::-webkit-scrollbar{ display:none; }
+
+    .tab-btn{
+      position:relative; transition:.2s ease;
+      color:#94a3b8; font-size:13px; font-weight:800;
+      padding:10px 2px; white-space:nowrap;
+    }
+    .tab-btn:hover{ color:#334155; }
+    .tab-active{ color:var(--primary); }
+    .tab-active::after{
+      content:''; position:absolute; left:0; bottom:2px;
+      width:100%; height:3px; border-radius:999px;
+      background:var(--accent);
+      box-shadow:0 8px 16px rgba(217,119,6,.18);
+    }
+
+    .food-card{
+      background:white; border-radius:26px;
+      border:1px solid rgba(148,163,184,.35);
+      box-shadow:0 8px 24px rgba(15,23,42,0.05);
+      transition:.18s ease;
+    }
+    .food-card:hover{ transform: translateY(-2px); box-shadow:0 18px 36px rgba(15,23,42,.08); }
+
+    #modal-checkout{
+      display:none; position:fixed; inset:0; z-index:100;
+      background: rgba(2,6,23,.55);
+      backdrop-filter: blur(10px);
+    }
+
+    @media print {
+      @page { margin:0; size:80mm auto; }
+      body * { display:none !important; }
+      #ticket-imprimir, #ticket-imprimir * { display:block !important; }
+      #ticket-imprimir{
+        position:absolute; left:0; top:0; width:80mm !important;
+        padding:4mm !important; background:white !important; color:black !important;
+        font-family:'Courier New',Courier,monospace !important;
+        font-size:12px !important; line-height:1.2 !important;
+      }
+      .no-print{ display:none !important; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- (Opcional) Ticket impresión -->
+  <div id="ticket-imprimir" class="hidden flex-col items-center">
+    <div id="ticket-detalle" class="w-full"></div>
+    <button onclick="window.print()" class="mt-6 no-print bg-slate-800 text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest">
+      <i class="fa-solid fa-print mr-2"></i> Imprimir Ticket
+    </button>
+  </div>
+
+  <div id="app-view" class="min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-40">
+      <!-- Top bar -->
+      <div class="bg-white/85 backdrop-blur border-b border-slate-100">
+        <div class="max-w-5xl mx-auto px-5 py-4 flex items-center justify-between gap-4">
+          <div class="flex items-center gap-4 min-w-0">
+            <div class="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center">
+              <img id="companyLogo" src="" alt="Logo" class="w-full h-full object-cover hidden">
+              <div id="companyLogoPh" class="text-slate-300 text-xl"><i class="fa-solid fa-utensils"></i></div>
+            </div>
+
+            <div class="min-w-0">
+              <h1 id="companyName" class="text-xl font-extrabold tracking-tight text-slate-900 leading-none truncate">Menú</h1>
+              <div class="mt-1 flex items-center gap-2 flex-wrap">
+                <span id="badgeOpen" class="hidden text-[10px] px-3 py-1 rounded-full font-black border tracking-tighter"></span>
+                <span class="text-[10px] text-amber-700 bg-amber-50 border border-amber-100 px-3 py-1 rounded-full font-extrabold uppercase tracking-widest">
+                  Pedido online
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <!-- Buscador desktop -->
+            <div class="hidden sm:block">
+              <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input id="search"
+                  placeholder="Buscar..."
+                  class="w-72 bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-2 text-sm outline-none
+                         focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition"/>
+              </div>
+            </div>
+
+            <button id="btnWhatsApp"
+              class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-900 text-white font-extrabold text-xs shadow
+                     hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all">
+              <i class="fa-brands fa-whatsapp text-base"></i>
+              WhatsApp
+            </button>
+          </div>
+        </div>
+
+        <!-- Buscador mobile -->
+        <div class="max-w-5xl mx-auto px-5 pb-4 sm:hidden">
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input id="searchMobile"
+              placeholder="Buscar..."
+              class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-sm outline-none
+                     focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition"/>
+          </div>
+
+          <button id="btnWhatsAppMobile"
+            class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-slate-900 text-white font-extrabold text-xs shadow">
+            <i class="fa-brands fa-whatsapp text-base"></i>
+            WhatsApp
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div id="tabsWrap" class="bg-white border-b border-slate-100">
+        <nav class="max-w-5xl mx-auto px-5 py-2 flex gap-8 overflow-x-auto no-scrollbar">
+          <div id="tabs-categorias" class="flex gap-8"></div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="flex-grow">
+      <div class="max-w-5xl mx-auto px-5 py-6">
+
+        <!-- NOT FOUND / ERROR VIEW -->
+        <div id="notFoundView" class="hidden">
+          <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-10 text-center">
+            <div class="text-6xl">😢</div>
+            <div class="mt-4 text-2xl font-extrabold text-slate-900">No se encontró la empresa</div>
+            <div id="notFoundMsg" class="mt-2 text-sm text-slate-500">
+              Revisá el link o el companySlug.
+            </div>
+
+            <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+              <button id="btnTryAgain"
+                class="px-5 py-3 rounded-2xl bg-slate-100 text-slate-800 font-extrabold text-xs hover:bg-slate-200 transition">
+                Reintentar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- HERO / HORARIOS -->
+        <div id="heroInfo" class="mb-6">
+          <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div class="min-w-0 w-full">
+              <div class="text-[10px] text-slate-400 font-black uppercase tracking-[0.35em] flex items-center gap-2">
+                <i class="fa-regular fa-clock"></i> Horarios
+              </div>
+
+              <div id="scheduleWrap" class="mt-3 space-y-2"></div>
+
+              <div id="scheduleHint" class="mt-3 text-xs text-slate-500 hidden">
+                No hay horarios cargados. Se asume abierto.
+              </div>
+            </div>
+
+            <div class="flex gap-2 shrink-0">
+              <button id="btnRefresh"
+                class="px-4 py-3 rounded-2xl bg-slate-100 text-slate-800 font-extrabold text-xs hover:bg-slate-200 transition">
+                <i class="fa-solid fa-rotate-right mr-2"></i> Actualizar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="lista-platos" class="grid grid-cols-1 sm:grid-cols-2 gap-5"></div>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="mt-auto bg-white border-t border-slate-100">
+      <div class="max-w-5xl mx-auto px-5 py-8 text-center">
+        <p class="text-[10px] text-slate-400 font-black tracking-[0.35em] uppercase">MenuOnline</p>
+        <p class="text-sm text-slate-700 font-bold mt-2">Pedidos simples, rápidos y sin vueltas.</p>
+
+        <div class="mt-5 inline-flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div class="text-xs text-slate-500">
+            Desarrollado por <span class="font-extrabold text-slate-800">Jony</span>
+          </div>
+          <button id="btnDevWpp"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-600 text-white font-extrabold text-xs shadow hover:shadow-lg transition">
+            <i class="fa-brands fa-whatsapp"></i>
+            Quiero uno para mi negocio
+          </button>
+        </div>
+      </div>
+    </footer>
+
+    <!-- BARRA CARRITO -->
+    <div id="barra-carrito"
+      class="fixed bottom-6 left-4 right-4 max-w-lg mx-auto bg-slate-900 text-white shadow-2xl rounded-3xl p-5
+             flex justify-between items-center transform translate-y-40 transition-all duration-500 z-50">
+      <div class="pl-2">
+        <p class="text-[9px] font-bold uppercase opacity-40 tracking-widest">Total Pedido</p>
+        <p class="text-2xl font-black text-amber-500 leading-none mt-1">$<span id="total-monto">0</span></p>
+      </div>
+      <button onclick="abrirCheckout()"
+        class="bg-amber-600 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase active:scale-95 transition-all shadow-lg">
+        Revisar Pedido <i class="fa-solid fa-arrow-right ml-1"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL CHECKOUT -->
+  <div id="modal-checkout" class="flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden border border-slate-100">
+      <div class="absolute top-0 left-0 w-full h-2 bg-amber-600"></div>
+      <h2 class="text-2xl font-black mb-6 text-slate-900 tracking-tight text-center">Detalle de compra</h2>
+
+      <div id="resumen-pedido"
+        class="bg-slate-50 rounded-2xl p-5 mb-6 text-sm divide-y divide-slate-100 text-slate-600 max-h-48 overflow-y-auto"></div>
+
+      <div class="space-y-4 mb-6">
+        <input type="text" id="nombre-cliente" placeholder="Tu nombre"
+          class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-slate-100 text-slate-800">
+        <input type="text" id="direccion-cliente" placeholder="Dirección de entrega"
+          class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-slate-100 text-slate-800">
+        <select id="pago-cliente"
+          class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border border-slate-100"
+          onchange="calcularTotalFinal()">
+          <option value="Efectivo">💵 Efectivo</option>
+          <option value="Transferencia">💳 Transferencia (+10%)</option>
+        </select>
+      </div>
+
+      <div class="bg-slate-50 p-6 rounded-2xl mb-6 space-y-3 text-sm">
+        <div class="flex justify-between text-slate-500 font-medium text-xs"><span>Subtotal:</span><span id="det-subtotal"></span></div>
+        <div id="row-recargo" class="flex justify-between text-amber-600 hidden font-black text-xs">
+          <span>Diferencia Transf. (10%):</span><span id="det-recargo"></span>
+        </div>
+        <div class="flex justify-between text-slate-900 text-2xl font-black pt-3 border-t border-slate-200">
+          <span>TOTAL:</span><span id="monto-final-checkout"></span>
+        </div>
+      </div>
+
+      <div id="alias-card"
+        class="hidden bg-slate-900 p-5 rounded-2xl mb-6 flex justify-between items-center text-white">
+        <span class="font-black text-xs text-amber-500 uppercase tracking-tighter" id="txt-alias"></span>
+        <button onclick="copiarAlias()"
+          class="text-[10px] bg-amber-600 text-white px-3 py-1.5 rounded-xl font-bold uppercase shadow-md">
+          Copiar
+        </button>
+      </div>
+
+      <button id="btn-confirmar-final" onclick="enviarWhatsApp()"
+        class="w-full bg-amber-600 text-white py-5 rounded-3xl font-black text-lg shadow-xl active:scale-95 transition-all">
+        ENVIAR PEDIDO <i class="fa-brands fa-whatsapp ml-1"></i>
+      </button>
+      <button onclick="cerrarModales()"
+        class="w-full text-slate-400 mt-4 text-[10px] font-bold uppercase">
+        Volver
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ============================
+    // CONFIG DEV (CAMBIAR ESTO)
+    // ============================
+    const DEV_WHATSAPP = "54911XXXXXXXXXX";
+
+    // ponelo en true si querés ver logs de imágenes
+    const DEBUG_IMAGES = false;
+
+    // ============================
+    // STATE
+    // ============================
+    let CFG = {};
+    let DTO = null;
+    let Company = { name:"", alias:"", whatsapp:"", logoUrl:"", turnos:[] };
+    let Categories = [];
+    let Items = [];
+    let carrito = {};
+    let catActual = "";
+    let searchText = "";
+
+    const SLUG_KEY = "menuonline_companySlug";
+    const CONFIG_PATH = "config.json";
+
+    // ============================
+    // URL / helpers
+    // ============================
+    function getCompanySlug(){
+      const qs = new URLSearchParams(location.search);
+      const fromQuery = (qs.get("companySlug") || qs.get("c") || "").trim();
+      if(fromQuery) return fromQuery;
+
+      const fromLs = (localStorage.getItem(SLUG_KEY) || "").trim();
+      if(fromLs) return fromLs;
+
+      return "";
+    }
+
+    function apiUrl(path){
+      const base = String(CFG.apiBaseUrl || "").replace(/\/+$/,"");
+      return base + (String(path).startsWith("/") ? path : ("/" + path));
+    }
+
+    function imgUrl(path){
+      const s = String(path || "").trim();
+      if(!s) return "";
+
+      if(s.startsWith("http://") || s.startsWith("https://")) return s;
+
+      // si te quedó guardada del front (error típico), la cortamos para que apunte al API
+      if(s.includes("localhost:5600")){
+        try{
+          const u = new URL(s);
+          return apiUrl(u.pathname);
+        }catch{}
+      }
+
+      return apiUrl(s.startsWith("/") ? s : ("/" + s));
+    }
+
+    function toBool(v){
+      if(typeof v === "boolean") return v;
+      if(typeof v === "number") return v !== 0;
+      if(typeof v === "string") return v.toLowerCase() === "true";
+      return !!v;
+    }
+
+    function normText(s){ return String(s ?? "").toLowerCase().trim(); }
+
+    function formatMoney(n){
+      const num = Number(n);
+      if(Number.isNaN(num)) return "0";
+      return num.toLocaleString("es-AR");
+    }
+
+    function sanitizePhone(v){ return String(v || "").replace(/\D/g, ""); }
+
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function escapeAttr(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function placeholderSvgDataUrl(){
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400">
+          <defs><linearGradient id="g" x1="0" x2="1">
+            <stop offset="0" stop-color="#f1f5f9"/><stop offset="1" stop-color="#e2e8f0"/>
+          </linearGradient></defs>
+          <rect width="100%" height="100%" fill="url(#g)"/>
+          <circle cx="200" cy="160" r="54" fill="#cbd5e1"/>
+          <rect x="110" y="240" width="180" height="24" rx="12" fill="#cbd5e1"/>
+          <rect x="140" y="280" width="120" height="18" rx="9" fill="#e2e8f0"/>
+        </svg>`;
+      return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+    }
+
+    // ============================
+    // ERROR VIEW
+    // ============================
+    function showNotFound(msg){
+      document.getElementById("notFoundView").classList.remove("hidden");
+      document.getElementById("notFoundMsg").textContent = msg || "Revisá el link o el companySlug.";
+
+      document.getElementById("heroInfo").classList.add("hidden");
+      document.getElementById("tabsWrap").classList.add("hidden");
+      document.getElementById("lista-platos").innerHTML = "";
+    }
+
+    function hideNotFound(){
+      document.getElementById("notFoundView").classList.add("hidden");
+      document.getElementById("heroInfo").classList.remove("hidden");
+      document.getElementById("tabsWrap").classList.remove("hidden");
+    }
+
+    // ============================
+    // LOAD
+    // ============================
+    async function loadConfig(){
+      const res = await fetch(CONFIG_PATH, { cache:"no-store" });
+      if(!res.ok) throw new Error("No pude leer config.json");
+      CFG = await res.json();
+      if(!CFG.apiBaseUrl) throw new Error("config.json sin apiBaseUrl");
+    }
+
+    async function loadPublicMenu(companySlug){
+      if(!companySlug){
+        showNotFound("Falta companySlug. Abrí con ?companySlug=como-en-casa");
+        throw new Error("Missing slug");
+      }
+
+      const res = await fetch(apiUrl(`/api/public/${companySlug}/menu`), { cache:"no-store" });
+
+      if(res.status === 404){
+        showNotFound(`La empresa "${companySlug}" no existe.`);
+        throw new Error("Company not found");
+      }
+
+      if(!res.ok){
+        const t = await res.text().catch(()=> "");
+        console.error("API menu error:", res.status, t);
+        showNotFound("No se pudo cargar el menú. Probá más tarde.");
+        throw new Error("Menu load failed");
+      }
+
+      DTO = await res.json();
+    }
+
+    // ============================
+    // MAP DTO (tolerante)
+    // ============================
+    function mapDto(dto){
+      const c = dto?.company || dto?.Company || dto?.negocio || dto?.Negocio || {};
+
+      Company = {
+        name: c.name ?? c.Name ?? c.nombre ?? c.Nombre ?? "",
+        alias: c.alias ?? c.Alias ?? "",
+        whatsapp: c.whatsapp ?? c.Whatsapp ?? c.telefono ?? c.Telefono ?? "",
+        logoUrl: c.logoUrl ?? c.LogoUrl ?? c.logo ?? c.Logo ?? "",
+        turnos: c.turnos ?? c.Turnos ?? []
+      };
+
+      const cats = dto?.categories ?? dto?.Categories ?? dto?.categorias ?? dto?.Categorias ?? [];
+      Categories = Array.isArray(cats) ? cats.map(x => ({
+        id: x.id ?? x.Id ?? 0,
+        name: x.name ?? x.Name ?? x.nombre ?? x.Nombre ?? "",
+        enabled: toBool(x.enabled ?? x.Enabled ?? true),
+        sortOrder: x.sortOrder ?? x.SortOrder ?? 0
+      })) : [];
+
+      const items = dto?.items ?? dto?.Items ?? dto?.menu ?? dto?.Menu ?? [];
+      Items = Array.isArray(items) ? items.map(x => ({
+        id: x.id ?? x.Id ?? 0,
+        name: x.name ?? x.Name ?? x.nombre ?? x.Nombre ?? "",
+        description: x.description ?? x.Description ?? x.descripcion ?? x.Descripcion ?? "",
+        price: x.price ?? x.Price ?? x.precio ?? x.Precio ?? 0,
+        enabled: toBool(x.enabled ?? x.Enabled ?? true),
+        categoryId: x.categoryId ?? x.CategoryId ?? 0,
+        categoryName: x.categoryName ?? x.CategoryName ?? x.categoria ?? x.Categoria ?? "",
+        imageUrl: x.imageUrl ?? x.ImageUrl ?? x.img ?? x.Img ?? ""
+      })) : [];
+
+      // fallback categoryName por id
+      const map = new Map(Categories.map(cc => [cc.id, cc.name]));
+      Items.forEach(i => {
+        if(!i.categoryName && i.categoryId && map.has(i.categoryId)){
+          i.categoryName = map.get(i.categoryId);
+        }
+      });
+    }
+
+    // ============================
+    // UI: header + whatsapp empresa
+    // ============================
+    function setOpenBadge(type){
+      const el = document.getElementById("badgeOpen");
+      el.classList.remove("hidden");
+      if(type === "open"){
+        el.className = "text-[10px] px-3 py-1 rounded-full font-black border tracking-tighter bg-emerald-50 text-emerald-700 border-emerald-100";
+        el.innerHTML = "● ABIERTO";
+      } else {
+        el.className = "text-[10px] px-3 py-1 rounded-full font-black border tracking-tighter bg-rose-50 text-rose-700 border-rose-100";
+        el.innerHTML = "CERRADO";
+      }
+    }
+
+    function aplicarEmpresaEnHeader(){
+      document.title = Company.name ? `${Company.name} · Menú Online` : "Menú Online";
+      document.getElementById("companyName").textContent = Company.name || "Menú";
+
+      const logo = imgUrl(Company.logoUrl);
+      const imgEl = document.getElementById("companyLogo");
+      const phEl = document.getElementById("companyLogoPh");
+
+      if(logo){
+        imgEl.src = logo;
+        imgEl.classList.remove("hidden");
+        phEl.classList.add("hidden");
+      } else {
+        imgEl.classList.add("hidden");
+        phEl.classList.remove("hidden");
+      }
+
+      const phone = sanitizePhone(Company.whatsapp);
+      const btnW = document.getElementById("btnWhatsApp");
+      const btnWM = document.getElementById("btnWhatsAppMobile");
+
+      if(phone){
+        btnW.classList.remove("hidden");
+        btnWM.classList.remove("hidden");
+        btnW.onclick = () => window.open(`https://wa.me/${phone}`, "_blank");
+        btnWM.onclick = () => window.open(`https://wa.me/${phone}`, "_blank");
+      } else {
+        btnW.classList.add("hidden");
+        btnWM.classList.add("hidden");
+      }
+    }
+
+    // ============================
+    // HORARIOS
+    // ============================
+    function parseShiftLabel(t){
+      if(!t) return "";
+
+      const d = t.dia ?? t.Dia ?? t.dayOfWeek ?? t.DayOfWeek;
+      if(d !== null && d !== undefined && d !== ""){
+        const n = Number(d);
+        const map = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+        if(!Number.isNaN(n) && n >= 0 && n <= 6) return map[n];
+      }
+
+      const raw = String(t.day ?? t.Day ?? t.days ?? t.Days ?? "").trim();
+      if(!raw) return "";
+      if(raw.toLowerCase() === "todos") return "Lunes a Viernes";
+      return raw;
+    }
+
+    function parseShiftHours(t){
+      const a = t?.abre ?? t?.Abre ?? t?.from ?? t?.From ?? t?.open ?? t?.Open;
+      const c = t?.cierra ?? t?.Cierra ?? t?.to ?? t?.To ?? t?.close ?? t?.Close;
+
+      const fmt = (v) => {
+        if(v === null || v === undefined) return "";
+        if(typeof v === "number" && !Number.isNaN(v)) return String(v).padStart(2,"0") + ":00";
+        return String(v).trim();
+      };
+
+      return { abre: fmt(a), cierra: fmt(c) };
+    }
+
+    function renderHorarios(){
+      const wrap = document.getElementById("scheduleWrap");
+      const hint = document.getElementById("scheduleHint");
+      wrap.innerHTML = "";
+
+      const turnos = Array.isArray(Company.turnos) ? Company.turnos : [];
+
+      if(!turnos.length){
+        hint.classList.remove("hidden");
+        wrap.innerHTML = `
+          <div class="text-sm font-extrabold text-slate-900">Sin horarios cargados</div>
+          <div class="text-xs text-slate-500">Se asume abierto.</div>
+        `;
+        return;
+      }
+
+      hint.classList.add("hidden");
+
+      const anyHasDay = turnos.some(t => parseShiftLabel(t));
+
+      if(!anyHasDay){
+        const ranges = turnos.map(t => {
+          const h = parseShiftHours(t);
+          if(!h.abre || !h.cierra) return null;
+          return `${h.abre} - ${h.cierra}`;
+        }).filter(Boolean);
+
+        wrap.innerHTML = `
+          <div class="flex items-start justify-between gap-3">
+            <div class="text-sm font-extrabold text-slate-900">Horarios</div>
+            <div class="text-sm font-black text-slate-800">${ranges.length ? ranges.join(" · ") : "—"}</div>
+          </div>
+        `;
+        return;
+      }
+
+      const rows = [];
+      for(const t of turnos){
+        const day = parseShiftLabel(t);
+        const h = parseShiftHours(t);
+        if(!day) continue;
+        const hoursTxt = (h.abre && h.cierra) ? `${h.abre} - ${h.cierra}` : "—";
+        rows.push({ day, hoursTxt });
+      }
+
+      if(!rows.length){
+        wrap.innerHTML = `<div class="text-sm text-slate-500">No hay horarios válidos para mostrar.</div>`;
+        return;
+      }
+
+      wrap.innerHTML = rows.map(r => `
+        <div class="flex items-center justify-between gap-4 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
+          <div class="text-sm font-extrabold text-slate-900 truncate">${escapeHtml(r.day)}</div>
+          <div class="text-sm font-black text-slate-800 whitespace-nowrap">${escapeHtml(r.hoursTxt)}</div>
+        </div>
+      `).join("");
+    }
+
+    // ============================
+    // OPEN/CLOSED
+    // ============================
+    function validarHorario(){
+      const btn = document.getElementById("btn-confirmar-final");
+      const turnos = Array.isArray(Company.turnos) ? Company.turnos : [];
+
+      if(!turnos.length){
+        setOpenBadge("open");
+        btn.disabled = false;
+        btn.classList.remove("bg-slate-100");
+        btn.classList.add("bg-amber-600");
+        btn.innerHTML = `ENVIAR PEDIDO <i class="fa-brands fa-whatsapp ml-1"></i>`;
+        return;
+      }
+
+      const anyHasDay = turnos.some(t => parseShiftLabel(t));
+      if(anyHasDay){
+        setOpenBadge("open");
+        btn.disabled = false;
+        btn.classList.remove("bg-slate-100");
+        btn.classList.add("bg-amber-600");
+        btn.innerHTML = `ENVIAR PEDIDO <i class="fa-brands fa-whatsapp ml-1"></i>`;
+        return;
+      }
+
+      const ahora = new Date();
+      const dia = ahora.getDay();
+      const minutos = ahora.getHours()*60 + ahora.getMinutes();
+
+      if(dia === 1){
+        setOpenBadge("closed");
+        btn.disabled = true;
+        btn.classList.remove("bg-amber-600");
+        btn.classList.add("bg-slate-100");
+        btn.innerText = "LOCAL CERRADO";
+        return;
+      }
+
+      let abierto = false;
+      for(const t of turnos){
+        const abreH = Number(t.abre ?? t.Abre);
+        const cierraH = Number(t.cierra ?? t.Cierra);
+        if(Number.isNaN(abreH) || Number.isNaN(cierraH)) continue;
+
+        const abre = abreH * 60;
+        const cierra = cierraH * 60;
+
+        if(minutos >= abre && minutos < cierra){
+          abierto = true; break;
+        }
+      }
+
+      if(abierto){
+        setOpenBadge("open");
+        btn.disabled = false;
+        btn.classList.remove("bg-slate-100");
+        btn.classList.add("bg-amber-600");
+        btn.innerHTML = `ENVIAR PEDIDO <i class="fa-brands fa-whatsapp ml-1"></i>`;
+      } else {
+        setOpenBadge("closed");
+        btn.disabled = true;
+        btn.classList.remove("bg-amber-600");
+        btn.classList.add("bg-slate-100");
+        btn.innerText = "LOCAL CERRADO";
+      }
+    }
+
+    // ============================
+    // Categorías + render
+    // ============================
+    function wireSearch(){
+      const s1 = document.getElementById("search");
+      const s2 = document.getElementById("searchMobile");
+
+      const onChange = (val) => {
+        searchText = val ?? "";
+        const cats = buildCategorias();
+
+        if(catActual && !cats.includes(catActual)) catActual = cats[0] || "";
+        if(!catActual) catActual = cats[0] || "";
+
+        renderTabs(cats);
+        renderMenu();
+      };
+
+      if(s1) s1.addEventListener("input", e => onChange(e.target.value));
+      if(s2) s2.addEventListener("input", e => onChange(e.target.value));
+    }
+
+    function buildCategorias(){
+      const enabledItems = Items.filter(x => x.enabled);
+      const q = normText(searchText);
+
+      const filtered = q
+        ? enabledItems.filter(p => normText(p.name).includes(q) || normText(p.description).includes(q))
+        : enabledItems;
+
+      const set = new Set(filtered.map(p => p.categoryName).filter(Boolean));
+
+      const ordered = Categories
+        .filter(c => c.enabled && set.has(c.name))
+        .sort((a,b) => (a.sortOrder||0) - (b.sortOrder||0))
+        .map(c => c.name);
+
+      return ordered.length ? ordered : Array.from(set);
+    }
+
+    function renderTabs(cats){
+      const el = document.getElementById("tabs-categorias");
+      el.innerHTML = "";
+
+      if(!cats.length){
+        el.innerHTML = `<div class="text-xs text-slate-400 font-semibold py-2">No hay categorías disponibles.</div>`;
+        return;
+      }
+
+      cats.forEach(c => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "tab-btn";
+        b.textContent = c;
+        b.dataset.cat = c;
+        b.onclick = () => cambiarCat(c);
+        if(c === catActual) b.classList.add("tab-active");
+        el.appendChild(b);
+      });
+    }
+
+    function cambiarCat(cat){
+      catActual = cat;
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("tab-active"));
+      document.querySelectorAll(`.tab-btn[data-cat="${CSS.escape(cat)}"]`).forEach(b => b.classList.add("tab-active"));
+      renderMenu();
+    }
+
+    // ✅ CLAVE: acá evitamos que el item use /uploads/companies/ (logo)
+    function isBadItemImage(raw){
+      const s = String(raw || "").trim();
+      if(!s) return true;
+
+      const companyLogoRaw = String(Company.logoUrl || "").trim();
+
+      // si el item trae el mismo path que el logo => mal
+      if(companyLogoRaw && s === companyLogoRaw) return true;
+
+      // si apunta a la carpeta de companies => es logo, no item
+      if(s.includes("/uploads/companies/")) return true;
+
+      return false;
+    }
+
+    function renderMenu(){
+      const container = document.getElementById("lista-platos");
+      container.innerHTML = "";
+
+      let items = Items.filter(x => x.enabled);
+
+      if(catActual) items = items.filter(p => p.categoryName === catActual);
+
+      const q = normText(searchText);
+      if(q){
+        items = items.filter(p => normText(p.name).includes(q) || normText(p.description).includes(q));
+      }
+
+      if(!items.length){
+        container.innerHTML = `
+          <div class="bg-white rounded-3xl border border-slate-200 p-8 text-center text-slate-500">
+            No hay productos para mostrar.
+          </div>
+        `;
+        return;
+      }
+
+      const ph = placeholderSvgDataUrl();
+
+      items.forEach(p => {
+        const inCart = carrito[p.id]?.qty || 0;
+
+        const raw = String(p.imageUrl || "").trim();
+
+        let img = ph;
+        if(!isBadItemImage(raw)){
+          const resolved = imgUrl(raw);
+          // cache bust
+          img = resolved + (resolved.includes("?") ? "&" : "?") + "v=" + (p.id || Date.now());
+        }
+
+        if(DEBUG_IMAGES){
+          console.log("ITEM:", p.id, p.name);
+          console.log("RAW imageUrl:", raw);
+          console.log("COMPANY logoUrl:", Company.logoUrl);
+          console.log("FINAL IMG:", img);
+        }
+
+        const card = document.createElement("div");
+        card.className = "food-card p-5 flex gap-4 items-start";
+
+        card.innerHTML = `
+          <div class="w-24 h-24 rounded-3xl overflow-hidden bg-slate-50 border border-slate-100 shadow-sm shrink-0">
+            <img src="${img}" class="w-full h-full object-cover" onerror="this.src='${ph}'" />
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <h3 class="font-extrabold text-slate-900 text-base leading-tight tracking-tight truncate">${escapeHtml(p.name)}</h3>
+                ${p.description ? `<p class="text-xs text-slate-500 mt-1">${escapeHtml(p.description)}</p>` : ``}
+              </div>
+
+              <div class="text-right shrink-0">
+                <div class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Precio</div>
+                <div class="text-2xl font-black text-slate-900 leading-none mt-1">$${formatMoney(p.price)}</div>
+              </div>
+            </div>
+
+            <input type="text"
+              placeholder="Aclaración..."
+              value="${escapeAttr(carrito[p.id]?.note || "")}"
+              class="mt-3 w-full text-[11px] bg-transparent border-b border-slate-100 py-2 outline-none text-slate-500 focus:border-amber-400 transition-all"
+              oninput="actualizarNota(${p.id}, this.value)" />
+
+            <div class="mt-4 flex items-center gap-4">
+              <button class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-600 border border-slate-100 hover:bg-slate-200 transition"
+                onclick="modificar(${p.id}, -1)">-</button>
+
+              <span class="font-black text-lg w-6 text-center text-slate-800">${inCart}</span>
+
+              <button class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center font-black active:scale-90 shadow-md shadow-amber-100 transition"
+                onclick="modificar(${p.id}, 1)">+</button>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // ============================
+    // CARRITO
+    // ============================
+    function modificar(id, delta){
+      const item = Items.find(x => x.id === id);
+      if(!item) return;
+
+      if(!carrito[id]){
+        carrito[id] = { id:item.id, name:item.name, price:Number(item.price)||0, qty:0, note:"" };
+      }
+
+      carrito[id].qty += delta;
+      if(carrito[id].qty <= 0) delete carrito[id];
+
+      renderMenu();
+      actualizarBarra();
+    }
+
+    function actualizarNota(id, texto){
+      if(carrito[id]) carrito[id].note = texto || "";
+    }
+
+    function actualizarBarra(){
+      let total = 0; let items = 0;
+      Object.values(carrito).forEach(p => { total += (p.price * p.qty); items += p.qty; });
+      document.getElementById("total-monto").innerText = formatMoney(total);
+      document.getElementById("barra-carrito").style.transform = items > 0 ? "translateY(0)" : "translateY(200px)";
+    }
+
+    // ============================
+    // CHECKOUT
+    // ============================
+    function calcularTotalFinal(){
+      let subtotal = 0;
+      Object.values(carrito).forEach(p => { subtotal += p.price * p.qty; });
+
+      const pago = document.getElementById("pago-cliente").value;
+      const recargo = (pago === "Transferencia") ? Math.round(subtotal * 0.10) : 0;
+
+      const hasAlias = !!String(Company.alias || "").trim();
+      document.getElementById("row-recargo").classList.toggle("hidden", pago !== "Transferencia");
+      document.getElementById("alias-card").classList.toggle("hidden", !(pago === "Transferencia" && hasAlias));
+
+      document.getElementById("det-subtotal").innerText = "$" + formatMoney(subtotal);
+      document.getElementById("det-recargo").innerText = "$" + formatMoney(recargo);
+      document.getElementById("monto-final-checkout").innerText = "$" + formatMoney(subtotal + recargo);
+    }
+
+    function abrirCheckout(){
+      const resumen = document.getElementById("resumen-pedido");
+      resumen.innerHTML = "";
+
+      Object.values(carrito).forEach(p => {
+        resumen.innerHTML += `
+          <div class="py-2 flex justify-between gap-4">
+            <span class="truncate">${p.qty}x ${escapeHtml(p.name)}${p.note ? ` <span class="text-slate-400">(${escapeHtml(p.note)})</span>` : ""}</span>
+            <b class="text-amber-600 font-black">$${formatMoney(p.price * p.qty)}</b>
+          </div>`;
+      });
+
+      document.getElementById("modal-checkout").style.display = "flex";
+      calcularTotalFinal();
+    }
+
+    function cerrarModales(){
+      document.getElementById("modal-checkout").style.display = "none";
+    }
+
+    function copiarAlias(){
+      const a = String(Company.alias || "").trim();
+      if(!a) return;
+      navigator.clipboard.writeText(a);
+      alert("¡Alias copiado!");
+    }
+
+    async function enviarWhatsApp(){
+      const nombre = document.getElementById("nombre-cliente").value.trim();
+      const direccion = document.getElementById("direccion-cliente").value.trim();
+      const pago = document.getElementById("pago-cliente").value;
+
+      if(!nombre || !direccion){
+        alert("Completá tu nombre y dirección.");
+        return;
+      }
+
+      const items = Object.values(carrito).map(p => ({
+        menuItemId: p.id,
+        qty: p.qty,
+        note: p.note || ""
+      }));
+
+      if(!items.length){
+        alert("Agregá al menos 1 producto.");
+        return;
+      }
+
+      const phone = sanitizePhone(Company.whatsapp);
+      if(!phone){
+        alert("No hay WhatsApp configurado en la empresa.");
+        return;
+      }
+
+      const btn = document.getElementById("btn-confirmar-final");
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = "ENVIANDO...";
+
+      try{
+        const slug = getCompanySlug();
+        const resp = await fetch(apiUrl(`/api/public/${slug}/orders`), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customerName: nombre,
+            address: direccion,
+            paymentMethod: pago,
+            items
+          })
+        });
+
+        if(!resp.ok){
+          const err = await resp.text().catch(()=> "");
+          console.error("API order error:", err);
+          alert("No se pudo registrar el pedido. Probá de nuevo.");
+          return;
+        }
+
+        const created = await resp.json().catch(()=> ({}));
+
+        let subtotal = 0;
+        Object.values(carrito).forEach(p => subtotal += p.price * p.qty);
+        const recargo = (pago === "Transferencia") ? Math.round(subtotal * 0.10) : 0;
+        const total = subtotal + recargo;
+
+        let msg = `*✅ PEDIDO RECIBIDO*`;
+        if(created?.orderNumber) msg += ` *#${created.orderNumber}*`;
+        msg += `\n\n*Cliente:* ${nombre}\n*Dirección:* ${direccion}\n*Pago:* ${pago}\n`;
+        msg += `--------------------------\n`;
+
+        Object.values(carrito).forEach(p => {
+          msg += `• ${p.qty} x ${p.name} ($${formatMoney(p.price * p.qty)})\n`;
+          if(p.note) msg += `  _Nota: ${p.note}_\n`;
+        });
+
+        msg += `--------------------------\n*TOTAL: $${formatMoney(total)}*\n\nGracias 🙌`;
+
+        carrito = {};
+        cerrarModales();
+        actualizarBarra();
+        renderMenu();
+
+        window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+      }catch(e){
+        console.error(e);
+        alert("No hay conexión con el servidor.");
+      }finally{
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }
+    }
+
+    // ============================
+    // INIT
+    // ============================
+    function initDevFooter(){
+      const devPhone = sanitizePhone(DEV_WHATSAPP);
+      const btn = document.getElementById("btnDevWpp");
+
+      if(!devPhone || devPhone.includes("XXXXXXXX")){
+        btn.onclick = () => alert("Configurá tu WhatsApp en DEV_WHATSAPP dentro del index.html");
+        return;
+      }
+
+      btn.onclick = () => {
+        const msg = "Hola! Quiero un menú online como este para mi negocio.";
+        window.open(`https://wa.me/${devPhone}?text=${encodeURIComponent(msg)}`, "_blank");
+      };
+    }
+
+    async function init(){
+      try{
+        hideNotFound();
+
+        await loadConfig();
+
+        const slug = getCompanySlug();
+        if(!slug){
+          showNotFound("Falta companySlug. Ej: /index.html?companySlug=como-en-casa");
+          return;
+        }
+
+        await loadPublicMenu(slug);
+        mapDto(DTO);
+
+        if(!Company?.name){
+          showNotFound(`No se encontró la empresa "${slug}".`);
+          return;
+        }
+
+        aplicarEmpresaEnHeader();
+        renderHorarios();
+        validarHorario();
+        wireSearch();
+
+        const cats = buildCategorias();
+        catActual = cats[0] || "";
+        renderTabs(cats);
+        renderMenu();
+      }catch(e){
+        console.error(e);
+      }
+    }
+
+    document.getElementById("btnRefresh").addEventListener("click", init);
+    document.getElementById("btnTryAgain").addEventListener("click", init);
+
+    window.onload = () => {
+      initDevFooter();
+      init();
+    };
+  </script>
+</body>
+</html>

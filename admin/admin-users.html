@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SuperAdmin · Usuarios</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+  <div class="max-w-6xl mx-auto p-6">
+
+    <!-- HEADER -->
+    <div class="bg-white rounded-3xl shadow-sm p-6 mb-6 border border-slate-200">
+      <div class="flex items-start md:items-center justify-between gap-4 flex-wrap">
+        <div>
+          <div class="flex items-center gap-3 flex-wrap">
+            <button id="btnBackCompanies"
+              class="px-4 py-2 rounded-2xl bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200 transition">
+              ← Empresas
+            </button>
+
+            <button id="btnLogout"
+              class="px-4 py-2 rounded-2xl bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200 transition">
+              Salir
+            </button>
+
+            <div>
+              <h1 class="text-3xl font-extrabold tracking-tight">Usuarios</h1>
+              <p class="text-sm text-slate-500 mt-1">
+                ABM de usuarios de la empresa: <span id="companyName" class="font-semibold text-slate-800">—</span>
+                <span class="text-slate-400">(#</span><span id="companyIdTxt" class="text-slate-400">—</span><span class="text-slate-400">)</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 flex-wrap">
+          <button id="refresh"
+            class="px-5 py-3 rounded-2xl bg-slate-900 text-white font-semibold shadow hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+            Actualizar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM CREAR -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 mb-6">
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <div class="text-lg font-extrabold">Nuevo usuario (CompanyAdmin)</div>
+          <div class="text-sm text-slate-500 mt-1">Email + contraseña. Queda asociado a esta empresa.</div>
+        </div>
+      </div>
+
+      <div class="mt-5 grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+        <div class="md:col-span-2">
+          <label class="text-xs text-slate-400 mb-1 block">Email</label>
+          <input id="email" type="email" placeholder="admin@empresa.com"
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="text-xs text-slate-400 mb-1 block">Password</label>
+          <input id="password" type="password" placeholder="mínimo 4"
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
+        </div>
+
+        <div class="md:col-span-1">
+          <label class="text-xs text-slate-400 mb-1 block">Estado</label>
+          <select id="enabled"
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
+            <option value="true">Activo</option>
+            <option value="false">Inactivo</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-1 flex justify-end">
+          <button id="create"
+            class="w-full px-5 py-3 rounded-2xl bg-emerald-100 text-emerald-800 font-semibold hover:bg-emerald-200 transition">
+            Crear
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="flex justify-end items-center mb-3">
+      <div class="text-sm text-slate-500" id="summary"></div>
+    </div>
+
+    <!-- LIST -->
+    <div id="list" class="space-y-4"></div>
+  </div>
+
+  <!-- MODAL RESET PASSWORD -->
+  <div id="modal" class="hidden fixed inset-0 z-50">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+    <div class="relative max-w-lg mx-auto mt-16 bg-white rounded-3xl shadow-2xl border border-slate-200 p-6">
+      <div class="flex justify-between items-center mb-4">
+        <div class="text-xl font-extrabold">Reset password</div>
+        <button id="closeModal" class="px-3 py-2 hover:bg-slate-100 rounded-xl">✕</button>
+      </div>
+
+      <input type="hidden" id="resetUserId"/>
+
+      <div class="grid grid-cols-1 gap-4">
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Usuario</label>
+          <div id="resetUserEmail" class="font-semibold text-slate-800">—</div>
+        </div>
+
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Nueva contraseña</label>
+          <input id="resetPassword" type="password" placeholder="mínimo 4"
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+        </div>
+      </div>
+
+      <div class="mt-5 text-right">
+        <button id="btnReset"
+          class="px-4 py-2 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 hover:shadow-lg transition text-sm">
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toastContainer" class="fixed top-6 right-6 z-50"></div>
+
+  <script>
+    let CONFIG = null;
+    let usersCache = [];
+    let isRefreshing = false;
+
+    // company selected (viene desde companies.html)
+    const MANAGE_COMPANY_ID_KEY = "menuonline_manage_companyId";
+    const MANAGE_COMPANY_NAME_KEY = "menuonline_manage_companyName";
+
+    // =========================
+    // AUTH GUARD
+    // =========================
+    const TOKEN_KEY = "menuonline_token";
+    const SLUG_KEY  = "menuonline_companySlug";
+    const LOGIN_PAGE = "../login.html";
+    const CONFIG_PATH = "../../config.json"; // admin-users.html está en /admin/
+
+    const EXP_KEY   = "menuonline_token_exp_utc";
+    const LEEWAY_MS = 30000;
+
+    function logoutToLogin(){
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(EXP_KEY);
+      localStorage.removeItem(SLUG_KEY);
+      localStorage.removeItem("menuonline_role");
+      localStorage.removeItem("menuonline_isSuperAdmin");
+      location.replace(LOGIN_PAGE);
+    }
+
+    function isSessionValid(){
+      const token = localStorage.getItem(TOKEN_KEY);
+      const expUtc = localStorage.getItem(EXP_KEY);
+      if(!token || !expUtc) return false;
+
+      const expMs = Date.parse(expUtc);
+      if(Number.isNaN(expMs)) return false;
+
+      return (Date.now() + LEEWAY_MS) < expMs;
+    }
+
+    function requireAuth(){
+      if(!isSessionValid()){
+        logoutToLogin();
+        return false;
+      }
+      return true;
+    }
+
+    function authHeaders(extra = {}){
+      const token = localStorage.getItem(TOKEN_KEY);
+      return { ...extra, "Authorization": "Bearer " + token };
+    }
+
+    async function fetchAuth(url, options = {}){
+      if(!requireAuth()) return null;
+
+      const res = await fetch(url, {
+        ...options,
+        headers: authHeaders(options.headers || {})
+      });
+
+      if(res.status === 401 || res.status === 403){
+        logoutToLogin();
+        return null;
+      }
+      return res;
+    }
+
+    // =========================
+    // TOAST
+    // =========================
+    let activeToast = null;
+
+    function toast(message, type="info", ms=1600){
+      const container = document.getElementById("toastContainer");
+      if(activeToast){ activeToast.remove(); activeToast = null; }
+
+      const colors = { success:"bg-emerald-500", error:"bg-rose-500", info:"bg-slate-900" };
+      const icon = type==="success" ? "✓" : type==="error" ? "⚠" : "⏳";
+
+      const el = document.createElement("div");
+      el.className = `${colors[type]} text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[280px]
+                      transform transition-all duration-200 translate-y-2 opacity-0`;
+      el.innerHTML = `<div class="text-lg font-bold leading-none">${icon}</div>
+                      <div class="text-sm font-semibold">${message}</div>`;
+      container.appendChild(el);
+      activeToast = el;
+
+      requestAnimationFrame(()=> el.classList.remove("translate-y-2","opacity-0"));
+
+      setTimeout(()=>{
+        if(activeToast !== el) return;
+        el.classList.add("translate-y-2","opacity-0");
+        setTimeout(()=>{ if(activeToast===el) activeToast=null; el.remove(); }, 200);
+      }, ms);
+    }
+
+    // =========================
+    // HELPERS
+    // =========================
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function setSummary(items){
+      document.getElementById("summary").textContent = items.length ? `${items.length} usuario(s)` : "";
+    }
+
+    function badgeEnabled(enabled){
+      return enabled
+        ? `<span class="text-xs px-2 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-semibold">Activo</span>`
+        : `<span class="text-xs px-2 py-1 rounded-lg bg-slate-100 text-slate-600 font-semibold">Inactivo</span>`;
+    }
+
+    function fmtDate(dt){
+      if(!dt) return "—";
+      const d = new Date(dt);
+      if(String(d) === "Invalid Date") return "—";
+      return d.toLocaleString("es-AR");
+    }
+
+    // =========================
+    // CONFIG + API
+    // =========================
+    async function loadConfig(){
+      const r = await fetch(CONFIG_PATH, { cache: "no-store" });
+      if(!r.ok) throw new Error("No pude leer config.json");
+      return await r.json();
+    }
+
+    function getCompanyId(){
+      const v = localStorage.getItem(MANAGE_COMPANY_ID_KEY);
+      const id = Number(v);
+      return Number.isFinite(id) && id > 0 ? id : null;
+    }
+
+    async function apiGetUsers(companyId){
+      const url = `${CONFIG.apiBaseUrl}/api/superadmin/admin-users?companyId=${companyId}`;
+      const r = await fetchAuth(url);
+      if(!r) return [];
+      if(!r.ok) throw new Error("Error cargando usuarios");
+      const data = await r.json();
+      return Array.isArray(data) ? data : [];
+    }
+
+    async function apiCreateCompanyAdmin(payload){
+      const url = `${CONFIG.apiBaseUrl}/api/superadmin/admin-users/company-admin`;
+      return await fetchAuth(url, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    async function apiSetEnabled(userId, enabled){
+      const url = `${CONFIG.apiBaseUrl}/api/superadmin/admin-users/${userId}/enabled`;
+      return await fetchAuth(url, {
+        method:"PUT",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ enabled: !!enabled })
+      });
+    }
+
+    async function apiResetPassword(userId, newPassword){
+      const url = `${CONFIG.apiBaseUrl}/api/superadmin/admin-users/${userId}/password`;
+      return await fetchAuth(url, {
+        method:"PUT",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ password: newPassword })
+      });
+    }
+
+    // =========================
+    // RENDER
+    // =========================
+    function render(items){
+      const el = document.getElementById("list");
+      setSummary(items);
+
+      if(!items.length){
+        el.innerHTML = `
+          <div class="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm">
+            <div class="font-semibold">No hay usuarios</div>
+            <div class="text-sm text-slate-600 mt-1">Creá el primero desde el formulario.</div>
+          </div>`;
+        return;
+      }
+
+      el.innerHTML = items.map(u => `
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
+          <div class="flex items-start justify-between gap-4 flex-wrap">
+            <div class="min-w-[280px]">
+              <div class="flex items-center gap-2 flex-wrap">
+                <div class="text-lg font-extrabold">${escapeHtml(u.email)}</div>
+                ${badgeEnabled(!!u.enabled)}
+                <span class="text-xs px-2 py-1 rounded-xl bg-slate-100 text-slate-700 font-semibold">${escapeHtml(u.role || "CompanyAdmin")}</span>
+              </div>
+
+              <div class="text-xs text-slate-400 mt-2">
+                Id: ${u.id}
+                · Creado: ${fmtDate(u.createdAt)}
+                · Último login: ${fmtDate(u.lastLoginAt)}
+              </div>
+            </div>
+
+            <div class="flex gap-2 flex-wrap justify-end">
+              <button class="px-4 py-2 rounded-xl ${u.enabled ? "bg-slate-100 hover:bg-slate-200" : "bg-emerald-100 text-emerald-900 hover:bg-emerald-200"} transition font-semibold"
+                data-toggle="1" data-id="${u.id}">
+                ${u.enabled ? "Desactivar" : "Activar"}
+              </button>
+
+              <button class="px-4 py-2 rounded-xl bg-amber-100 text-amber-900 font-semibold hover:bg-amber-200 transition"
+                data-reset="1" data-id="${u.id}">
+                Reset password
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join("");
+
+      el.querySelectorAll("button[data-toggle='1']").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = Number(btn.getAttribute("data-id"));
+          const u = usersCache.find(x => x.id === id);
+          if(!u) return;
+
+          try{
+            toast("Guardando...", "info", 900);
+            const r = await apiSetEnabled(id, !u.enabled);
+            if(!r) return;
+
+            if(!r.ok){
+              const t = await r.text().catch(()=> "");
+              console.error(t);
+              toast("No se pudo cambiar estado", "error", 2000);
+              return;
+            }
+
+            toast("Actualizado ✅", "success", 1200);
+            await refresh();
+          }catch(e){
+            console.error(e);
+            toast("Error cambiando estado", "error", 2000);
+          }
+        });
+      });
+
+      el.querySelectorAll("button[data-reset='1']").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = Number(btn.getAttribute("data-id"));
+          const u = usersCache.find(x => x.id === id);
+          if(!u) return;
+
+          document.getElementById("resetUserId").value = String(u.id);
+          document.getElementById("resetUserEmail").textContent = u.email;
+          document.getElementById("resetPassword").value = "";
+          document.getElementById("modal").classList.remove("hidden");
+        });
+      });
+    }
+
+    // =========================
+    // REFRESH
+    // =========================
+    async function refresh(){
+      if(isRefreshing) return;
+      isRefreshing = true;
+
+      const btn = document.getElementById("refresh");
+      const old = btn.textContent;
+      btn.textContent = "Cargando...";
+      btn.disabled = true;
+
+      try{
+        const companyId = getCompanyId();
+        if(!companyId){
+          toast("Falta empresa seleccionada. Volviendo...", "error", 1600);
+          setTimeout(()=> location.href = "./companies.html", 600);
+          return;
+        }
+
+        const items = await apiGetUsers(companyId);
+        usersCache = items;
+        render(usersCache);
+      } finally {
+        btn.textContent = old;
+        btn.disabled = false;
+        isRefreshing = false;
+      }
+    }
+
+    // =========================
+    // EVENTS
+    // =========================
+    document.getElementById("btnLogout").addEventListener("click", logoutToLogin);
+    document.getElementById("btnBackCompanies").addEventListener("click", () => location.href = "./companies.html");
+    document.getElementById("refresh").addEventListener("click", refresh);
+
+    document.getElementById("create").addEventListener("click", async () => {
+      const companyId = getCompanyId();
+      if(!companyId){ toast("Falta empresa seleccionada", "error", 2000); return; }
+
+      const email = (document.getElementById("email").value || "").trim().toLowerCase();
+      const password = document.getElementById("password").value || "";
+      const enabled = document.getElementById("enabled").value === "true";
+
+      if(!email){ toast("Email requerido", "error", 1800); return; }
+      if(!password || password.length < 4){ toast("Password inválida", "error", 1800); return; }
+
+      try{
+        toast("Creando...", "info", 1200);
+
+        const payload = { email, password, enabled, companyId };
+        const r = await apiCreateCompanyAdmin(payload);
+        if(!r) return;
+
+        if(r.status === 409){
+          toast("Ya existe ese email", "error", 2200);
+          return;
+        }
+        if(!r.ok){
+          const t = await r.text().catch(()=> "");
+          console.error(t);
+          toast("Error creando (mirá consola)", "error", 2500);
+          return;
+        }
+
+        toast("Usuario creado ✅", "success", 1400);
+        document.getElementById("email").value = "";
+        document.getElementById("password").value = "";
+        document.getElementById("enabled").value = "true";
+        await refresh();
+      }catch(e){
+        console.error(e);
+        toast("Error creando", "error", 2500);
+      }
+    });
+
+    document.getElementById("closeModal").addEventListener("click", () => {
+      document.getElementById("modal").classList.add("hidden");
+    });
+
+    document.getElementById("btnReset").addEventListener("click", async () => {
+      const id = Number(document.getElementById("resetUserId").value);
+      const pass = document.getElementById("resetPassword").value || "";
+
+      if(!id){ toast("Usuario inválido", "error", 1800); return; }
+      if(!pass || pass.length < 4){ toast("Password inválida", "error", 1800); return; }
+
+      try{
+        toast("Guardando...", "info", 1200);
+        const r = await apiResetPassword(id, pass);
+        if(!r) return;
+
+        if(!r.ok){
+          const t = await r.text().catch(()=> "");
+          console.error(t);
+          toast("Error guardando (mirá consola)", "error", 2500);
+          return;
+        }
+
+        toast("Password actualizada ✅", "success", 1400);
+        document.getElementById("modal").classList.add("hidden");
+        await refresh();
+      }catch(e){
+        console.error(e);
+        toast("Error guardando", "error", 2500);
+      }
+    });
+
+    // Enter => crear
+    ["email","password"].forEach(id => {
+      document.getElementById(id).addEventListener("keydown", (e) => {
+        if(e.key === "Enter") document.getElementById("create").click();
+      });
+    });
+
+    // =========================
+    // INIT
+    // =========================
+    (async function init(){
+      try{
+        if(!requireAuth()) return;
+
+        const companyId = getCompanyId();
+        const companyName = localStorage.getItem(MANAGE_COMPANY_NAME_KEY) || "—";
+        document.getElementById("companyName").textContent = companyName;
+        document.getElementById("companyIdTxt").textContent = companyId ? String(companyId) : "—";
+
+        CONFIG = await loadConfig();
+
+        if(!companyId){
+          toast("Elegí una empresa primero", "error", 1800);
+          setTimeout(()=> location.href = "./companies.html", 600);
+          return;
+        }
+
+        await refresh();
+      }catch(e){
+        console.error(e);
+        toast("Error cargando", "error", 2500);
+      }
+    })();
+  </script>
+</body>
+</html>

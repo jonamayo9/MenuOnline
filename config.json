@@ -1,0 +1,14 @@
+{
+  "apiBaseUrl": "https://localhost:7222",
+  "companySlug": "como-en-casa",
+  "negocio": {
+    "nombre": "COMO EN CASA",
+    "logo": "fotos/1.png",
+    "telefono": "5491134229717",
+    "alias": "SABORES.CASA.MP",
+    "turnos": [
+      { "abre": 8, "cierra": 15 },
+      { "abre": 7, "cierra": 23 }
+    ]
+  }
+}

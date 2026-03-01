@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin | Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+  <!-- Toast -->
+  <div id="toastContainer" class="fixed top-6 right-6 z-50"></div>
+
+  <div class="max-w-6xl mx-auto p-6">
+
+    <!-- Header -->
+    <div class="bg-white rounded-3xl shadow-sm p-6 mb-6 border border-slate-200">
+      <div class="flex items-start justify-between flex-wrap gap-4">
+        <div>
+          <h1 class="text-3xl font-extrabold tracking-tight">Panel Admin</h1>
+          <p class="text-sm text-slate-500 mt-1">
+            <span class="font-semibold" id="companyLabel">—</span> ·
+            <span id="emailLabel">—</span>
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <button id="btnLogout"
+            class="px-5 py-3 rounded-2xl bg-slate-900 text-white font-semibold shadow
+                   hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+            Salir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+      <!-- Pedidos -->
+      <a href="./admin-order.html"
+         class="group bg-white rounded-3xl border border-slate-200 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="text-xl font-extrabold">Pedidos</div>
+            <div class="text-sm text-slate-500 mt-1">Ver, tomar, imprimir, cambiar estados.</div>
+          </div>
+          <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-amber-50 text-amber-800 border-amber-100">
+            Operación
+          </div>
+        </div>
+  <!-- Acceso rápido restaurado -->
+  <div class="mt-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-700">
+    <div class="font-semibold">Acceso rápido</div>
+    <div class="mt-1">Gestión diaria de pedidos.</div>
+  </div>
+        <div class="mt-5 text-sm font-semibold text-slate-900 group-hover:underline">
+          Abrir →
+        </div>
+      </a>
+
+      <!-- Productos -->
+      <a href="./admin-products.html"
+         class="group bg-white rounded-3xl border border-slate-200 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="text-xl font-extrabold">Productos</div>
+            <div class="text-sm text-slate-500 mt-1">Altas, bajas, precios, fotos, disponibilidad.</div>
+          </div>
+          <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-slate-50 text-slate-700 border-slate-200">
+            Menú
+          </div>
+        </div>
+
+        <div class="mt-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-700">
+          <div class="font-semibold">Tip</div>
+          <div class="mt-1">Ordená por categorías para que quede prolijo.</div>
+        </div>
+
+        <div class="mt-5 text-sm font-semibold text-slate-900 group-hover:underline">
+          Abrir →
+        </div>
+      </a>
+
+      <!-- Categorías -->
+      <a href="./admin-categories.html"
+         class="group bg-white rounded-3xl border border-slate-200 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="text-xl font-extrabold">Categorías</div>
+            <div class="text-sm text-slate-500 mt-1">Orden, nombres, habilitadas/deshabilitadas.</div>
+          </div>
+          <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-slate-50 text-slate-700 border-slate-200">
+            Menú
+          </div>
+        </div>
+
+        <div class="mt-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-700">
+          <div class="font-semibold">Pro tip</div>
+          <div class="mt-1">Usá SortOrder para el orden del menú.</div>
+        </div>
+
+        <div class="mt-5 text-sm font-semibold text-slate-900 group-hover:underline">
+          Abrir →
+        </div>
+      </a>
+
+      <!-- Horarios -->
+      <a href="./admin-shifts.html"
+         class="group bg-white rounded-3xl border border-slate-200 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="text-xl font-extrabold">Horarios</div>
+            <div class="text-sm text-slate-500 mt-1">Apertura/cierre y excepciones.</div>
+          </div>
+          <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-emerald-50 text-emerald-800 border-emerald-100">
+            Config
+          </div>
+        </div>
+
+        <div class="mt-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-700">
+          <div class="font-semibold">Objetivo</div>
+          <div class="mt-1">Evitar que el público vea “cerrado” mal.</div>
+        </div>
+
+        <div class="mt-5 text-sm font-semibold text-slate-900 group-hover:underline">
+          Abrir →
+        </div>
+      </a>
+
+      <!-- Resumen diario -->
+      <a href="./admin-resumen.html"
+         class="group bg-white rounded-3xl border border-slate-200 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="text-xl font-extrabold">Resumen diario</div>
+            <div class="text-sm text-slate-500 mt-1">Totales del día y pedidos por estado.</div>
+          </div>
+          <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-purple-50 text-purple-800 border-purple-100">
+            Reporte
+          </div>
+        </div>
+
+        <div class="mt-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-700">
+          <div class="font-semibold">Para cierre</div>
+          <div class="mt-1">Ideal para caja/turno.</div>
+        </div>
+
+        <div class="mt-5 text-sm font-semibold text-slate-900 group-hover:underline">
+          Abrir →
+        </div>
+      </a>
+
+      <!-- Link público -->
+      <a id="publicMenuLink" href="#"
+         class="group bg-white rounded-3xl border border-slate-200 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="text-xl font-extrabold">Menú público</div>
+            <div class="text-sm text-slate-500 mt-1">Abrir la página del cliente.</div>
+          </div>
+          <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-slate-900 text-white border-slate-900">
+            Público
+          </div>
+        </div>
+
+        <div class="mt-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-700">
+          <div class="font-semibold">Atajo</div>
+          <div class="mt-1">Para ver cómo lo ve el cliente.</div>
+        </div>
+
+        <div class="mt-5 text-sm font-semibold text-slate-900 group-hover:underline">
+          Abrir →
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <script>
+    // ========= CONFIG =========
+    const CONFIG_PATH = "../config.json";
+
+    // Keys
+    const TOKEN_KEY = "menuonline_token";
+    const AUTH_KEY  = "menuonline_authorization"; // por si en algún momento guardaste "Bearer xxx"
+    const SLUG_KEY  = "menuonline_companySlug";
+    const EMAIL_KEY = "menuonline_email";
+
+    const LOGIN_PAGE = "./login.html";
+
+    // ========= Toast =========
+    let activeToast = null;
+    function toast(message, type="info", ms=1600){
+      const container = document.getElementById("toastContainer");
+      if(activeToast){ activeToast.remove(); activeToast = null; }
+
+      const colors = { success:"bg-emerald-500", error:"bg-rose-500", info:"bg-slate-900" };
+      const icon = type==="success" ? "✓" : type==="error" ? "⚠" : "⏳";
+
+      const el = document.createElement("div");
+      el.className = `${colors[type]} text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[280px]
+                      transform transition-all duration-200 translate-y-2 opacity-0`;
+      el.innerHTML = `<div class="text-lg font-bold leading-none">${icon}</div>
+                      <div class="text-sm font-semibold">${message}</div>`;
+      container.appendChild(el);
+      activeToast = el;
+
+      requestAnimationFrame(()=> el.classList.remove("translate-y-2","opacity-0"));
+
+      setTimeout(()=>{
+        if(activeToast !== el) return;
+        el.classList.add("translate-y-2","opacity-0");
+        setTimeout(()=>{ if(activeToast===el) activeToast=null; el.remove(); }, 200);
+      }, ms);
+    }
+
+    function logout(){
+      // borra auth/token
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(AUTH_KEY);
+
+      // si querés borrar también estos dos, descomentá:
+      // localStorage.removeItem(SLUG_KEY);
+      // localStorage.removeItem(EMAIL_KEY);
+
+      location.replace(LOGIN_PAGE);
+    }
+
+    async function loadConfig(){
+      const res = await fetch(CONFIG_PATH, { cache: "no-store" });
+      if(!res.ok) throw new Error("No pude leer config.json");
+      return await res.json();
+    }
+
+    (async function init(){
+      // Guard: si no hay token, afuera
+      const token = localStorage.getItem(TOKEN_KEY) || localStorage.getItem(AUTH_KEY);
+      if(!token){
+        location.replace(LOGIN_PAGE);
+        return;
+      }
+
+      document.getElementById("btnLogout").addEventListener("click", logout);
+
+      // Labels (empresa y email)
+      const slug  = localStorage.getItem(SLUG_KEY)  || "—";
+      const email = localStorage.getItem(EMAIL_KEY) || "—";
+      document.getElementById("companyLabel").textContent = slug;
+      document.getElementById("emailLabel").textContent = email;
+
+      try{
+        await loadConfig(); // lo dejamos por si después lo necesitás para armar links/flags
+
+        // Link público
+        const publicUrl = `../index.html`;
+        document.getElementById("publicMenuLink").href = publicUrl;
+
+      }catch(e){
+        console.error(e);
+        toast("No pude cargar config.json", "error", 2000);
+      }
+    })();
+  </script>
+</body>
+</html>

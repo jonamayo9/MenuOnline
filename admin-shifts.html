@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Turnos / Horarios</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+  <div class="max-w-5xl mx-auto p-6">
+
+    <!-- Header -->
+    <div class="bg-white rounded-3xl shadow-sm p-6 mb-6 border border-slate-200">
+      <div class="flex items-start justify-between gap-8 flex-wrap">
+
+        <!-- IZQUIERDA -->
+        <div class="min-w-[280px]">
+          <div class="flex items-center gap-4">
+            <!-- Volver -->
+            <a href="./home.html"
+               class="h-11 w-11 grid place-items-center rounded-2xl bg-slate-100 text-slate-800 text-lg font-bold
+                      hover:bg-slate-200 transition"
+               title="Volver">
+              ←
+            </a>
+
+            <div>
+              <h1 class="text-3xl font-extrabold tracking-tight leading-tight">Turnos</h1>
+              <p class="text-sm text-slate-500 mt-1">Administrá horarios de apertura/cierre.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- DERECHA -->
+        <div class="flex items-center gap-3 flex-wrap">
+          <button id="refresh"
+            class="px-5 py-3 rounded-2xl bg-slate-900 text-white font-semibold shadow hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+            Actualizar
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 mb-6">
+      <div class="text-lg font-extrabold mb-4">Agregar turno</div>
+
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <div class="flex flex-col">
+          <label class="text-xs text-slate-400 mb-1">Día</label>
+          <select id="dayOfWeek" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
+            <option value="">Todos</option>
+            <option value="0">Domingos</option>
+            <option value="1">Lunes</option>
+            <option value="2">Martes</option>
+            <option value="3">Miércoles</option>
+            <option value="4">Jueves</option>
+            <option value="5">Viernes</option>
+            <option value="6">Sábado</option>
+          </select>
+        </div>
+
+        <div class="flex flex-col">
+          <label class="text-xs text-slate-400 mb-1">Abre</label>
+          <input id="openHour" type="number" min="0" max="23" value="11"
+            class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+        </div>
+
+        <div class="flex flex-col">
+          <label class="text-xs text-slate-400 mb-1">Cierra</label>
+          <input id="closeHour" type="number" min="0" max="23" value="15"
+            class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+        </div>
+
+        <div class="flex items-center gap-2 md:mt-6">
+          <input id="enabled" type="checkbox" checked class="w-4 h-4"/>
+          <label for="enabled" class="text-sm text-slate-600">Habilitado</label>
+        </div>
+
+        <div class="md:mt-6">
+          <button id="create"
+            class="w-full px-4 py-2 rounded-xl bg-emerald-100 text-emerald-800 font-semibold hover:bg-emerald-200 transition">
+            Agregar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary + List -->
+    <div class="flex justify-end items-center mb-3">
+      <div class="text-sm text-slate-500" id="summary"></div>
+    </div>
+    <div id="list" class="space-y-4"></div>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toastContainer" class="fixed top-6 right-6 z-50"></div>
+
+  <script>
+    let CONFIG = null;
+    let isRefreshing = false;
+
+    // =========================
+    // AUTH GUARD (SIN DUPLICADOS)
+    // =========================
+    const TOKEN_KEY = "menuonline_token";
+    const SLUG_KEY  = "menuonline_companySlug";
+    const LOGIN_PAGE = "./login.html";
+    const CONFIG_PATH = "../config.json";
+
+    function logoutToLogin(){
+      localStorage.removeItem(TOKEN_KEY);
+      location.replace(LOGIN_PAGE);
+    }
+
+    function parseJwt(token){
+      try{
+        const base64Url = token.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const json = decodeURIComponent(atob(base64).split("").map(c =>
+          "%" + c.charCodeAt(0).toString(16).padStart(2,"0")
+        ).join(""));
+        return JSON.parse(json);
+      }catch{ return null; }
+    }
+
+    function isTokenValid(token){
+      const payload = parseJwt(token);
+      const exp = payload?.exp;
+      if(!exp) return false;
+      const now = Math.floor(Date.now()/1000);
+      return exp > now;
+    }
+
+    function requireAuth(){
+      const t = localStorage.getItem(TOKEN_KEY);
+      if(!t || !isTokenValid(t)){
+        logoutToLogin();
+        return false;
+      }
+      return true;
+    }
+
+    function authHeaders(extra = {}){
+      const token = localStorage.getItem(TOKEN_KEY);
+      return { ...extra, "Authorization": "Bearer " + token };
+    }
+
+    async function fetchAuth(url, options = {}){
+      if(!requireAuth()) return null;
+
+      const res = await fetch(url, {
+        ...options,
+        headers: authHeaders(options.headers || {})
+      });
+
+      if(res.status === 401 || res.status === 403){
+        logoutToLogin();
+        return null;
+      }
+      return res;
+    }
+
+    function getSlug(){
+      return localStorage.getItem(SLUG_KEY) || CONFIG.companySlug;
+    }
+
+    // =========================
+    // TOAST
+    // =========================
+    let activeToastEl = null;
+
+    function toastShow(message, type = "info") {
+      const container = document.getElementById("toastContainer");
+
+      if (activeToastEl) {
+        activeToastEl.remove();
+        activeToastEl = null;
+      }
+
+      const colors = {
+        success: "bg-emerald-500",
+        error: "bg-rose-500",
+        info: "bg-slate-900"
+      };
+
+      const icon = type === "success" ? "✓" : type === "error" ? "⚠" : "⏳";
+
+      const el = document.createElement("div");
+      el.className = `
+        ${colors[type]} text-white px-5 py-4 rounded-2xl shadow-2xl
+        flex items-center gap-3 min-w-[280px]
+        transform transition-all duration-200 translate-y-2 opacity-0
+      `;
+      el.innerHTML = `
+        <div class="text-lg font-bold leading-none">${icon}</div>
+        <div class="text-sm font-semibold">${message}</div>
+      `;
+
+      container.appendChild(el);
+      activeToastEl = el;
+
+      requestAnimationFrame(() => {
+        el.classList.remove("translate-y-2", "opacity-0");
+      });
+
+      return el;
+    }
+
+    function toastUpdate(message, type = "info", autoCloseMs = null) {
+      if (!activeToastEl) {
+        toastShow(message, type);
+        if (autoCloseMs) toastAutoClose(autoCloseMs);
+        return;
+      }
+
+      const colors = {
+        success: "bg-emerald-500",
+        error: "bg-rose-500",
+        info: "bg-slate-900"
+      };
+
+      const icon = type === "success" ? "✓" : type === "error" ? "⚠" : "⏳";
+
+      activeToastEl.className = `
+        ${colors[type]} text-white px-5 py-4 rounded-2xl shadow-2xl
+        flex items-center gap-3 min-w-[280px]
+        transform transition-all duration-200
+      `;
+      activeToastEl.innerHTML = `
+        <div class="text-lg font-bold leading-none">${icon}</div>
+        <div class="text-sm font-semibold">${message}</div>
+      `;
+
+      if (autoCloseMs) toastAutoClose(autoCloseMs);
+    }
+
+    function toastAutoClose(ms = 1800) {
+      const el = activeToastEl;
+      if (!el) return;
+
+      setTimeout(() => {
+        if (activeToastEl !== el) return;
+
+        el.classList.add("translate-y-2", "opacity-0");
+        setTimeout(() => {
+          if (activeToastEl === el) activeToastEl = null;
+          el.remove();
+        }, 200);
+      }, ms);
+    }
+
+    function toastClear() {
+      if (!activeToastEl) return;
+      activeToastEl.remove();
+      activeToastEl = null;
+    }
+
+    // ===== Helpers =====
+    function dayLabel(d) {
+      if (d === null || d === undefined) return "Todos";
+      const map = ["Domingos", "Lunes", "Martes", "Miércoles", "Jueves", "Vienes", "Sábados"];
+      return map[d] ?? String(d);
+    }
+
+    function badge(enabled) {
+      return enabled
+        ? "bg-emerald-50 text-emerald-800 border-emerald-100"
+        : "bg-rose-50 text-rose-800 border-rose-100";
+    }
+
+    // ===== API =====
+    async function loadConfig() {
+      const res = await fetch(CONFIG_PATH, { cache: "no-store" });
+      if (!res.ok) throw new Error("No pude leer config.json");
+      return await res.json();
+    }
+
+    async function apiGetShifts() {
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/shifts`;
+      const res = await fetchAuth(url);
+      if(!res) return [];
+      if (!res.ok) throw new Error("Error cargando turnos");
+      return await res.json();
+    }
+
+    async function apiCreateShift(body) {
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/shifts`;
+      const res = await fetchAuth(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      if(!res) return null;
+      if (!res.ok) throw new Error("Error creando turno");
+      return await res.json();
+    }
+
+    async function apiUpdateShift(id, body) {
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/shifts/${id}`;
+      const res = await fetchAuth(url, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      if(!res) return;
+      if (!res.ok) throw new Error("Error actualizando turno");
+    }
+
+    async function apiDeleteShift(id) {
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/shifts/${id}`;
+      const res = await fetchAuth(url, { method: "DELETE" });
+      if(!res) return;
+      if (!res.ok) throw new Error("Error eliminando turno");
+    }
+
+    function setSummary(items) {
+      document.getElementById("summary").textContent = `${items.length} turno(s)`;
+    }
+
+    // ===== UI Render =====
+    function render(items) {
+      const el = document.getElementById("list");
+      setSummary(items);
+
+      if (!items.length) {
+        el.innerHTML = `
+          <div class="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm">
+            <div class="font-semibold">No hay turnos</div>
+            <div class="text-sm text-slate-600 mt-1">Agregá el primero arriba.</div>
+          </div>`;
+        return;
+      }
+
+      el.innerHTML = items.map(s => `
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
+          <div class="flex items-start justify-between gap-4 flex-wrap">
+            <div class="min-w-[220px]">
+              <div class="flex items-center gap-3">
+                <div class="text-xl font-extrabold">${dayLabel(s.dayOfWeek)}</div>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${badge(s.enabled)}">
+                  ${s.enabled ? "Habilitado" : "Deshabilitado"}
+                </span>
+              </div>
+              <div class="text-sm text-slate-500 mt-2">
+                Abre <span class="font-semibold text-slate-800">${s.openHour}:00</span> ·
+                Cierra <span class="font-semibold text-slate-800">${s.closeHour}:00</span>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2 justify-end">
+              <button class="px-4 py-2 rounded-xl bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200 transition"
+                data-edit="1"
+                data-id="${s.id}"
+                data-day="${s.dayOfWeek ?? ""}"
+                data-open="${s.openHour}"
+                data-close="${s.closeHour}"
+                data-enabled="${s.enabled}">
+                Editar
+              </button>
+
+              <button class="px-4 py-2 rounded-xl bg-rose-100 text-rose-800 font-semibold hover:bg-rose-200 transition"
+                data-del="1" data-id="${s.id}">
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join("");
+
+      // Editar
+      el.querySelectorAll("button[data-edit='1']").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          const day = btn.getAttribute("data-day");
+          const open = btn.getAttribute("data-open");
+          const close = btn.getAttribute("data-close");
+          const enabled = btn.getAttribute("data-enabled") === "true";
+
+          const newOpen = prompt("OpenHour (0-23):", open);
+          if (newOpen === null) return;
+          const newClose = prompt("CloseHour (0-23):", close);
+          if (newClose === null) return;
+
+          try {
+            toastShow("Guardando cambios...", "info");
+            await apiUpdateShift(id, {
+              dayOfWeek: day === "" ? null : Number(day),
+              openHour: Number(newOpen),
+              closeHour: Number(newClose),
+              enabled
+            });
+            await refresh();
+            toastUpdate("Turno actualizado", "success", 1800);
+          } catch (e) {
+            console.error(e);
+            toastUpdate("Error al actualizar turno", "error", 2500);
+          }
+        });
+      });
+
+      // Eliminar
+      el.querySelectorAll("button[data-del='1']").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          if (!confirm("¿Eliminar este turno?")) return;
+
+          try {
+            toastShow("Eliminando turno...", "info");
+            await apiDeleteShift(id);
+            await refresh();
+            toastUpdate("Turno eliminado", "success", 1800);
+          } catch (e) {
+            console.error(e);
+            toastUpdate("Error al eliminar turno", "error", 2500);
+          }
+        });
+      });
+    }
+
+    async function refresh() {
+      if (isRefreshing) return;
+      isRefreshing = true;
+
+      const btn = document.getElementById("refresh");
+      const old = btn.textContent;
+      btn.textContent = "Cargando...";
+      btn.disabled = true;
+
+      try {
+        const items = await apiGetShifts();
+        render(items);
+      } finally {
+        btn.textContent = old;
+        btn.disabled = false;
+        isRefreshing = false;
+      }
+    }
+
+    (async function init() {
+      try {
+        if(!requireAuth()) return;
+
+        CONFIG = await loadConfig();
+
+        document.getElementById("refresh").addEventListener("click", () => refresh());
+
+        document.getElementById("create").addEventListener("click", async () => {
+          const dayVal = document.getElementById("dayOfWeek").value;
+          const openHour = Number(document.getElementById("openHour").value);
+          const closeHour = Number(document.getElementById("closeHour").value);
+          const enabled = document.getElementById("enabled").checked;
+
+          try {
+            toastShow("Creando turno...", "info");
+            await apiCreateShift({
+              dayOfWeek: dayVal === "" ? null : Number(dayVal),
+              openHour,
+              closeHour,
+              enabled
+            });
+            await refresh();
+            toastUpdate("Turno creado correctamente", "success", 1800);
+          } catch (e) {
+            console.error(e);
+            toastUpdate("Error al crear turno", "error", 2500);
+          }
+        });
+
+        await refresh();
+      } catch (e) {
+        console.error(e);
+        toastShow("Error ❌ " + (e.message || e), "error");
+        toastAutoClose(3000);
+      }
+    })();
+  </script>
+</body>
+</html>
