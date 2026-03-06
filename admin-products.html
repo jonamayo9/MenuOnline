@@ -218,8 +218,10 @@
   const TOKEN_KEY = "menuonline_token";
   const SLUG_KEY  = "menuonline_companySlug";
   const LOGIN_PAGE = "./login.html";
-  //const CONFIG_PATH = "/MenuOnline/config.json"; // este html está dentro de /admin
-  const CONFIG_PATH = "/config.json"; // este html está dentro de /admin
+    // PROD
+    const CONFIG_PATH = "/MenuOnline/config.json";
+    // DEV
+    //const CONFIG_PATH = "/config.json"; 
 
   function logoutToLogin(){
     localStorage.removeItem(TOKEN_KEY);
