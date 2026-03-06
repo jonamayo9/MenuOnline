@@ -32,7 +32,7 @@
       </div>
     </div>
 
-    <!-- CREATE FORM (solo crear, NO editar) -->
+    <!-- CREATE FORM -->
     <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 mb-6">
       <div class="flex items-center justify-between gap-3 flex-wrap">
         <div>
@@ -42,7 +42,6 @@
       </div>
 
       <div class="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
-        <!-- Slug -->
         <div class="md:col-span-3 flex flex-col">
           <label class="text-xs text-slate-400 mb-1 block">Slug (único)</label>
           <input id="c_slug" placeholder="ej: como-en-casa"
@@ -50,7 +49,6 @@
           <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Solo letras/números/guiones.</div>
         </div>
 
-        <!-- Nombre -->
         <div class="md:col-span-4 flex flex-col">
           <label class="text-xs text-slate-400 mb-1 block">Nombre</label>
           <input id="c_name" placeholder="Ej: COMO EN CASA"
@@ -58,7 +56,6 @@
           <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
         </div>
 
-        <!-- Estado -->
         <div class="md:col-span-2 flex flex-col">
           <label class="text-xs text-slate-400 mb-1 block">Estado</label>
           <select id="c_enabled"
@@ -69,7 +66,6 @@
           <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
         </div>
 
-        <!-- Crear -->
         <div class="md:col-span-3 flex flex-col justify-end">
           <div class="text-[11px] text-slate-400 mb-1 min-h-[16px]">&nbsp;</div>
           <button id="btnCreate"
@@ -80,16 +76,14 @@
       </div>
     </div>
 
-    <!-- TOOLBAR -->
     <div class="flex justify-end items-center mb-3">
       <div class="text-sm text-slate-500" id="summary"></div>
     </div>
 
-    <!-- LIST -->
     <div id="list" class="space-y-4"></div>
   </div>
 
-  <!-- MODAL EDIT (completo) -->
+  <!-- MODAL -->
   <div id="modal" class="hidden fixed inset-0 z-50">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
 
@@ -104,7 +98,6 @@
       </div>
 
       <div class="p-6 space-y-5">
-        <!-- Info -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
             <div class="text-xs text-slate-400 font-semibold">Id</div>
@@ -120,7 +113,6 @@
           </div>
         </div>
 
-        <!-- Form -->
         <input id="m_id_hidden" type="hidden" />
         <input id="m_logoUrl_hidden" type="hidden" />
 
@@ -156,12 +148,11 @@
             <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
           </div>
 
-          <!-- Logo -->
           <div class="md:col-span-6 flex flex-col">
             <label class="text-xs text-slate-400 mb-1 block">Logo (archivo)</label>
             <input id="m_logoFile" type="file" accept="image/*"
               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
-            <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Se sube y se guarda la URL en la empresa.</div>
+            <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Se sube al guardar y se guarda la URL.</div>
           </div>
 
           <div class="md:col-span-6 flex items-end gap-3">
@@ -173,7 +164,6 @@
           </div>
         </div>
 
-        <!-- Actions -->
         <div class="flex justify-end gap-2 flex-wrap pt-2">
           <button id="m_cancel"
             class="px-4 py-2 rounded-xl bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200 transition">
@@ -189,7 +179,6 @@
     </div>
   </div>
 
-  <!-- Toast container -->
   <div id="toastContainer" class="fixed top-6 right-6 z-50"></div>
 
   <script>
@@ -197,17 +186,13 @@
     let isRefreshing = false;
     let companiesCache = [];
 
-    // modal state
     let modalOpen = false;
     let modalLogoFile = null;
 
-    // =========================
-    // AUTH GUARD
-    // =========================
     const TOKEN_KEY = "menuonline_token";
     const SLUG_KEY  = "menuonline_companySlug";
     const LOGIN_PAGE = "../login.html";
-    const CONFIG_PATH = "/MenuOnline/config.json";
+    const CONFIG_PATH = "/config.json";
 
     const EXP_KEY   = "menuonline_token_exp_utc";
     const LEEWAY_MS = 30000;
@@ -260,11 +245,8 @@
       return res;
     }
 
-    // =========================
     // TOAST
-    // =========================
     let activeToastEl = null;
-
     function toastShow(message, type = "info") {
       const container = document.getElementById("toastContainer");
       if (activeToastEl) { activeToastEl.remove(); activeToastEl = null; }
@@ -305,9 +287,7 @@
       }, ms);
     }
 
-    // =========================
     // HELPERS
-    // =========================
     function setSummary(items){
       document.getElementById("summary").textContent = items.length ? `${items.length} empresa(s)` : "";
     }
@@ -340,17 +320,14 @@
       try { return new Date(v).toLocaleString("es-AR"); } catch { return String(v); }
     }
 
-    // ✅ CLAVE: resolver URL de imagen contra la API
     function buildImageUrl(path){
       if(!path) return "";
       if(String(path).startsWith("http")) return path;
       if(!CONFIG?.apiBaseUrl) return path;
-      return CONFIG.apiBaseUrl + path; // path viene como "/uploads/..."
+      return CONFIG.apiBaseUrl + path;
     }
 
-    // =========================
     // CONFIG + API
-    // =========================
     async function loadConfig(){
       const r = await fetch(CONFIG_PATH, { cache: "no-store" });
       if(!r.ok) throw new Error("No pude leer config.json");
@@ -389,27 +366,31 @@
       return await fetchAuth(url, { method:"DELETE" });
     }
 
-    async function apiUploadLogo(file){
+    // ✅ Subir logo (Cloudinary) -> el endpoint te devuelve { url: "https://..." }
+    async function apiUploadLogo(companyId, file) {
+      if (!companyId) throw new Error("companyId vacío");
+      if (!(file instanceof File)) throw new Error("file inválido");
+
       const fd = new FormData();
       fd.append("file", file);
 
-      const url = `${CONFIG.apiBaseUrl}/api/superadmin/uploads/image`;
-      const r = await fetchAuth(url, { method:"POST", body: fd });
-      if(!r) return null;
+      // 👉 este endpoint lo tenés que implementar en el backend (ver abajo)
+      const url = `${CONFIG.apiBaseUrl}/api/superadmin/companies/${encodeURIComponent(companyId)}/logo`;
 
-      if(!r.ok){
-        const t = await r.text().catch(()=> "");
-        console.error("upload error:", t);
-        throw new Error("No pude subir el logo (endpoint upload)");
+      const r = await fetchAuth(url, { method: "POST", body: fd });
+      if (!r) return null;
+
+      if (!r.ok) {
+        const t = await r.text().catch(() => "");
+        console.error("upload logo error:", t);
+        throw new Error("No pude subir el logo");
       }
 
-      const data = await r.json().catch(()=> null);
-      return data?.url || data?.Url || null; // tu backend devuelve { url }
+      const data = await r.json().catch(() => null);
+      return data?.url || data?.Url || null;
     }
 
-    // =========================
     // RENDER
-    // =========================
     function render(items){
       const el = document.getElementById("list");
       setSummary(items);
@@ -513,9 +494,7 @@
       });
     }
 
-    // =========================
     // MODAL
-    // =========================
     function openModal(c){
       modalOpen = true;
       modalLogoFile = null;
@@ -533,12 +512,12 @@
       document.getElementById("m_enabled").value = String(!!c.enabled);
 
       document.getElementById("m_logoUrl_hidden").value = c.logoUrl || "";
+
       const prev = document.getElementById("m_logoPreview");
-      const file = document.getElementById("m_logoFile");
-      file.value = "";
+      document.getElementById("m_logoFile").value = "";
 
       if(c.logoUrl){
-        prev.src = buildImageUrl(c.logoUrl);       // ✅ FIX
+        prev.src = buildImageUrl(c.logoUrl);
         prev.classList.remove("hidden");
       } else {
         prev.classList.add("hidden");
@@ -552,9 +531,6 @@
       document.getElementById("modal").classList.add("hidden");
     }
 
-    // =========================
-    // REFRESH
-    // =========================
     async function refresh(){
       if(isRefreshing) return;
       isRefreshing = true;
@@ -575,9 +551,7 @@
       }
     }
 
-    // =========================
     // EVENTS
-    // =========================
     document.getElementById("btnLogout").addEventListener("click", logoutToLogin);
     document.getElementById("refresh").addEventListener("click", refresh);
 
@@ -621,23 +595,20 @@
       }
     });
 
-    // modal close
     document.getElementById("m_close").addEventListener("click", closeModal);
     document.getElementById("m_cancel").addEventListener("click", closeModal);
 
-    // ESC to close
     document.addEventListener("keydown", (e) => {
       if(e.key === "Escape" && !document.getElementById("modal").classList.contains("hidden")){
         closeModal();
       }
     });
 
-    // click outside to close
     document.getElementById("modal").addEventListener("click", (e) => {
       if(e.target.id === "modal") closeModal();
     });
 
-    // modal logo change
+    // ✅ SOLO preview local (no sube acá)
     document.getElementById("m_logoFile").addEventListener("change", (e) => {
       modalLogoFile = e.target.files?.[0] ?? null;
       const prev = document.getElementById("m_logoPreview");
@@ -656,7 +627,7 @@
       prev.removeAttribute("src");
     });
 
-    // modal save
+    // ✅ Save: sube (si hay archivo) y después guarda la empresa
     document.getElementById("m_save").addEventListener("click", async () => {
       const id = Number(document.getElementById("m_id_hidden").value);
       if(!id) return;
@@ -675,13 +646,12 @@
 
         if(modalLogoFile){
           toastShow("Subiendo logo...", "info");
-          logoUrl = await apiUploadLogo(modalLogoFile);
+          logoUrl = await apiUploadLogo(id, modalLogoFile);  // ✅ FIX
           if(!logoUrl) throw new Error("No pude subir el logo");
           document.getElementById("m_logoUrl_hidden").value = logoUrl;
 
-          // ✅ si sube, mostramos preview contra API
           const prev = document.getElementById("m_logoPreview");
-          prev.src = buildImageUrl(logoUrl);
+          prev.src = buildImageUrl(logoUrl); // si es https queda igual
           prev.classList.remove("hidden");
         }
 
@@ -713,9 +683,6 @@
       }
     });
 
-    // =========================
-    // INIT
-    // =========================
     (async function init(){
       try{
         if(!requireAuth()) return;

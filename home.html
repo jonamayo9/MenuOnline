@@ -50,11 +50,13 @@
             Operación
           </div>
         </div>
-  <!-- Acceso rápido restaurado -->
-  <div class="mt-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-700">
-    <div class="font-semibold">Acceso rápido</div>
-    <div class="mt-1">Gestión diaria de pedidos.</div>
-  </div>
+
+        <!-- Acceso rápido restaurado -->
+        <div class="mt-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-700">
+          <div class="font-semibold">Acceso rápido</div>
+          <div class="mt-1">Gestión diaria de pedidos.</div>
+        </div>
+
         <div class="mt-5 text-sm font-semibold text-slate-900 group-hover:underline">
           Abrir →
         </div>
@@ -180,11 +182,11 @@
 
   <script>
     // ========= CONFIG =========
-    const CONFIG_PATH = "/MenuOnline/config.json";
+    const CONFIG_PATH = "/config.json";
 
     // Keys
     const TOKEN_KEY = "menuonline_token";
-    const AUTH_KEY  = "menuonline_authorization"; // por si en algún momento guardaste "Bearer xxx"
+    const AUTH_KEY  = "menuonline_authorization"; // por si alguna vez guardaste "Bearer xxx"
     const SLUG_KEY  = "menuonline_companySlug";
     const EMAIL_KEY = "menuonline_email";
 
@@ -217,14 +219,8 @@
     }
 
     function logout(){
-      // borra auth/token
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(AUTH_KEY);
-
-      // si querés borrar también estos dos, descomentá:
-      // localStorage.removeItem(SLUG_KEY);
-      // localStorage.removeItem(EMAIL_KEY);
-
       location.replace(LOGIN_PAGE);
     }
 
@@ -232,6 +228,39 @@
       const res = await fetch(CONFIG_PATH, { cache: "no-store" });
       if(!res.ok) throw new Error("No pude leer config.json");
       return await res.json();
+    }
+
+    // ✅ obtiene slug desde query (?companySlug=...) o localStorage
+    function getCompanySlug(){
+      const qs = new URLSearchParams(location.search);
+      const fromQuery = (qs.get("companySlug") || qs.get("c") || "").trim();
+      if(fromQuery) return fromQuery;
+      return (localStorage.getItem(SLUG_KEY) || "").trim();
+    }
+
+    // ✅ arma el link público siempre bien
+    function setPublicMenuLink(slug){
+      const a = document.getElementById("publicMenuLink");
+      if(!a) return;
+
+      if(!slug){
+        a.href = "#";
+        a.target = "";
+        a.rel = "";
+        a.onclick = (e) => {
+          e.preventDefault();
+          toast("No hay empresa seleccionada (companySlug).", "error", 2200);
+        };
+        return;
+      }
+
+      // Este home está en /admin/home.html, el público está en /index.html => sube un nivel
+      const publicUrl = `../index.html?companySlug=${encodeURIComponent(slug)}`;
+
+      a.href = publicUrl;
+      a.target = "_blank";     // opcional
+      a.rel = "noopener";
+      a.onclick = null;
     }
 
     (async function init(){
@@ -244,22 +273,18 @@
 
       document.getElementById("btnLogout").addEventListener("click", logout);
 
-      // Labels (empresa y email)
-      const slug  = localStorage.getItem(SLUG_KEY)  || "—";
+      const slug  = getCompanySlug() || "—";
       const email = localStorage.getItem(EMAIL_KEY) || "—";
       document.getElementById("companyLabel").textContent = slug;
       document.getElementById("emailLabel").textContent = email;
 
       try{
-        await loadConfig(); // lo dejamos por si después lo necesitás para armar links/flags
-
-        // Link público
-        const publicUrl = `../index.html`;
-        document.getElementById("publicMenuLink").href = publicUrl;
-
+        await loadConfig(); // lo dejamos por si después lo necesitás
+        setPublicMenuLink(slug === "—" ? "" : slug);
       }catch(e){
         console.error(e);
         toast("No pude cargar config.json", "error", 2000);
+        setPublicMenuLink(""); // deja fallback con aviso
       }
     })();
   </script>

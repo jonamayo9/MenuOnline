@@ -209,7 +209,8 @@ function requireAuth(){
   // ===== CONFIG PATH =====
   // Si este resumen está en /admin/resumen.html => config en ../config.json
   // Si está en raíz => ponelo en "./config.json"
-  const CONFIG_PATH = "/MenuOnline/config.json";
+  //const CONFIG_PATH = "/MenuOnline/config.json";
+  const CONFIG_PATH = "/config.json";
 
   async function loadConfig(){
     const r = await fetch(CONFIG_PATH, { cache:"no-store" });

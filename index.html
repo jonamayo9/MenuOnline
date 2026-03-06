@@ -40,6 +40,19 @@
       backdrop-filter: blur(10px);
     }
 
+    /* Clamp seguro sin plugin */
+    .clamp-2{
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    /* Un poquito más grande en mobile/tablet */
+    @media (max-width: 768px){
+      .tab-btn{ font-size:14px; padding:12px 2px; }
+    }
+
     @media print {
       @page { margin:0; size:80mm auto; }
       body * { display:none !important; }
@@ -71,15 +84,15 @@
     <header class="sticky top-0 z-40">
       <!-- Top bar -->
       <div class="bg-white/85 backdrop-blur border-b border-slate-100">
-        <div class="max-w-5xl mx-auto px-5 py-4 flex items-center justify-between gap-4">
+        <div class="max-w-5xl mx-auto px-4 sm:px-5 py-4 flex items-center justify-between gap-4">
           <div class="flex items-center gap-4 min-w-0">
-            <div class="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center">
+            <div class="w-14 h-14 sm:w-14 sm:h-14 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center">
               <img id="companyLogo" src="" alt="Logo" class="w-full h-full object-cover hidden">
               <div id="companyLogoPh" class="text-slate-300 text-xl"><i class="fa-solid fa-utensils"></i></div>
             </div>
 
             <div class="min-w-0">
-              <h1 id="companyName" class="text-xl font-extrabold tracking-tight text-slate-900 leading-none truncate">Menú</h1>
+              <h1 id="companyName" class="text-xl sm:text-xl font-extrabold tracking-tight text-slate-900 leading-none truncate">Menú</h1>
               <div class="mt-1 flex items-center gap-2 flex-wrap">
                 <span id="badgeOpen" class="hidden text-[10px] px-3 py-1 rounded-full font-black border tracking-tighter"></span>
                 <span class="text-[10px] text-amber-700 bg-amber-50 border border-amber-100 px-3 py-1 rounded-full font-extrabold uppercase tracking-widest">
@@ -111,17 +124,17 @@
         </div>
 
         <!-- Buscador mobile -->
-        <div class="max-w-5xl mx-auto px-5 pb-4 sm:hidden">
+        <div class="max-w-5xl mx-auto px-4 sm:px-5 pb-4 sm:hidden">
           <div class="relative">
             <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
             <input id="searchMobile"
               placeholder="Buscar..."
-              class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-sm outline-none
+              class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-4 text-base outline-none
                      focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition"/>
           </div>
 
           <button id="btnWhatsAppMobile"
-            class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-slate-900 text-white font-extrabold text-xs shadow">
+            class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-4 rounded-2xl bg-slate-900 text-white font-extrabold text-sm shadow">
             <i class="fa-brands fa-whatsapp text-base"></i>
             WhatsApp
           </button>
@@ -130,7 +143,7 @@
 
       <!-- Tabs -->
       <div id="tabsWrap" class="bg-white border-b border-slate-100">
-        <nav class="max-w-5xl mx-auto px-5 py-2 flex gap-8 overflow-x-auto no-scrollbar">
+        <nav class="max-w-5xl mx-auto px-4 sm:px-5 py-2 flex gap-8 overflow-x-auto no-scrollbar">
           <div id="tabs-categorias" class="flex gap-8"></div>
         </nav>
       </div>
@@ -138,7 +151,7 @@
 
     <!-- MAIN -->
     <main class="flex-grow">
-      <div class="max-w-5xl mx-auto px-5 py-6">
+      <div class="max-w-5xl mx-auto px-4 sm:px-5 py-6">
 
         <!-- NOT FOUND / ERROR VIEW -->
         <div id="notFoundView" class="hidden">
@@ -166,7 +179,23 @@
                 <i class="fa-regular fa-clock"></i> Horarios
               </div>
 
-              <div id="scheduleWrap" class="mt-3 space-y-2"></div>
+              <!-- compact -->
+              <div class="mt-3">
+                <div id="scheduleToday" class="hidden bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
+                  <div class="flex items-center justify-between gap-3">
+                    <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Hoy</div>
+                    <div id="scheduleTodayTxt" class="text-sm font-black text-slate-900 whitespace-nowrap">—</div>
+                  </div>
+                </div>
+
+                <button id="btnToggleSchedule"
+                  class="mt-3 hidden inline-flex items-center gap-2 text-xs font-extrabold text-slate-700 hover:text-slate-900 transition">
+                  <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                  Ver todos los horarios
+                </button>
+
+                <div id="scheduleWrap" class="mt-3 hidden rounded-2xl border border-slate-200 overflow-hidden"></div>
+              </div>
 
               <div id="scheduleHint" class="mt-3 text-xs text-slate-500 hidden">
                 No hay horarios cargados. Se asume abierto.
@@ -182,19 +211,20 @@
           </div>
         </div>
 
+        <!-- Cards -->
         <div id="lista-platos" class="grid grid-cols-1 sm:grid-cols-2 gap-5"></div>
       </div>
     </main>
 
     <!-- FOOTER -->
     <footer class="mt-auto bg-white border-t border-slate-100">
-      <div class="max-w-5xl mx-auto px-5 py-8 text-center">
+      <div class="max-w-5xl mx-auto px-4 sm:px-5 py-8 text-center">
         <p class="text-[10px] text-slate-400 font-black tracking-[0.35em] uppercase">MenuOnline</p>
         <p class="text-sm text-slate-700 font-bold mt-2">Pedidos simples, rápidos y sin vueltas.</p>
 
         <div class="mt-5 inline-flex flex-col sm:flex-row items-center justify-center gap-3">
           <div class="text-xs text-slate-500">
-            Desarrollado por <span class="font-extrabold text-slate-800">Jony</span>
+            Desarrollado por <span class="font-extrabold text-slate-800">SystemDev Solutions</span>
           </div>
           <button id="btnDevWpp"
             class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-600 text-white font-extrabold text-xs shadow hover:shadow-lg transition">
@@ -207,14 +237,14 @@
 
     <!-- BARRA CARRITO -->
     <div id="barra-carrito"
-      class="fixed bottom-6 left-4 right-4 max-w-lg mx-auto bg-slate-900 text-white shadow-2xl rounded-3xl p-5
+      class="fixed bottom-4 sm:bottom-6 left-3 sm:left-4 right-3 sm:right-4 max-w-lg mx-auto bg-slate-900 text-white shadow-2xl rounded-3xl p-5
              flex justify-between items-center transform translate-y-40 transition-all duration-500 z-50">
       <div class="pl-2">
-        <p class="text-[9px] font-bold uppercase opacity-40 tracking-widest">Total Pedido</p>
-        <p class="text-2xl font-black text-amber-500 leading-none mt-1">$<span id="total-monto">0</span></p>
+        <p class="text-[10px] font-bold uppercase opacity-40 tracking-widest">Total Pedido</p>
+        <p class="text-2xl sm:text-2xl font-black text-amber-500 leading-none mt-1">$<span id="total-monto">0</span></p>
       </div>
       <button onclick="abrirCheckout()"
-        class="bg-amber-600 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase active:scale-95 transition-all shadow-lg">
+        class="bg-amber-600 text-white px-7 sm:px-8 py-4 sm:py-3 rounded-2xl font-black text-sm sm:text-xs uppercase active:scale-95 transition-all shadow-lg">
         Revisar Pedido <i class="fa-solid fa-arrow-right ml-1"></i>
       </button>
     </div>
@@ -222,7 +252,7 @@
 
   <!-- MODAL CHECKOUT -->
   <div id="modal-checkout" class="flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden border border-slate-100">
+    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-7 sm:p-8 shadow-2xl relative overflow-hidden border border-slate-100">
       <div class="absolute top-0 left-0 w-full h-2 bg-amber-600"></div>
       <h2 class="text-2xl font-black mb-6 text-slate-900 tracking-tight text-center">Detalle de compra</h2>
 
@@ -252,11 +282,15 @@
         </div>
       </div>
 
+      <!-- Alias transferencia -->
       <div id="alias-card"
-        class="hidden bg-slate-900 p-5 rounded-2xl mb-6 flex justify-between items-center text-white">
-        <span class="font-black text-xs text-amber-500 uppercase tracking-tighter" id="txt-alias"></span>
-        <button onclick="copiarAlias()"
-          class="text-[10px] bg-amber-600 text-white px-3 py-1.5 rounded-xl font-bold uppercase shadow-md">
+        class="hidden bg-slate-900 p-5 rounded-2xl mb-6 flex justify-between items-center text-white gap-3">
+        <div class="min-w-0">
+          <div class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Transferencia</div>
+          <div class="font-black text-base text-amber-500 truncate" id="txt-alias"></div>
+        </div>
+        <button type="button" onclick="copiarAlias()"
+          class="text-[10px] bg-amber-600 text-white px-3 py-1.5 rounded-xl font-bold uppercase shadow-md shrink-0">
           Copiar
         </button>
       </div>
@@ -277,8 +311,6 @@
     // CONFIG DEV (CAMBIAR ESTO)
     // ============================
     const DEV_WHATSAPP = "54911XXXXXXXXXX";
-
-    // ponelo en true si querés ver logs de imágenes
     const DEBUG_IMAGES = false;
 
     // ============================
@@ -293,8 +325,11 @@
     let catActual = "";
     let searchText = "";
 
+    // ✅ NUEVO: estado para expandir descripciones
+    let descExpanded = {}; // { [id]: true }
+
     const SLUG_KEY = "menuonline_companySlug";
-    const CONFIG_PATH = "/MenuOnline/config.json";
+    const CONFIG_PATH = "/config.json";
 
     // ============================
     // URL / helpers
@@ -321,7 +356,6 @@
 
       if(s.startsWith("http://") || s.startsWith("https://")) return s;
 
-      // si te quedó guardada del front (error típico), la cortamos para que apunte al API
       if(s.includes("localhost:5600")){
         try{
           const u = new URL(s);
@@ -465,7 +499,6 @@
         imageUrl: x.imageUrl ?? x.ImageUrl ?? x.img ?? x.Img ?? ""
       })) : [];
 
-      // fallback categoryName por id
       const map = new Map(Categories.map(cc => [cc.id, cc.name]));
       Items.forEach(i => {
         if(!i.categoryName && i.categoryId && map.has(i.categoryId)){
@@ -522,7 +555,7 @@
     }
 
     // ============================
-    // HORARIOS
+    // HORARIOS (compact)
     // ============================
     function parseShiftLabel(t){
       if(!t) return "";
@@ -553,23 +586,50 @@
       return { abre: fmt(a), cierra: fmt(c) };
     }
 
+    function wireScheduleToggle(){
+      const btn = document.getElementById("btnToggleSchedule");
+      const wrap = document.getElementById("scheduleWrap");
+      if(!btn || !wrap) return;
+
+      btn.onclick = () => {
+        const isHidden = wrap.classList.contains("hidden");
+        wrap.classList.toggle("hidden", !isHidden ? true : false);
+
+        const icon = btn.querySelector("i");
+        if(icon){
+          icon.classList.toggle("fa-chevron-down", isHidden);
+          icon.classList.toggle("fa-chevron-up", !isHidden);
+        }
+        btn.lastChild.textContent = isHidden ? " Ocultar horarios" : " Ver todos los horarios";
+      };
+    }
+
     function renderHorarios(){
       const wrap = document.getElementById("scheduleWrap");
       const hint = document.getElementById("scheduleHint");
+      const btn = document.getElementById("btnToggleSchedule");
+      const todayBox = document.getElementById("scheduleToday");
+      const todayTxt = document.getElementById("scheduleTodayTxt");
+
       wrap.innerHTML = "";
+      hint.classList.add("hidden");
+      btn.classList.add("hidden");
+      wrap.classList.add("hidden");
+      todayBox.classList.add("hidden");
 
       const turnos = Array.isArray(Company.turnos) ? Company.turnos : [];
 
       if(!turnos.length){
         hint.classList.remove("hidden");
+        wrap.classList.remove("hidden");
         wrap.innerHTML = `
-          <div class="text-sm font-extrabold text-slate-900">Sin horarios cargados</div>
-          <div class="text-xs text-slate-500">Se asume abierto.</div>
+          <div class="p-4 bg-white">
+            <div class="text-sm font-extrabold text-slate-900">Sin horarios cargados</div>
+            <div class="text-xs text-slate-500 mt-1">Se asume abierto.</div>
+          </div>
         `;
         return;
       }
-
-      hint.classList.add("hidden");
 
       const anyHasDay = turnos.some(t => parseShiftLabel(t));
 
@@ -580,12 +640,20 @@
           return `${h.abre} - ${h.cierra}`;
         }).filter(Boolean);
 
+        todayBox.classList.remove("hidden");
+        todayTxt.textContent = ranges.length ? ranges.join(" · ") : "—";
+
+        btn.classList.remove("hidden");
+        wrap.classList.add("hidden");
+
         wrap.innerHTML = `
-          <div class="flex items-start justify-between gap-3">
-            <div class="text-sm font-extrabold text-slate-900">Horarios</div>
-            <div class="text-sm font-black text-slate-800">${ranges.length ? ranges.join(" · ") : "—"}</div>
+          <div class="bg-white p-4">
+            <div class="text-xs text-slate-500 font-black uppercase tracking-widest mb-2">Horarios</div>
+            <div class="text-sm font-black text-slate-900">${escapeHtml(ranges.length ? ranges.join(" · ") : "—")}</div>
           </div>
         `;
+
+        wireScheduleToggle();
         return;
       }
 
@@ -599,84 +667,125 @@
       }
 
       if(!rows.length){
-        wrap.innerHTML = `<div class="text-sm text-slate-500">No hay horarios válidos para mostrar.</div>`;
+        wrap.classList.remove("hidden");
+        wrap.innerHTML = `<div class="p-4 bg-white text-sm text-slate-500">No hay horarios válidos para mostrar.</div>`;
         return;
       }
 
+      // Resumen HOY
+      try{
+        const map = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+        const hoy = map[new Date().getDay()];
+
+        const todayRows = rows.filter(r => {
+          const d = normText(r.day);
+          if(d.includes("lunes a viernes")) return (new Date().getDay() >= 1 && new Date().getDay() <= 5);
+          if(d.includes("lunes a domingo")) return true;
+          return d === normText(hoy);
+        });
+
+        const uniq = [...new Set(todayRows.map(x => x.hoursTxt).filter(Boolean))];
+
+        if(uniq.length){
+          todayBox.classList.remove("hidden");
+          todayTxt.textContent = uniq.join(" · ");
+        }
+      }catch{}
+
+      btn.classList.remove("hidden");
+      wrap.classList.add("hidden");
+
       wrap.innerHTML = rows.map(r => `
-        <div class="flex items-center justify-between gap-4 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
+        <div class="bg-white px-4 py-3 flex items-center justify-between gap-4 border-b border-slate-100 last:border-b-0">
           <div class="text-sm font-extrabold text-slate-900 truncate">${escapeHtml(r.day)}</div>
-          <div class="text-sm font-black text-slate-800 whitespace-nowrap">${escapeHtml(r.hoursTxt)}</div>
+          <div class="text-sm font-black text-slate-700 whitespace-nowrap">${escapeHtml(r.hoursTxt)}</div>
         </div>
       `).join("");
+
+      wireScheduleToggle();
     }
 
     // ============================
-    // OPEN/CLOSED
+    // OPEN/CLOSED (día + hora)
     // ============================
+    function dayLabelMatchesToday(label, dayIndex){
+      const map = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+      const l = normText(label);
+      if(!l) return false;
+      if(l.includes("lunes a viernes")) return dayIndex >= 1 && dayIndex <= 5;
+      if(l.includes("lunes a domingo")) return true;
+      if(l === "todos") return true;
+      return l === map[dayIndex];
+    }
+
     function validarHorario(){
       const btn = document.getElementById("btn-confirmar-final");
       const turnos = Array.isArray(Company.turnos) ? Company.turnos : [];
 
-      if(!turnos.length){
-        setOpenBadge("open");
-        btn.disabled = false;
-        btn.classList.remove("bg-slate-100");
-        btn.classList.add("bg-amber-600");
-        btn.innerHTML = `ENVIAR PEDIDO <i class="fa-brands fa-whatsapp ml-1"></i>`;
-        return;
-      }
-
-      const anyHasDay = turnos.some(t => parseShiftLabel(t));
-      if(anyHasDay){
-        setOpenBadge("open");
-        btn.disabled = false;
-        btn.classList.remove("bg-slate-100");
-        btn.classList.add("bg-amber-600");
-        btn.innerHTML = `ENVIAR PEDIDO <i class="fa-brands fa-whatsapp ml-1"></i>`;
-        return;
-      }
-
-      const ahora = new Date();
-      const dia = ahora.getDay();
-      const minutos = ahora.getHours()*60 + ahora.getMinutes();
-
-      if(dia === 1){
+      const setClosed = () => {
         setOpenBadge("closed");
         btn.disabled = true;
         btn.classList.remove("bg-amber-600");
         btn.classList.add("bg-slate-100");
         btn.innerText = "LOCAL CERRADO";
+      };
+
+      const setOpen = () => {
+        setOpenBadge("open");
+        btn.disabled = false;
+        btn.classList.remove("bg-slate-100");
+        btn.classList.add("bg-amber-600");
+        btn.innerHTML = `ENVIAR PEDIDO <i class="fa-brands fa-whatsapp ml-1"></i>`;
+      };
+
+      if(!turnos.length){ setOpen(); return; }
+
+      const ahora = new Date();
+      const dayIndex = ahora.getDay();
+      const minutos = ahora.getHours()*60 + ahora.getMinutes();
+
+      const anyHasDay = turnos.some(t => parseShiftLabel(t));
+
+      if(!anyHasDay){
+        let abierto = false;
+        for(const t of turnos){
+          const abreH = Number(t.abre ?? t.Abre);
+          const cierraH = Number(t.cierra ?? t.Cierra);
+          if(Number.isNaN(abreH) || Number.isNaN(cierraH)) continue;
+
+          const abre = abreH * 60;
+          const cierra = cierraH * 60;
+
+          if(minutos >= abre && minutos < cierra){ abierto = true; break; }
+        }
+        if(abierto) setOpen(); else setClosed();
         return;
       }
 
+      const shiftsToday = turnos.filter(t => dayLabelMatchesToday(parseShiftLabel(t), dayIndex));
+      if(!shiftsToday.length){ setClosed(); return; }
+
       let abierto = false;
-      for(const t of turnos){
-        const abreH = Number(t.abre ?? t.Abre);
-        const cierraH = Number(t.cierra ?? t.Cierra);
+      let anyValidHours = false;
+
+      for(const t of shiftsToday){
+        const h = parseShiftHours(t);
+        if(!h.abre || !h.cierra) continue;
+
+        const abreH = Number(String(h.abre).split(":")[0]);
+        const cierraH = Number(String(h.cierra).split(":")[0]);
         if(Number.isNaN(abreH) || Number.isNaN(cierraH)) continue;
+
+        anyValidHours = true;
 
         const abre = abreH * 60;
         const cierra = cierraH * 60;
 
-        if(minutos >= abre && minutos < cierra){
-          abierto = true; break;
-        }
+        if(minutos >= abre && minutos < cierra){ abierto = true; break; }
       }
 
-      if(abierto){
-        setOpenBadge("open");
-        btn.disabled = false;
-        btn.classList.remove("bg-slate-100");
-        btn.classList.add("bg-amber-600");
-        btn.innerHTML = `ENVIAR PEDIDO <i class="fa-brands fa-whatsapp ml-1"></i>`;
-      } else {
-        setOpenBadge("closed");
-        btn.disabled = true;
-        btn.classList.remove("bg-amber-600");
-        btn.classList.add("bg-slate-100");
-        btn.innerText = "LOCAL CERRADO";
-      }
+      if(!anyValidHours){ setOpen(); return; }
+      if(abierto) setOpen(); else setClosed();
     }
 
     // ============================
@@ -724,7 +833,7 @@
       el.innerHTML = "";
 
       if(!cats.length){
-        el.innerHTML = `<div class="text-xs text-slate-400 font-semibold py-2">No hay categorías disponibles.</div>`;
+        el.innerHTML = `<div class="text-sm text-slate-400 font-semibold py-2">No hay categorías disponibles.</div>`;
         return;
       }
 
@@ -747,20 +856,21 @@
       renderMenu();
     }
 
-    // ✅ CLAVE: acá evitamos que el item use /uploads/companies/ (logo)
     function isBadItemImage(raw){
       const s = String(raw || "").trim();
       if(!s) return true;
 
       const companyLogoRaw = String(Company.logoUrl || "").trim();
-
-      // si el item trae el mismo path que el logo => mal
       if(companyLogoRaw && s === companyLogoRaw) return true;
-
-      // si apunta a la carpeta de companies => es logo, no item
       if(s.includes("/uploads/companies/")) return true;
 
       return false;
+    }
+
+    // ✅ toggle “Ver más / Ver menos”
+    function toggleDesc(id){
+      descExpanded[id] = !descExpanded[id];
+      renderMenu();
     }
 
     function renderMenu(){
@@ -791,55 +901,65 @@
         const inCart = carrito[p.id]?.qty || 0;
 
         const raw = String(p.imageUrl || "").trim();
-
         let img = ph;
+
         if(!isBadItemImage(raw)){
           const resolved = imgUrl(raw);
-          // cache bust
           img = resolved + (resolved.includes("?") ? "&" : "?") + "v=" + (p.id || Date.now());
         }
 
-        if(DEBUG_IMAGES){
-          console.log("ITEM:", p.id, p.name);
-          console.log("RAW imageUrl:", raw);
-          console.log("COMPANY logoUrl:", Company.logoUrl);
-          console.log("FINAL IMG:", img);
-        }
+        const isOpen = !!descExpanded[p.id];
+        const desc = String(p.description || "").trim();
+        const hasLong = desc.length > 70; // umbral para mostrar botón
 
         const card = document.createElement("div");
-        card.className = "food-card p-5 flex gap-4 items-start";
+        card.className = "food-card p-6 sm:p-5 flex gap-5 sm:gap-4 items-start";
 
         card.innerHTML = `
-          <div class="w-24 h-24 rounded-3xl overflow-hidden bg-slate-50 border border-slate-100 shadow-sm shrink-0">
+          <div class="w-28 h-28 sm:w-24 sm:h-24 rounded-3xl overflow-hidden bg-slate-50 border border-slate-100 shadow-sm shrink-0">
             <img src="${img}" class="w-full h-full object-cover" onerror="this.src='${ph}'" />
           </div>
 
           <div class="flex-1 min-w-0">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <h3 class="font-extrabold text-slate-900 text-base leading-tight tracking-tight truncate">${escapeHtml(p.name)}</h3>
-                ${p.description ? `<p class="text-xs text-slate-500 mt-1">${escapeHtml(p.description)}</p>` : ``}
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0 flex-1 pr-2">
+                <h3 class="font-extrabold text-slate-900 text-lg sm:text-base leading-tight tracking-tight truncate">
+                  ${escapeHtml(p.name)}
+                </h3>
+
+                ${desc ? `
+                  <p class="text-sm sm:text-xs text-slate-500 mt-1 leading-snug ${isOpen ? "" : "clamp-2"} break-words">
+                    ${escapeHtml(desc)}
+                  </p>
+                  ${hasLong ? `
+                    <button type="button"
+                      class="mt-1 text-xs sm:text-[11px] font-extrabold text-amber-700 hover:text-amber-800"
+                      onclick="toggleDesc(${p.id})">
+                      ${isOpen ? "Ver menos" : "Ver más"}
+                    </button>
+                  ` : ``}
+                ` : ``}
               </div>
 
-              <div class="text-right shrink-0">
+              <div class="text-right shrink-0 min-w-[92px]">
                 <div class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Precio</div>
-                <div class="text-2xl font-black text-slate-900 leading-none mt-1">$${formatMoney(p.price)}</div>
+                <div class="text-3xl sm:text-2xl font-black text-slate-900 leading-none mt-1">$${formatMoney(p.price)}</div>
               </div>
             </div>
 
             <input type="text"
               placeholder="Aclaración..."
               value="${escapeAttr(carrito[p.id]?.note || "")}"
-              class="mt-3 w-full text-[11px] bg-transparent border-b border-slate-100 py-2 outline-none text-slate-500 focus:border-amber-400 transition-all"
+              class="mt-3 w-full text-sm sm:text-[11px] bg-transparent border-b border-slate-100 py-3 sm:py-2 outline-none text-slate-500 focus:border-amber-400 transition-all"
               oninput="actualizarNota(${p.id}, this.value)" />
 
             <div class="mt-4 flex items-center gap-4">
-              <button class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-600 border border-slate-100 hover:bg-slate-200 transition"
+              <button class="w-12 h-12 sm:w-10 sm:h-10 rounded-2xl sm:rounded-xl bg-slate-50 flex items-center justify-center text-slate-600 border border-slate-100 hover:bg-slate-200 transition text-xl sm:text-base"
                 onclick="modificar(${p.id}, -1)">-</button>
 
-              <span class="font-black text-lg w-6 text-center text-slate-800">${inCart}</span>
+              <span class="font-black text-xl sm:text-lg w-7 text-center text-slate-800">${inCart}</span>
 
-              <button class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center font-black active:scale-90 shadow-md shadow-amber-100 transition"
+              <button class="w-12 h-12 sm:w-10 sm:h-10 rounded-2xl sm:rounded-xl bg-amber-600 text-white flex items-center justify-center font-black active:scale-90 shadow-md shadow-amber-100 transition text-xl sm:text-base"
                 onclick="modificar(${p.id}, 1)">+</button>
             </div>
           </div>
@@ -885,16 +1005,33 @@
       let subtotal = 0;
       Object.values(carrito).forEach(p => { subtotal += p.price * p.qty; });
 
-      const pago = document.getElementById("pago-cliente").value;
+      const pagoEl = document.getElementById("pago-cliente");
+      const pago = pagoEl ? pagoEl.value : "Efectivo";
+
       const recargo = (pago === "Transferencia") ? Math.round(subtotal * 0.10) : 0;
 
-      const hasAlias = !!String(Company.alias || "").trim();
-      document.getElementById("row-recargo").classList.toggle("hidden", pago !== "Transferencia");
-      document.getElementById("alias-card").classList.toggle("hidden", !(pago === "Transferencia" && hasAlias));
+      // recargo UI
+      const rowRec = document.getElementById("row-recargo");
+      if(rowRec) rowRec.classList.toggle("hidden", pago !== "Transferencia");
 
-      document.getElementById("det-subtotal").innerText = "$" + formatMoney(subtotal);
-      document.getElementById("det-recargo").innerText = "$" + formatMoney(recargo);
-      document.getElementById("monto-final-checkout").innerText = "$" + formatMoney(subtotal + recargo);
+      // ✅ Alias UI (siempre que sea Transferencia y exista alias)
+      const alias = String(Company?.alias || "").trim();
+      const showAlias = (pago === "Transferencia" && alias.length > 0);
+
+      const aliasCard = document.getElementById("alias-card");
+      const aliasTxt = document.getElementById("txt-alias");
+
+      if(aliasCard) aliasCard.classList.toggle("hidden", !showAlias);
+      if(showAlias && aliasTxt) aliasTxt.textContent = alias;
+
+      // totales UI
+      const detSub = document.getElementById("det-subtotal");
+      const detRec = document.getElementById("det-recargo");
+      const detTot = document.getElementById("monto-final-checkout");
+
+      if(detSub) detSub.innerText = "$" + formatMoney(subtotal);
+      if(detRec) detRec.innerText = "$" + formatMoney(recargo);
+      if(detTot) detTot.innerText = "$" + formatMoney(subtotal + recargo);
     }
 
     function abrirCheckout(){
@@ -910,18 +1047,44 @@
       });
 
       document.getElementById("modal-checkout").style.display = "flex";
-      calcularTotalFinal();
+      calcularTotalFinal(); // ✅ fuerza alias + recargo al abrir
     }
 
     function cerrarModales(){
       document.getElementById("modal-checkout").style.display = "none";
     }
 
-    function copiarAlias(){
+    // ✅ Copiar alias a prueba de navegadores
+    async function copiarAlias(){
       const a = String(Company.alias || "").trim();
       if(!a) return;
-      navigator.clipboard.writeText(a);
-      alert("¡Alias copiado!");
+
+      try{
+        if(navigator.clipboard && window.isSecureContext){
+          await navigator.clipboard.writeText(a);
+          alert("¡Alias copiado!");
+          return;
+        }
+      }catch{}
+
+      const ta = document.createElement("textarea");
+      ta.value = a;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.top = "-1000px";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+
+      try{
+        document.execCommand("copy");
+        alert("¡Alias copiado!");
+      }catch{
+        prompt("Copiá el alias:", a);
+      }finally{
+        document.body.removeChild(ta);
+      }
     }
 
     async function enviarWhatsApp(){
@@ -993,7 +1156,14 @@
           if(p.note) msg += `  _Nota: ${p.note}_\n`;
         });
 
-        msg += `--------------------------\n*TOTAL: $${formatMoney(total)}*\n\nGracias 🙌`;
+        msg += `--------------------------\n*TOTAL: $${formatMoney(total)}*`;
+
+        const alias = String(Company.alias || "").trim();
+        if(pago === "Transferencia" && alias){
+          msg += `\n*Alias:* ${alias}`;
+        }
+
+        msg += `\n\nGracias 🙌`;
 
         carrito = {};
         cerrarModales();

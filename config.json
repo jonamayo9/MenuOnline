@@ -1,5 +1,6 @@
 {
-  "apiBaseUrl": "https://gourmet-backend-1.onrender.com",
+
+  "apiBaseUrl": "https://localhost:7222",
   "companySlug": "como-en-casa",
   "negocio": {
     "nombre": "COMO EN CASA",
@@ -12,3 +13,4 @@
     ]
   }
 }
+
