@@ -3,54 +3,192 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Turnos / Horarios</title>
+  <title>System Dev Solutions | Turnos</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+    }
+
+    .module-card{
+      position: relative;
+      overflow: hidden;
+    }
+
+    .module-card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(15,23,42,.02) 100%);
+      pointer-events:none;
+    }
+
+    .hero-glow::before{
+      content:"";
+      position:absolute;
+      right:-40px;
+      top:-40px;
+      width:180px;
+      height:180px;
+      background: radial-gradient(circle, rgba(15,23,42,.08) 0%, rgba(15,23,42,0) 70%);
+      filter: blur(10px);
+      pointer-events:none;
+    }
+  </style>
 </head>
 
 <body class="bg-slate-100 text-slate-800 min-h-screen">
-  <div class="max-w-5xl mx-auto p-6">
+  <div class="relative min-h-screen overflow-hidden">
+    <!-- Fondo -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(148,163,184,0.18),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(15,23,42,0.08),_transparent_28%)]"></div>
 
-    <!-- Header -->
-    <div class="bg-white rounded-3xl shadow-sm p-6 mb-6 border border-slate-200">
-      <div class="flex items-start justify-between gap-8 flex-wrap">
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
 
-        <!-- IZQUIERDA -->
-        <div class="min-w-[280px]">
-          <div class="flex items-center gap-4">
-            <!-- Volver -->
-            <a href="./home.html"
-               class="h-11 w-11 grid place-items-center rounded-2xl bg-slate-100 text-slate-800 text-lg font-bold
-                      hover:bg-slate-200 transition"
-               title="Volver">
-              ←
-            </a>
+      <!-- Branding -->
+      <div class="text-center mb-8 md:mb-10">
+        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tighter text-slate-900 uppercase">
+          System Dev <span class="text-slate-500 font-light">Solutions</span>
+        </h1>
+        <p class="text-[13px] tracking-[0.3em] text-slate-400 font-semibold mt-1">Digital Solutions for Local Commerce</p>
+      </div>
 
-            <div>
-              <h1 class="text-3xl font-extrabold tracking-tight leading-tight">Turnos</h1>
-              <p class="text-sm text-slate-500 mt-1">Administrá horarios de apertura/cierre.</p>
+      <!-- Header -->
+      <div class="glass-card hero-glow relative rounded-[2rem] md:rounded-[2.5rem] border border-white/70 shadow-xl p-6 md:p-8 mb-6">
+        <div class="flex items-start justify-between gap-8 flex-wrap">
+
+          <!-- IZQUIERDA -->
+          <div class="min-w-[280px]">
+            <div class="flex items-center gap-4">
+              <!-- Volver -->
+              <a href="./home.html"
+                 class="h-12 w-12 shrink-0 grid place-items-center rounded-2xl bg-slate-100 text-slate-800 text-lg font-bold
+                        hover:bg-slate-200 transition"
+                 title="Volver">
+                ←
+              </a>
+
+              <div>
+                <div class="flex items-center gap-2 flex-wrap mb-2">
+                  <div class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.25em] font-bold border bg-slate-900 text-white border-slate-900">
+                    Admin Panel
+                  </div>
+                  <div class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.2em] font-bold border bg-slate-50 text-slate-600 border-slate-200">
+                    Turnos
+                  </div>
+                </div>
+
+                <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">Turnos</h1>
+                <p class="text-sm md:text-base text-slate-500 mt-2">Administrá horarios de apertura y cierre.</p>
+              </div>
             </div>
+          </div>
+
+          <!-- DERECHA -->
+          <div class="flex items-center gap-3 flex-wrap">
+            <button id="refresh"
+              class="px-5 py-3 rounded-2xl bg-slate-900 text-white font-bold shadow-lg hover:bg-black hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+              Actualizar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="glass-card rounded-[2rem] border border-white/70 shadow-sm p-6 md:p-8 mb-6">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <div class="text-2xl font-extrabold tracking-tight text-slate-900">Nuevo turno</div>
+            <div class="text-sm text-slate-500 mt-1">Definí horarios generales o por día.</div>
+          </div>
+
+          <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-emerald-50 text-emerald-800 border-emerald-100">
+            Horarios
           </div>
         </div>
 
-        <!-- DERECHA -->
-        <div class="flex items-center gap-3 flex-wrap">
-          <button id="refresh"
-            class="px-5 py-3 rounded-2xl bg-slate-900 text-white font-semibold shadow hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
-            Actualizar
-          </button>
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+          <div>
+            <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Día</label>
+            <select id="dayOfWeek"
+              class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition">
+              <option value="">Todos</option>
+              <option value="0">Domingos</option>
+              <option value="1">Lunes</option>
+              <option value="2">Martes</option>
+              <option value="3">Miércoles</option>
+              <option value="4">Jueves</option>
+              <option value="5">Viernes</option>
+              <option value="6">Sábado</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Abre</label>
+            <input id="openHour" type="number" min="0" max="23" value="11"
+              class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
+          </div>
+
+          <div>
+            <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Cierra</label>
+            <input id="closeHour" type="number" min="0" max="23" value="15"
+              class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
+          </div>
+
+          <div>
+            <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Estado</label>
+            <div class="w-full h-[50px] bg-slate-50 border border-slate-200 rounded-2xl px-4 flex items-center justify-between shadow-sm">
+              <span class="text-sm text-slate-600 font-medium">Habilitado</span>
+              <input id="enabled" type="checkbox" checked class="w-4 h-4"/>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs text-transparent font-bold uppercase tracking-tight mb-2 block select-none">Acción</label>
+            <button id="create"
+              class="w-full h-[50px] px-5 rounded-2xl bg-emerald-600 text-white font-bold shadow-lg hover:bg-emerald-700 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+              Agregar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
+        <div class="text-sm text-slate-400 font-bold uppercase tracking-[0.2em]">Horarios configurados</div>
+        <div class="text-sm text-slate-500 font-semibold" id="summary"></div>
+      </div>
+
+      <!-- List -->
+      <div id="list" class="space-y-4"></div>
+    </div>
+  </div>
+
+  <!-- Modal editar -->
+  <div id="editModal" class="hidden fixed inset-0 z-50 px-4 py-8 overflow-y-auto">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+    <div class="relative max-w-xl mx-auto glass-card rounded-[2rem] shadow-2xl border border-white/70 p-6 md:p-8">
+      <div class="flex justify-between items-center mb-6 gap-4">
+        <div>
+          <div class="text-2xl font-extrabold tracking-tight text-slate-900">Editar turno</div>
+          <div class="text-sm text-slate-500 mt-1">Modificá día, horario y estado del turno seleccionado.</div>
         </div>
 
+        <button id="closeModal" class="h-11 w-11 grid place-items-center rounded-2xl bg-slate-100 hover:bg-slate-200 transition text-slate-700 font-bold">✕</button>
       </div>
-    </div>
 
-    <!-- Form -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 mb-6">
-      <div class="text-lg font-extrabold mb-4">Agregar turno</div>
+      <input type="hidden" id="editId"/>
 
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
-        <div class="flex flex-col">
-          <label class="text-xs text-slate-400 mb-1">Día</label>
-          <select id="dayOfWeek" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="md:col-span-2">
+          <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Día</label>
+          <select id="editDayOfWeek"
+            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition">
             <option value="">Todos</option>
             <option value="0">Domingos</option>
             <option value="1">Lunes</option>
@@ -62,37 +200,66 @@
           </select>
         </div>
 
-        <div class="flex flex-col">
-          <label class="text-xs text-slate-400 mb-1">Abre</label>
-          <input id="openHour" type="number" min="0" max="23" value="11"
-            class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+        <div>
+          <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Abre</label>
+          <input id="editOpenHour" type="number" min="0" max="23"
+            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
         </div>
 
-        <div class="flex flex-col">
-          <label class="text-xs text-slate-400 mb-1">Cierra</label>
-          <input id="closeHour" type="number" min="0" max="23" value="15"
-            class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+        <div>
+          <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Cierra</label>
+          <input id="editCloseHour" type="number" min="0" max="23"
+            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
         </div>
 
-        <div class="flex items-center gap-2 md:mt-6">
-          <input id="enabled" type="checkbox" checked class="w-4 h-4"/>
-          <label for="enabled" class="text-sm text-slate-600">Habilitado</label>
-        </div>
-
-        <div class="md:mt-6">
-          <button id="create"
-            class="w-full px-4 py-2 rounded-xl bg-emerald-100 text-emerald-800 font-semibold hover:bg-emerald-200 transition">
-            Agregar
-          </button>
+        <div class="md:col-span-2">
+          <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Estado</label>
+          <div class="w-full bg-slate-50 border border-slate-200 rounded-[1.4rem] px-4 py-4 flex items-center justify-between">
+            <span class="text-sm text-slate-700 font-medium">Habilitado</span>
+            <input id="editEnabled" type="checkbox" class="w-4 h-4"/>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Summary + List -->
-    <div class="flex justify-end items-center mb-3">
-      <div class="text-sm text-slate-500" id="summary"></div>
+      <div class="mt-6 text-right">
+        <button id="update"
+          class="px-5 py-3 rounded-2xl bg-amber-500 text-white font-bold shadow-lg hover:bg-amber-600 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 text-sm">
+          Guardar cambios
+        </button>
+      </div>
     </div>
-    <div id="list" class="space-y-4"></div>
+  </div>
+
+  <!-- Modal eliminar -->
+  <div id="deleteModal" class="hidden fixed inset-0 z-50 px-4 py-8 overflow-y-auto">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+    <div class="relative max-w-md mx-auto glass-card rounded-[2rem] shadow-2xl border border-white/70 p-6 md:p-8">
+      <div class="flex justify-between items-center mb-5 gap-4">
+        <div>
+          <div class="text-2xl font-extrabold tracking-tight text-slate-900">Eliminar turno</div>
+          <div id="deleteSubtitle" class="text-sm text-slate-500 mt-1">Confirmá la eliminación del turno.</div>
+        </div>
+
+        <button id="closeDeleteModal" class="h-11 w-11 grid place-items-center rounded-2xl bg-slate-100 hover:bg-slate-200 transition text-slate-700 font-bold">✕</button>
+      </div>
+
+      <div class="bg-rose-50 border border-rose-100 text-rose-800 rounded-2xl p-4 text-sm">
+        Esta acción eliminará el turno seleccionado.
+      </div>
+
+      <div class="mt-6 flex justify-end gap-2 flex-wrap">
+        <button id="cancelDelete"
+          class="px-4 py-3 rounded-2xl bg-slate-100 text-slate-800 font-bold hover:bg-slate-200 transition">
+          Volver
+        </button>
+
+        <button id="confirmDelete"
+          class="px-5 py-3 rounded-2xl bg-rose-600 text-white font-bold shadow-lg hover:bg-rose-700 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+          Sí, eliminar
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Toast container -->
@@ -101,6 +268,8 @@
   <script>
     let CONFIG = null;
     let isRefreshing = false;
+    let shiftsCache = [];
+    let deletingShiftId = null;
 
     // =========================
     // AUTH GUARD (SIN DUPLICADOS)
@@ -108,10 +277,10 @@
     const TOKEN_KEY = "menuonline_token";
     const SLUG_KEY  = "menuonline_companySlug";
     const LOGIN_PAGE = "./login.html";
-    // PROD
-    const CONFIG_PATH = "/MenuOnline/config.json";
-    // DEV
-    //const CONFIG_PATH = "/config.json"; 
+    //   PROD
+   //const CONFIG_PATH = "/MenuOnline/config.json";
+   //  DEV
+    const CONFIG_PATH = "/config.json";
 
     function logoutToLogin(){
       localStorage.removeItem(TOKEN_KEY);
@@ -255,26 +424,9 @@
       }, ms);
     }
 
-    function toastClear() {
-      if (!activeToastEl) return;
-      activeToastEl.remove();
-      activeToastEl = null;
-    }
-
-    // ===== Helpers =====
-    function dayLabel(d) {
-      if (d === null || d === undefined) return "Todos";
-      const map = ["Domingos", "Lunes", "Martes", "Miércoles", "Jueves", "Vienes", "Sábados"];
-      return map[d] ?? String(d);
-    }
-
-    function badge(enabled) {
-      return enabled
-        ? "bg-emerald-50 text-emerald-800 border-emerald-100"
-        : "bg-rose-50 text-rose-800 border-rose-100";
-    }
-
-    // ===== API =====
+    // =========================
+    // API (con auth + slug)
+    // =========================
     async function loadConfig() {
       const res = await fetch(CONFIG_PATH, { cache: "no-store" });
       if (!res.ok) throw new Error("No pude leer config.json");
@@ -319,52 +471,98 @@
       if (!res.ok) throw new Error("Error eliminando turno");
     }
 
+    // ===== UI Helpers =====
+    function dayLabel(d) {
+      if (d === null || d === undefined || d === "") return "Todos";
+      const map = ["Domingos", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábados"];
+      return map[d] ?? String(d);
+    }
+
+    function badge(enabled) {
+      return enabled
+        ? "bg-emerald-50 text-emerald-800 border-emerald-100"
+        : "bg-rose-50 text-rose-800 border-rose-100";
+    }
+
+    function isHourValid(value){
+      return Number.isInteger(Number(value)) && Number(value) >= 0 && Number(value) <= 23;
+    }
+
+    function openEditModal(shift){
+      document.getElementById("editId").value = String(shift.id);
+      document.getElementById("editDayOfWeek").value = shift.dayOfWeek ?? "";
+      document.getElementById("editOpenHour").value = String(shift.openHour ?? 0);
+      document.getElementById("editCloseHour").value = String(shift.closeHour ?? 0);
+      document.getElementById("editEnabled").checked = !!shift.enabled;
+      document.getElementById("editModal").classList.remove("hidden");
+    }
+
+    function closeEditModal(){
+      document.getElementById("editModal").classList.add("hidden");
+    }
+
+    function openDeleteModal(id, label){
+      deletingShiftId = id;
+      document.getElementById("deleteSubtitle").textContent = label
+        ? `Vas a eliminar el turno de ${label}.`
+        : "Confirmá la eliminación del turno.";
+      document.getElementById("deleteModal").classList.remove("hidden");
+    }
+
+    function closeDeleteModal(){
+      deletingShiftId = null;
+      document.getElementById("deleteModal").classList.add("hidden");
+    }
+
     function setSummary(items) {
       document.getElementById("summary").textContent = `${items.length} turno(s)`;
     }
 
-    // ===== UI Render =====
+    // ===== Render =====
     function render(items) {
       const el = document.getElementById("list");
       setSummary(items);
 
       if (!items.length) {
         el.innerHTML = `
-          <div class="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm">
-            <div class="font-semibold">No hay turnos</div>
-            <div class="text-sm text-slate-600 mt-1">Agregá el primero arriba.</div>
+          <div class="glass-card rounded-[2rem] border border-white/70 shadow-sm p-8 text-center">
+            <div class="text-5xl mb-3">🕒</div>
+            <div class="text-xl font-extrabold text-slate-900">No hay turnos</div>
+            <div class="text-sm text-slate-500 mt-2">Agregá el primero desde el formulario de arriba.</div>
           </div>`;
         return;
       }
 
       el.innerHTML = items.map(s => `
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
+        <div class="module-card glass-card rounded-[2rem] border border-white/70 shadow-sm p-6 transition-all duration-200 hover:shadow-xl hover:-translate-y-1"
+             data-day-label="${dayLabel(s.dayOfWeek)}">
           <div class="flex items-start justify-between gap-4 flex-wrap">
-            <div class="min-w-[220px]">
-              <div class="flex items-center gap-3">
-                <div class="text-xl font-extrabold">${dayLabel(s.dayOfWeek)}</div>
+            <div class="min-w-[260px]">
+              <div class="flex items-center gap-3 flex-wrap">
+                <div class="text-xl font-extrabold tracking-tight text-slate-900">${dayLabel(s.dayOfWeek)}</div>
                 <span class="px-3 py-1 rounded-full text-xs font-semibold border ${badge(s.enabled)}">
                   ${s.enabled ? "Habilitado" : "Deshabilitado"}
                 </span>
               </div>
-              <div class="text-sm text-slate-500 mt-2">
-                Abre <span class="font-semibold text-slate-800">${s.openHour}:00</span> ·
-                Cierra <span class="font-semibold text-slate-800">${s.closeHour}:00</span>
+
+              <div class="text-sm text-slate-500 mt-3">
+                Abre:
+                <span class="font-bold text-slate-800">${s.openHour}:00</span>
+                ·
+                Cierra:
+                <span class="font-bold text-slate-800">${s.closeHour}:00</span>
               </div>
+
+              <div class="text-xs text-slate-400 mt-1">Id: ${s.id}</div>
             </div>
 
-            <div class="flex flex-wrap gap-2 justify-end">
-              <button class="px-4 py-2 rounded-xl bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200 transition"
-                data-edit="1"
-                data-id="${s.id}"
-                data-day="${s.dayOfWeek ?? ""}"
-                data-open="${s.openHour}"
-                data-close="${s.closeHour}"
-                data-enabled="${s.enabled}">
+            <div class="flex gap-2 flex-wrap justify-end items-center w-full md:w-auto">
+              <button class="px-4 py-3 min-w-[110px] rounded-2xl bg-slate-100 text-slate-800 font-bold hover:bg-slate-200 transition"
+                data-edit="1" data-id="${s.id}">
                 Editar
               </button>
 
-              <button class="px-4 py-2 rounded-xl bg-rose-100 text-rose-800 font-semibold hover:bg-rose-200 transition"
+              <button class="px-4 py-3 min-w-[110px] rounded-2xl bg-rose-100 text-rose-800 font-bold hover:bg-rose-200 transition"
                 data-del="1" data-id="${s.id}">
                 Eliminar
               </button>
@@ -373,52 +571,20 @@
         </div>
       `).join("");
 
-      // Editar
       el.querySelectorAll("button[data-edit='1']").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const id = btn.getAttribute("data-id");
-          const day = btn.getAttribute("data-day");
-          const open = btn.getAttribute("data-open");
-          const close = btn.getAttribute("data-close");
-          const enabled = btn.getAttribute("data-enabled") === "true";
-
-          const newOpen = prompt("OpenHour (0-23):", open);
-          if (newOpen === null) return;
-          const newClose = prompt("CloseHour (0-23):", close);
-          if (newClose === null) return;
-
-          try {
-            toastShow("Guardando cambios...", "info");
-            await apiUpdateShift(id, {
-              dayOfWeek: day === "" ? null : Number(day),
-              openHour: Number(newOpen),
-              closeHour: Number(newClose),
-              enabled
-            });
-            await refresh();
-            toastUpdate("Turno actualizado", "success", 1800);
-          } catch (e) {
-            console.error(e);
-            toastUpdate("Error al actualizar turno", "error", 2500);
-          }
+        btn.addEventListener("click", () => {
+          const id = Number(btn.getAttribute("data-id"));
+          const shift = shiftsCache.find(x => x.id === id);
+          if (shift) openEditModal(shift);
         });
       });
 
-      // Eliminar
       el.querySelectorAll("button[data-del='1']").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const id = btn.getAttribute("data-id");
-          if (!confirm("¿Eliminar este turno?")) return;
-
-          try {
-            toastShow("Eliminando turno...", "info");
-            await apiDeleteShift(id);
-            await refresh();
-            toastUpdate("Turno eliminado", "success", 1800);
-          } catch (e) {
-            console.error(e);
-            toastUpdate("Error al eliminar turno", "error", 2500);
-          }
+        btn.addEventListener("click", () => {
+          const id = Number(btn.getAttribute("data-id"));
+          const card = btn.closest("[data-day-label]");
+          const label = card?.getAttribute("data-day-label") || null;
+          openDeleteModal(id, label);
         });
       });
     }
@@ -434,7 +600,8 @@
 
       try {
         const items = await apiGetShifts();
-        render(items);
+        shiftsCache = Array.isArray(items) ? items : [];
+        render(shiftsCache);
       } finally {
         btn.textContent = old;
         btn.disabled = false;
@@ -442,19 +609,26 @@
       }
     }
 
+    // ===== Init =====
     (async function init() {
       try {
         if(!requireAuth()) return;
 
         CONFIG = await loadConfig();
 
-        document.getElementById("refresh").addEventListener("click", () => refresh());
+        document.getElementById("refresh").addEventListener("click", refresh);
 
         document.getElementById("create").addEventListener("click", async () => {
           const dayVal = document.getElementById("dayOfWeek").value;
           const openHour = Number(document.getElementById("openHour").value);
           const closeHour = Number(document.getElementById("closeHour").value);
           const enabled = document.getElementById("enabled").checked;
+
+          if (!isHourValid(openHour) || !isHourValid(closeHour)) {
+            toastShow("Las horas deben estar entre 0 y 23", "error");
+            toastAutoClose(1800);
+            return;
+          }
 
           try {
             toastShow("Creando turno...", "info");
@@ -469,6 +643,63 @@
           } catch (e) {
             console.error(e);
             toastUpdate("Error al crear turno", "error", 2500);
+          }
+        });
+
+        document.getElementById("closeModal").addEventListener("click", closeEditModal);
+        document.getElementById("editModal").addEventListener("click", (e) => {
+          if (e.target.id === "editModal") closeEditModal();
+        });
+
+        document.getElementById("update").addEventListener("click", async () => {
+          const id = Number(document.getElementById("editId").value);
+          const dayVal = document.getElementById("editDayOfWeek").value;
+          const openHour = Number(document.getElementById("editOpenHour").value);
+          const closeHour = Number(document.getElementById("editCloseHour").value);
+          const enabled = document.getElementById("editEnabled").checked;
+
+          if (!isHourValid(openHour) || !isHourValid(closeHour)) {
+            toastShow("Las horas deben estar entre 0 y 23", "error");
+            toastAutoClose(1800);
+            return;
+          }
+
+          try {
+            toastShow("Guardando cambios...", "info");
+            await apiUpdateShift(id, {
+              dayOfWeek: dayVal === "" ? null : Number(dayVal),
+              openHour,
+              closeHour,
+              enabled
+            });
+            closeEditModal();
+            await refresh();
+            toastUpdate("Turno actualizado", "success", 1800);
+          } catch (e) {
+            console.error(e);
+            toastUpdate("Error al actualizar turno", "error", 2500);
+          }
+        });
+
+        document.getElementById("closeDeleteModal").addEventListener("click", closeDeleteModal);
+        document.getElementById("cancelDelete").addEventListener("click", closeDeleteModal);
+
+        document.getElementById("deleteModal").addEventListener("click", (e) => {
+          if (e.target.id === "deleteModal") closeDeleteModal();
+        });
+
+        document.getElementById("confirmDelete").addEventListener("click", async () => {
+          if (!deletingShiftId) return;
+
+          try {
+            toastShow("Eliminando turno...", "info");
+            await apiDeleteShift(deletingShiftId);
+            closeDeleteModal();
+            await refresh();
+            toastUpdate("Turno eliminado", "success", 1800);
+          } catch (e) {
+            console.error(e);
+            toastUpdate("Error al eliminar turno", "error", 2500);
           }
         });
 

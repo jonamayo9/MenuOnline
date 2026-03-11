@@ -3,113 +3,110 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin | Login</title>
+  <title>System Dev Solutions | Admin Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+    }
+  </style>
 </head>
 
 <body class="bg-slate-100 text-slate-800 min-h-screen">
 
-  <!-- Toast -->
-  <div id="toastContainer" class="fixed top-6 right-6 z-50"></div>
+<div id="toastContainer"
+     class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+</div>
 
-  <div class="min-h-screen flex items-start justify-center px-4 py-10">
-
-    <div class="w-full max-w-xl">
-
-      <!-- Header -->
-      <div class="bg-white rounded-3xl shadow-sm p-6 mb-6 border border-slate-200">
-        <div class="flex items-center justify-between gap-4 flex-wrap">
-          <div>
-            <h1 class="text-3xl font-extrabold tracking-tight">Panel Admin</h1>
-            <p class="text-sm text-slate-500 mt-1">Ingresá para gestionar tu menú y pedidos.</p>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <span class="text-xs text-slate-400"><span class="font-semibold">MenuOnline</span></span>
-            <span id="pillApi"
-                  class="px-3 py-1 rounded-full text-xs font-semibold border bg-slate-50 text-slate-700 border-slate-200">
-              API: —
-            </span>
-          </div>
-        </div>
+  <div class="min-h-screen flex items-center justify-center px-4 py-10">
+    <div class="w-full max-w-md">
+      
+      <div class="text-center mb-10">
+        <h1 class="text-3xl font-extrabold tracking-tighter text-slate-900 uppercase">
+          System Dev <span class="text-slate-500 font-light">Solutions</span>
+        </h1>
+        <p class="text-[13px] tracking-[0.3em] text-slate-400 font-semibold mt-1">Digital Solutions for Local Commerce</p>
       </div>
 
-      <!-- Card Login -->
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
-        <div class="flex items-start justify-between gap-3">
+      <div class="glass-card rounded-[2.5rem] border border-slate-200 shadow-xl p-8 md:p-10">
+        <div class="flex items-start justify-between gap-3 mb-8">
           <div>
-            <div class="text-xl font-extrabold">Iniciar sesión</div>
+            <div class="text-2xl font-extrabold text-slate-900">Iniciar sesión</div>
             <div class="text-sm text-slate-500 mt-1" id="subtitle">
               Empresa + email + contraseña.
             </div>
           </div>
 
-          <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-amber-50 text-amber-800 border-amber-100" id="pillMode">
+          <div class="px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold border bg-amber-50 text-amber-800 border-amber-100" id="pillMode">
             Admin
           </div>
         </div>
 
-        <div class="mt-6 space-y-4">
+        <div class="space-y-4">
 
-          <!-- ✅ Toggle SuperAdmin -->
           <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
             <div>
               <div class="text-sm font-semibold text-slate-800">Soy SuperAdmin</div>
               <div class="text-xs text-slate-500">Entrar sin empresa.</div>
             </div>
-            <input id="isSuperAdmin" type="checkbox" class="w-5 h-5"/>
+            <input id="isSuperAdmin" type="checkbox" class="w-5 h-5 accent-slate-900 cursor-pointer"/>
           </div>
 
           <div id="companyBox">
-            <label class="text-xs text-slate-400 font-semibold">Empresa (slug)</label>
+            <label class="text-xs text-slate-400 font-bold ml-1 uppercase tracking-tight">Empresa (slug)</label>
             <input id="companySlug" type="text" placeholder="como-en-casa"
-              class="mt-1 w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm
-                     focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
+              class="mt-1 w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 text-sm
+                     focus:outline-none focus:ring-2 focus:ring-slate-400 transition shadow-sm"/>
           </div>
 
           <div>
-            <label class="text-xs text-slate-400 font-semibold">Email</label>
+            <label class="text-xs text-slate-400 font-bold ml-1 uppercase tracking-tight">Email</label>
             <input id="email" type="email" placeholder="admin@demo.com"
-              class="mt-1 w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm
-                     focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
+              class="mt-1 w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 text-sm
+                     focus:outline-none focus:ring-2 focus:ring-slate-400 transition shadow-sm"/>
           </div>
 
           <div>
-            <label class="text-xs text-slate-400 font-semibold">Contraseña</label>
+            <label class="text-xs text-slate-400 font-bold ml-1 uppercase tracking-tight">Contraseña</label>
             <input id="password" type="password" placeholder="••••••••"
-              class="mt-1 w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm
-                     focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
+              class="mt-1 w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 text-sm
+                     focus:outline-none focus:ring-2 focus:ring-slate-400 transition shadow-sm"/>
           </div>
 
           <div id="errorBox"
-               class="hidden bg-rose-50 border border-rose-100 text-rose-800 rounded-2xl p-4 text-sm"></div>
+               class="hidden bg-rose-50 border border-rose-100 text-rose-800 rounded-2xl p-4 text-sm font-medium"></div>
 
           <button id="btnLogin"
-            class="w-full px-5 py-3 rounded-2xl bg-slate-900 text-white font-semibold shadow
-                   hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
-            Entrar
+            class="w-full px-5 py-4 rounded-2xl bg-slate-900 text-white font-bold shadow-lg
+                   hover:bg-black hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 uppercase tracking-widest text-xs mt-2">
+            Entrar al sistema
           </button>
 
-          <div class="flex items-center justify-between gap-3 flex-wrap">
-            <div class="text-xs text-slate-400">Si vence la sesión, volvés al login.</div>
-            <button id="btnClearSession" class="text-xs font-semibold text-slate-700 hover:underline">
+          <div class="flex flex-col items-center gap-4 pt-2">
+            <div class="text-[10px] text-slate-400 font-medium">Si vence la sesión, volvés al login.</div>
+            <button id="btnClearSession" class="text-[10px] font-bold text-slate-600 hover:text-rose-500 uppercase tracking-tighter transition-colors">
               Borrar sesión guardada
             </button>
           </div>
         </div>
       </div>
 
-      <div class="mt-6 text-center text-xs text-slate-400">
-        © MenuOnline
+      <div id="pillApi" class="hidden text-center mt-4 text-[10px] text-slate-300"></div>
+
+      <div class="mt-8 text-center text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em]">
+        © MenuOnline | System Dev Solutions
       </div>
     </div>
   </div>
 
   <script>
-    //   PROD
-   const CONFIG_PATH = "/MenuOnline/config.json";
-   //  DEV
-   // const CONFIG_PATH = "/config.json";
+    //   PROD
+    //const CONFIG_PATH = "/MenuOnline/config.json";
+    //  DEV
+    const CONFIG_PATH = "/config.json";
 
     // ✅ redirecciones distintas
     const AFTER_LOGIN_REDIRECT_ADMIN = "./home.html";
@@ -130,28 +127,42 @@
       const icon = type==="success" ? "✓" : type==="error" ? "⚠" : "⏳";
 
       const el = document.createElement("div");
-      el.className = `${colors[type]} text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[280px]
-                      transform transition-all duration-200 translate-y-2 opacity-0`;
+el.className = `${colors[type]} text-white px-6 py-5 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[300px]
+                transform transition-all duration-200 scale-95 opacity-0 pointer-events-auto`;
       el.innerHTML = `<div class="text-lg font-bold leading-none">${icon}</div>
                       <div class="text-sm font-semibold">${message}</div>`;
       container.appendChild(el);
       activeToast = el;
 
-      requestAnimationFrame(()=> el.classList.remove("translate-y-2","opacity-0"));
+requestAnimationFrame(()=> el.classList.remove("scale-95","opacity-0"));
 
       setTimeout(()=>{
         if(activeToast !== el) return;
-        el.classList.add("translate-y-2","opacity-0");
+        el.classList.add("scale-95","opacity-0");
         setTimeout(()=>{ if(activeToast===el) activeToast=null; el.remove(); }, 200);
       }, ms);
     }
 
-    function setError(msg){
-      const box = document.getElementById("errorBox");
-      if(!msg){ box.classList.add("hidden"); box.textContent=""; return; }
-      box.textContent = msg;
-      box.classList.remove("hidden");
-    }
+function setMessage(msg, type="error"){
+  const box = document.getElementById("errorBox");
+
+  if(!msg){
+    box.classList.add("hidden");
+    box.textContent = "";
+    return;
+  }
+
+  box.className = "rounded-2xl p-4 text-sm font-medium border";
+
+  if(type === "success"){
+    box.classList.add("bg-emerald-50","border-emerald-200","text-emerald-800");
+  }else{
+    box.classList.add("bg-rose-50","border-rose-100","text-rose-800");
+  }
+
+  box.textContent = msg;
+  box.classList.remove("hidden");
+}
 
     function clearSession(){
       localStorage.removeItem(TOKEN_KEY);
@@ -194,60 +205,60 @@
     }
 
     async function doLogin(apiBaseUrl, companySlugOrEmpty, email, password, isSuper){
-    const body = { email, password, companySlug: companySlugOrEmpty };
+        const body = { email, password, companySlug: companySlugOrEmpty };
 
-    const res = await fetch(`${apiBaseUrl}/api/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
+        const res = await fetch(`${apiBaseUrl}/api/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
 
-    // si falla, intentamos leer mensaje y salimos
-    if(!res.ok){
-      let msg = "No pude iniciar sesión";
-      try{ msg = (await res.json())?.message || msg; }catch{}
-      throw new Error(msg);
+        // si falla, intentamos leer mensaje y salimos
+        if(!res.ok){
+            let msg = "No pude iniciar sesión";
+            try{ msg = (await res.json())?.message || msg; }catch{}
+            throw new Error(msg);
+        }
+
+        // ✅ recién acá existe data
+        const data = await res.json();
+        if(!data?.accessToken) throw new Error("No recibí accessToken");
+
+        // token + exp + email
+        localStorage.setItem(TOKEN_KEY, data.accessToken);
+        localStorage.setItem(EMAIL_KEY, email);
+
+        if(data.expiresAtUtc) localStorage.setItem(EXP_KEY, data.expiresAtUtc);
+        else localStorage.removeItem(EXP_KEY);
+
+        // role (lo guardamos)
+        const role = String(data.role || "").toLowerCase();
+        localStorage.setItem("menuonline_role", data.role || "");
+
+        // super final: por checkbox o por role que venga del backend
+        const isSuperFinal = !!isSuper || role === "superadmin";
+        localStorage.setItem(IS_SUPER_KEY, isSuperFinal ? "true" : "false");
+
+        // company slug (solo si NO es super)
+        if(!isSuperFinal){
+            if(data.companySlug) localStorage.setItem(SLUG_KEY, data.companySlug);
+            else localStorage.setItem(SLUG_KEY, companySlugOrEmpty || "");
+        } else {
+            localStorage.removeItem(SLUG_KEY);
+        }
+
+        // validación exp desde JWT (tu función isTokenValid)
+        if(!isTokenValid(data.accessToken)){
+            clearSession();
+            throw new Error("Token inválido o sin vencimiento (exp).");
+        }
+
+        // redirect
+        const target = isSuperFinal ? AFTER_LOGIN_REDIRECT_SUPER : AFTER_LOGIN_REDIRECT_ADMIN;
+        setTimeout(()=> location.href = target, 350);
+
+        return { isSuper: isSuperFinal };
     }
-
-    // ✅ recién acá existe data
-    const data = await res.json();
-    if(!data?.accessToken) throw new Error("No recibí accessToken");
-
-    // token + exp + email
-    localStorage.setItem(TOKEN_KEY, data.accessToken);
-    localStorage.setItem(EMAIL_KEY, email);
-
-    if(data.expiresAtUtc) localStorage.setItem(EXP_KEY, data.expiresAtUtc);
-    else localStorage.removeItem(EXP_KEY);
-
-    // role (lo guardamos)
-    const role = String(data.role || "").toLowerCase();
-    localStorage.setItem("menuonline_role", data.role || "");
-
-    // super final: por checkbox o por role que venga del backend
-    const isSuperFinal = !!isSuper || role === "superadmin";
-    localStorage.setItem(IS_SUPER_KEY, isSuperFinal ? "true" : "false");
-
-    // company slug (solo si NO es super)
-    if(!isSuperFinal){
-      if(data.companySlug) localStorage.setItem(SLUG_KEY, data.companySlug);
-      else localStorage.setItem(SLUG_KEY, companySlugOrEmpty || "");
-    } else {
-      localStorage.removeItem(SLUG_KEY);
-    }
-
-    // validación exp desde JWT (tu función isTokenValid)
-    if(!isTokenValid(data.accessToken)){
-      clearSession();
-      throw new Error("Token inválido o sin vencimiento (exp).");
-    }
-
-    // redirect
-    const target = isSuperFinal ? AFTER_LOGIN_REDIRECT_SUPER : AFTER_LOGIN_REDIRECT_ADMIN;
-    setTimeout(()=> location.href = target, 350);
-
-    return { isSuper: isSuperFinal };
-  }
 
     function applyMode(isSuper){
       const companyBox = document.getElementById("companyBox");
@@ -258,12 +269,12 @@
         companyBox.classList.add("hidden");
         subtitle.textContent = "Email + contraseña (sin empresa).";
         pill.textContent = "SuperAdmin";
-        pill.className = "px-3 py-1 rounded-full text-xs font-semibold border bg-purple-50 text-purple-800 border-purple-100";
+        pill.className = "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border bg-purple-50 text-purple-800 border-purple-100";
       }else{
         companyBox.classList.remove("hidden");
         subtitle.textContent = "Empresa + email + contraseña.";
         pill.textContent = "Admin";
-        pill.className = "px-3 py-1 rounded-full text-xs font-semibold border bg-amber-50 text-amber-800 border-amber-100";
+        pill.className = "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border bg-amber-50 text-amber-800 border-amber-100";
       }
     }
 
@@ -271,6 +282,7 @@
       try{
         const cfg = await loadConfig();
         const api = cfg.apiBaseUrl || "—";
+        // Lo mantenemos en el DOM pero oculto como pediste
         document.getElementById("pillApi").textContent = `API: ${api}`;
 
         // restaurar modo
@@ -311,41 +323,31 @@
         });
 
         document.getElementById("btnLogin").addEventListener("click", async () => {
-  setError(null);
+            setMessage(null);
+            const isSuper = document.getElementById("isSuperAdmin").checked;
+            const companySlug = document.getElementById("companySlug").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
 
-  const isSuper = document.getElementById("isSuperAdmin").checked;
+            if(!email || !password){
+                setMessage("Completá email y contraseña.");
+                return;
+            }
 
-  const companySlug = document.getElementById("companySlug").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+            if(!isSuper && !companySlug){
+                setMessage("Completá empresa, email y contraseña.");
+                return;
+            }
 
-  if(!email || !password){
-    setError("Completá email y contraseña.");
-    return;
-  }
-
-  if(!isSuper && !companySlug){
-    setError("Completá empresa, email y contraseña.");
-    return;
-  }
-
-  try{
-    toast("Ingresando...", "info", 1200);
-
-    // ✅ para super mandamos "" (más compatible)
-    const slugOrEmpty = isSuper ? "" : companySlug;
-
-    await doLogin(cfg.apiBaseUrl, slugOrEmpty, email, password, isSuper);
-
-    // doLogin ya hace el redirect, acá solo mostramos toast
-    toast("Bienvenido ✅", "success", 900);
-
-  }catch(e){
-    console.error(e);
-    setError(e.message || "Error al ingresar");
-    toast("Error al ingresar", "error", 1800);
-  }
-});
+            try{
+                const slugOrEmpty = isSuper ? "" : companySlug;
+                await doLogin(cfg.apiBaseUrl, slugOrEmpty, email, password, isSuper);
+                setMessage("Bienvenido al sistema ✅", "success");
+            }catch(e){
+                console.error(e);
+                setMessage(e.message || "Error al ingresar", "error");
+            }
+        });
 
         ["companySlug","email","password"].forEach(id => {
           const el = document.getElementById(id);

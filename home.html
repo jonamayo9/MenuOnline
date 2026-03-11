@@ -3,200 +3,336 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin | Home</title>
+  <title>System Dev Solutions | Home Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+    }
+
+    .hero-glow::before{
+      content:"";
+      position:absolute;
+      inset:auto auto 0 0;
+      width:220px;
+      height:220px;
+      background: radial-gradient(circle, rgba(15,23,42,.10) 0%, rgba(15,23,42,0) 70%);
+      filter: blur(8px);
+      pointer-events:none;
+    }
+
+    .module-card{
+      position: relative;
+      overflow: hidden;
+    }
+
+    .module-card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(15,23,42,.02) 100%);
+      pointer-events:none;
+    }
+  </style>
 </head>
 
-<body class="bg-slate-100 text-slate-800 min-h-screen">
-
+<body class="min-h-screen bg-slate-100 text-slate-800">
   <!-- Toast -->
   <div id="toastContainer" class="fixed top-6 right-6 z-50"></div>
 
-  <div class="max-w-6xl mx-auto p-6">
+  <div class="relative min-h-screen overflow-hidden">
+    <!-- Fondo -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(148,163,184,0.18),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(15,23,42,0.08),_transparent_28%)]"></div>
 
-    <!-- Header -->
-    <div class="bg-white rounded-3xl shadow-sm p-6 mb-6 border border-slate-200">
-      <div class="flex items-start justify-between flex-wrap gap-4">
-        <div>
-          <h1 class="text-3xl font-extrabold tracking-tight">Panel Admin</h1>
-          <p class="text-sm text-slate-500 mt-1">
-            <span class="font-semibold" id="companyLabel">—</span> ·
-            <span id="emailLabel">—</span>
-          </p>
-        </div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
 
-        <div class="flex items-center gap-2 flex-wrap">
-          <button id="btnLogout"
-            class="px-5 py-3 rounded-2xl bg-slate-900 text-white font-semibold shadow
-                   hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
-            Salir
-          </button>
+      <!-- Branding superior -->
+      <div class="text-center mb-8 md:mb-10">
+        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tighter text-slate-900 uppercase">
+          System Dev <span class="text-slate-500 font-light">Solutions</span>
+        </h1>
+        <p class="text-[13px] tracking-[0.3em] text-slate-400 font-semibold mt-1">Digital Solutions for Local Commerce</p>
+      </div>
+
+      <!-- Hero / Header -->
+      <div class="glass-card hero-glow relative rounded-[2rem] md:rounded-[2.5rem] border border-white/70 shadow-xl p-5 md:p-8 mb-6">
+        <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
+          
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-3 mb-4">
+              <div class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.25em] font-bold border bg-slate-900 text-white border-slate-900">
+                Admin Panel
+              </div>
+
+              <div class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.2em] font-bold border bg-slate-50 text-slate-600 border-slate-200">
+                Home
+              </div>
+            </div>
+
+            <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
+              Bienvenido al panel de gestión
+            </h2>
+
+            <p class="text-sm md:text-base text-slate-500 mt-3 max-w-2xl">
+              Accedé rápido a pedidos, productos, categorías, horarios, reportes y operación del salón.
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6 max-w-3xl">
+              <div class="bg-white/80 border border-slate-200 rounded-2xl px-4 py-4">
+                <div class="text-[11px] uppercase tracking-[0.22em] text-slate-400 font-bold">Empresa</div>
+                <div class="text-sm md:text-base font-extrabold text-slate-900 mt-1 truncate" id="companyLabel">—</div>
+              </div>
+
+              <div class="bg-white/80 border border-slate-200 rounded-2xl px-4 py-4">
+                <div class="text-[11px] uppercase tracking-[0.22em] text-slate-400 font-bold">Usuario</div>
+                <div class="text-sm md:text-base font-extrabold text-slate-900 mt-1 truncate" id="emailLabel">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row xl:flex-col gap-3 xl:min-w-[220px]">
+            <a id="publicMenuButton"
+               href="#"
+               class="inline-flex items-center justify-center px-5 py-4 rounded-2xl bg-white text-slate-900 border border-slate-200 font-bold shadow-sm hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+              Ver menú público
+            </a>
+
+            <button id="btnLogout"
+              class="inline-flex items-center justify-center px-5 py-4 rounded-2xl bg-slate-900 text-white font-bold shadow-lg hover:bg-black hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+              Salir
+            </button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      <!-- Accesos -->
+      <div class="mb-4 flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <h3 class="text-xl md:text-2xl font-extrabold tracking-tight text-slate-900">Módulos disponibles</h3>
+          <p class="text-sm text-slate-500 mt-1">Accesos directos según funcionalidades activas y permisos del usuario.</p>
+        </div>
+      </div>
 
-      <!-- Pedidos -->
-      <a href="./admin-order.html"
-         class="group bg-white rounded-3xl border border-slate-200 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
-        <div class="flex items-start justify-between">
-          <div>
-            <div class="text-xl font-extrabold">Pedidos</div>
-            <div class="text-sm text-slate-500 mt-1">Ver, tomar, imprimir, cambiar estados.</div>
+      <!-- Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 md:gap-6">
+
+        <!-- Pedidos -->
+        <a id="cardOrders" href="./admin-order.html"
+          class="module-card group glass-card rounded-[2rem] border border-white/80 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-200">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-2xl font-extrabold tracking-tight text-slate-900">Pedidos</div>
+              <div class="text-sm text-slate-500 mt-2">Ver, tomar, imprimir y cambiar estados.</div>
+            </div>
+            <div class="shrink-0 px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold border bg-amber-50 text-amber-800 border-amber-100">
+              Operación
+            </div>
           </div>
-          <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-amber-50 text-amber-800 border-amber-100">
-            Operación
+
+          <div class="mt-6 bg-white/80 border border-slate-200 rounded-2xl p-4">
+            <div class="text-xs uppercase tracking-[0.22em] text-slate-400 font-bold">Acceso rápido</div>
+            <div class="mt-2 text-sm text-slate-700 font-medium">Gestión diaria de pedidos del local.</div>
           </div>
-        </div>
 
-        <!-- Acceso rápido restaurado -->
-        <div class="mt-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-700">
-          <div class="font-semibold">Acceso rápido</div>
-          <div class="mt-1">Gestión diaria de pedidos.</div>
-        </div>
-
-        <div class="mt-5 text-sm font-semibold text-slate-900 group-hover:underline">
-          Abrir →
-        </div>
-      </a>
-
-      <!-- Productos -->
-      <a href="./admin-products.html"
-         class="group bg-white rounded-3xl border border-slate-200 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
-        <div class="flex items-start justify-between">
-          <div>
-            <div class="text-xl font-extrabold">Productos</div>
-            <div class="text-sm text-slate-500 mt-1">Altas, bajas, precios, fotos, disponibilidad.</div>
+          <div class="mt-6 flex items-center justify-between">
+            <span class="text-sm font-extrabold text-slate-900">Abrir módulo</span>
+            <span class="text-lg text-slate-400 group-hover:translate-x-1 transition-transform">→</span>
           </div>
-          <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-slate-50 text-slate-700 border-slate-200">
-            Menú
+        </a>
+
+        <!-- Productos -->
+        <a id="cardProducts" href="./admin-products.html"
+          class="module-card group glass-card rounded-[2rem] border border-white/80 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-200">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-2xl font-extrabold tracking-tight text-slate-900">Productos</div>
+              <div class="text-sm text-slate-500 mt-2">Altas, bajas, precios, fotos y disponibilidad.</div>
+            </div>
+            <div class="shrink-0 px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold border bg-slate-50 text-slate-700 border-slate-200">
+              Menú
+            </div>
           </div>
-        </div>
 
-        <div class="mt-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-700">
-          <div class="font-semibold">Tip</div>
-          <div class="mt-1">Ordená por categorías para que quede prolijo.</div>
-        </div>
-
-        <div class="mt-5 text-sm font-semibold text-slate-900 group-hover:underline">
-          Abrir →
-        </div>
-      </a>
-
-      <!-- Categorías -->
-      <a href="./admin-categories.html"
-         class="group bg-white rounded-3xl border border-slate-200 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
-        <div class="flex items-start justify-between">
-          <div>
-            <div class="text-xl font-extrabold">Categorías</div>
-            <div class="text-sm text-slate-500 mt-1">Orden, nombres, habilitadas/deshabilitadas.</div>
+          <div class="mt-6 bg-white/80 border border-slate-200 rounded-2xl p-4">
+            <div class="text-xs uppercase tracking-[0.22em] text-slate-400 font-bold">Tip</div>
+            <div class="mt-2 text-sm text-slate-700 font-medium">Ordená por categorías para que el menú quede más prolijo.</div>
           </div>
-          <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-slate-50 text-slate-700 border-slate-200">
-            Menú
+
+          <div class="mt-6 flex items-center justify-between">
+            <span class="text-sm font-extrabold text-slate-900">Abrir módulo</span>
+            <span class="text-lg text-slate-400 group-hover:translate-x-1 transition-transform">→</span>
           </div>
-        </div>
+        </a>
 
-        <div class="mt-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-700">
-          <div class="font-semibold">Pro tip</div>
-          <div class="mt-1">Usá SortOrder para el orden del menú.</div>
-        </div>
-
-        <div class="mt-5 text-sm font-semibold text-slate-900 group-hover:underline">
-          Abrir →
-        </div>
-      </a>
-
-      <!-- Horarios -->
-      <a href="./admin-shifts.html"
-         class="group bg-white rounded-3xl border border-slate-200 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
-        <div class="flex items-start justify-between">
-          <div>
-            <div class="text-xl font-extrabold">Horarios</div>
-            <div class="text-sm text-slate-500 mt-1">Apertura/cierre y excepciones.</div>
+        <!-- Categorías -->
+        <a id="cardCategories" href="./admin-categories.html"
+          class="module-card group glass-card rounded-[2rem] border border-white/80 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-200">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-2xl font-extrabold tracking-tight text-slate-900">Categorías</div>
+              <div class="text-sm text-slate-500 mt-2">Orden, nombres y habilitadas/deshabilitadas.</div>
+            </div>
+            <div class="shrink-0 px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold border bg-slate-50 text-slate-700 border-slate-200">
+              Menú
+            </div>
           </div>
-          <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-emerald-50 text-emerald-800 border-emerald-100">
-            Config
+
+          <div class="mt-6 bg-white/80 border border-slate-200 rounded-2xl p-4">
+            <div class="text-xs uppercase tracking-[0.22em] text-slate-400 font-bold">Pro tip</div>
+            <div class="mt-2 text-sm text-slate-700 font-medium">Usá el orden para mostrar el menú de forma clara.</div>
           </div>
-        </div>
 
-        <div class="mt-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-700">
-          <div class="font-semibold">Objetivo</div>
-          <div class="mt-1">Evitar que el público vea “cerrado” mal.</div>
-        </div>
-
-        <div class="mt-5 text-sm font-semibold text-slate-900 group-hover:underline">
-          Abrir →
-        </div>
-      </a>
-
-      <!-- Resumen diario -->
-      <a href="./admin-resumen.html"
-         class="group bg-white rounded-3xl border border-slate-200 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
-        <div class="flex items-start justify-between">
-          <div>
-            <div class="text-xl font-extrabold">Resumen diario</div>
-            <div class="text-sm text-slate-500 mt-1">Totales del día y pedidos por estado.</div>
+          <div class="mt-6 flex items-center justify-between">
+            <span class="text-sm font-extrabold text-slate-900">Abrir módulo</span>
+            <span class="text-lg text-slate-400 group-hover:translate-x-1 transition-transform">→</span>
           </div>
-          <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-purple-50 text-purple-800 border-purple-100">
-            Reporte
+        </a>
+
+        <!-- Horarios -->
+        <a id="cardShifts" href="./admin-shifts.html"
+          class="module-card group glass-card rounded-[2rem] border border-white/80 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-200">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-2xl font-extrabold tracking-tight text-slate-900">Horarios</div>
+              <div class="text-sm text-slate-500 mt-2">Apertura, cierre y excepciones operativas.</div>
+            </div>
+            <div class="shrink-0 px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold border bg-emerald-50 text-emerald-800 border-emerald-100">
+              Config
+            </div>
           </div>
-        </div>
 
-        <div class="mt-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-700">
-          <div class="font-semibold">Para cierre</div>
-          <div class="mt-1">Ideal para caja/turno.</div>
-        </div>
-
-        <div class="mt-5 text-sm font-semibold text-slate-900 group-hover:underline">
-          Abrir →
-        </div>
-      </a>
-
-      <!-- Link público -->
-      <a id="publicMenuLink" href="#"
-         class="group bg-white rounded-3xl border border-slate-200 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
-        <div class="flex items-start justify-between">
-          <div>
-            <div class="text-xl font-extrabold">Menú público</div>
-            <div class="text-sm text-slate-500 mt-1">Abrir la página del cliente.</div>
+          <div class="mt-6 bg-white/80 border border-slate-200 rounded-2xl p-4">
+            <div class="text-xs uppercase tracking-[0.22em] text-slate-400 font-bold">Objetivo</div>
+            <div class="mt-2 text-sm text-slate-700 font-medium">Evitar cierres incorrectos y mostrar el estado real del local.</div>
           </div>
-          <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-slate-900 text-white border-slate-900">
-            Público
+
+          <div class="mt-6 flex items-center justify-between">
+            <span class="text-sm font-extrabold text-slate-900">Abrir módulo</span>
+            <span class="text-lg text-slate-400 group-hover:translate-x-1 transition-transform">→</span>
           </div>
-        </div>
+        </a>
 
-        <div class="mt-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-700">
-          <div class="font-semibold">Atajo</div>
-          <div class="mt-1">Para ver cómo lo ve el cliente.</div>
-        </div>
+        <!-- Resumen diario -->
+        <a id="cardDashboard" href="./admin-resumen.html"
+          class="module-card group glass-card rounded-[2rem] border border-white/80 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-200">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-2xl font-extrabold tracking-tight text-slate-900">Resumen diario</div>
+              <div class="text-sm text-slate-500 mt-2">Totales del día y pedidos por estado.</div>
+            </div>
+            <div class="shrink-0 px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold border bg-purple-50 text-purple-800 border-purple-100">
+              Reporte
+            </div>
+          </div>
 
-        <div class="mt-5 text-sm font-semibold text-slate-900 group-hover:underline">
-          Abrir →
-        </div>
-      </a>
+          <div class="mt-6 bg-white/80 border border-slate-200 rounded-2xl p-4">
+            <div class="text-xs uppercase tracking-[0.22em] text-slate-400 font-bold">Para cierre</div>
+            <div class="mt-2 text-sm text-slate-700 font-medium">Ideal para caja, control diario y validación de turnos.</div>
+          </div>
 
+          <div class="mt-6 flex items-center justify-between">
+            <span class="text-sm font-extrabold text-slate-900">Abrir módulo</span>
+            <span class="text-lg text-slate-400 group-hover:translate-x-1 transition-transform">→</span>
+          </div>
+        </a>
+
+        <!-- Gestión de mesas -->
+        <a id="cardTables" href="./tables/tables.html"
+          class="hidden module-card group glass-card rounded-[2rem] border border-white/80 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-200">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-2xl font-extrabold tracking-tight text-slate-900">Gestión de mesas</div>
+              <div class="text-sm text-slate-500 mt-2">Abrir mesas, cargar consumo, cobrar y cerrar.</div>
+            </div>
+            <div class="shrink-0 px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold border bg-violet-50 text-violet-800 border-violet-100">
+              Salón
+            </div>
+          </div>
+
+          <div class="mt-6 bg-white/80 border border-slate-200 rounded-2xl p-4">
+            <div class="text-xs uppercase tracking-[0.22em] text-slate-400 font-bold">Acceso</div>
+            <div class="mt-2 text-sm text-slate-700 font-medium" id="tablesCardHint">Operación de mesas y atención del salón.</div>
+          </div>
+
+          <div class="mt-6 flex items-center justify-between">
+            <span class="text-sm font-extrabold text-slate-900">Abrir módulo</span>
+            <span class="text-lg text-slate-400 group-hover:translate-x-1 transition-transform">→</span>
+          </div>
+        </a>
+
+        <!-- Configuración de salón -->
+        <a id="cardTablesConfig" href="./tables/tables-config.html"
+          class="hidden module-card group glass-card rounded-[2rem] border border-white/80 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-200">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-2xl font-extrabold tracking-tight text-slate-900">Configuración de salón</div>
+              <div class="text-sm text-slate-500 mt-2">Mesas, capacidades, nombres y configuración operativa.</div>
+            </div>
+            <div class="shrink-0 px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold border bg-emerald-50 text-emerald-800 border-emerald-100">
+              Config
+            </div>
+          </div>
+
+          <div class="mt-6 bg-white/80 border border-slate-200 rounded-2xl p-4">
+            <div class="text-xs uppercase tracking-[0.22em] text-slate-400 font-bold">Administración</div>
+            <div class="mt-2 text-sm text-slate-700 font-medium">Configuración completa del salón.</div>
+          </div>
+
+          <div class="mt-6 flex items-center justify-between">
+            <span class="text-sm font-extrabold text-slate-900">Abrir módulo</span>
+            <span class="text-lg text-slate-400 group-hover:translate-x-1 transition-transform">→</span>
+          </div>
+        </a>
+
+        <!-- Menú público -->
+        <a id="publicMenuLink" href="#"
+          class="module-card group glass-card rounded-[2rem] border border-white/80 shadow-sm p-6 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-200">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-2xl font-extrabold tracking-tight text-slate-900">Menú público</div>
+              <div class="text-sm text-slate-500 mt-2">Abrir la página visible para tus clientes.</div>
+            </div>
+            <div class="shrink-0 px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold border bg-slate-900 text-white border-slate-900">
+              Público
+            </div>
+          </div>
+
+          <div class="mt-6 bg-white/80 border border-slate-200 rounded-2xl p-4">
+            <div class="text-xs uppercase tracking-[0.22em] text-slate-400 font-bold">Atajo</div>
+            <div class="mt-2 text-sm text-slate-700 font-medium">Ideal para revisar cómo lo ve el cliente final.</div>
+          </div>
+
+          <div class="mt-6 flex items-center justify-between">
+            <span class="text-sm font-extrabold text-slate-900">Abrir módulo</span>
+            <span class="text-lg text-slate-400 group-hover:translate-x-1 transition-transform">→</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Footer -->
+      <div class="mt-10 text-center text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-[0.3em]">
+        © MenuOnline | System Dev Solutions
+      </div>
     </div>
   </div>
 
   <script>
-    // ========= CONFIG =========
-    // PROD
-    const CONFIG_PATH = "/MenuOnline/config.json";
-    // DEV
-    //const CONFIG_PATH = "/config.json"; 
+    const CONFIG_PATH = "/config.json";
 
-    // Keys
     const TOKEN_KEY = "menuonline_token";
-    const AUTH_KEY  = "menuonline_authorization"; // por si alguna vez guardaste "Bearer xxx"
+    const AUTH_KEY  = "menuonline_authorization";
     const SLUG_KEY  = "menuonline_companySlug";
     const EMAIL_KEY = "menuonline_email";
 
     const LOGIN_PAGE = "./login.html";
 
-    // ========= Toast =========
     let activeToast = null;
+
     function toast(message, type="info", ms=1600){
       const container = document.getElementById("toastContainer");
       if(activeToast){ activeToast.remove(); activeToast = null; }
@@ -233,7 +369,6 @@
       return await res.json();
     }
 
-    // ✅ obtiene slug desde query (?companySlug=...) o localStorage
     function getCompanySlug(){
       const qs = new URLSearchParams(location.search);
       const fromQuery = (qs.get("companySlug") || qs.get("c") || "").trim();
@@ -241,9 +376,9 @@
       return (localStorage.getItem(SLUG_KEY) || "").trim();
     }
 
-    // ✅ arma el link público siempre bien
     function setPublicMenuLink(slug){
       const a = document.getElementById("publicMenuLink");
+      const b = document.getElementById("publicMenuButton");
       if(!a) return;
 
       if(!slug){
@@ -254,20 +389,192 @@
           e.preventDefault();
           toast("No hay empresa seleccionada (companySlug).", "error", 2200);
         };
+
+        if(b){
+          b.href = "#";
+          b.target = "";
+          b.rel = "";
+          b.onclick = (e) => {
+            e.preventDefault();
+            toast("No hay empresa seleccionada (companySlug).", "error", 2200);
+          };
+        }
         return;
       }
 
-      // Este home está en /admin/home.html, el público está en /index.html => sube un nivel
-      const publicUrl = `/MenuOnline/index.html?companySlug=${encodeURIComponent(slug)}`;
+      const publicUrl = `/index.html?companySlug=${encodeURIComponent(slug)}`;
 
       a.href = publicUrl;
-      a.target = "_blank";     // opcional
+      a.target = "_blank";
       a.rel = "noopener";
       a.onclick = null;
+
+      if(b){
+        b.href = publicUrl;
+        b.target = "_blank";
+        b.rel = "noopener";
+        b.onclick = null;
+      }
+    }
+
+    function setCardVisible(id, visible){
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.classList.toggle("hidden", !visible);
+    }
+
+    function saveFeaturesInLocalStorage(features){
+      localStorage.setItem("menuonline_featureOrdersEnabled", String(features?.featureOrdersEnabled !== false));
+      localStorage.setItem("menuonline_featureProductsEnabled", String(features?.featureProductsEnabled !== false));
+      localStorage.setItem("menuonline_featureCategoriesEnabled", String(features?.featureCategoriesEnabled !== false));
+      localStorage.setItem("menuonline_featureShiftsEnabled", String(features?.featureShiftsEnabled !== false));
+      localStorage.setItem("menuonline_featureDashboardEnabled", String(features?.featureDashboardEnabled !== false));
+      localStorage.setItem("menuonline_featureTableManagementEnabled", String(features?.featureTableManagementEnabled === true));
+    }
+
+    function saveUserPermissionsInLocalStorage(me){
+      localStorage.setItem("menuonline_canAccessOrders", String(!!me?.canAccessOrders));
+      localStorage.setItem("menuonline_canAccessProducts", String(!!me?.canAccessProducts));
+      localStorage.setItem("menuonline_canAccessCategories", String(!!me?.canAccessCategories));
+      localStorage.setItem("menuonline_canAccessShifts", String(!!me?.canAccessShifts));
+      localStorage.setItem("menuonline_canAccessDashboard", String(!!me?.canAccessDashboard));
+
+      localStorage.setItem("menuonline_canAccessTablesWaiter", String(!!me?.canAccessTablesWaiter));
+      localStorage.setItem("menuonline_canAccessTableConfig", String(!!me?.canAccessTableConfig));
+      localStorage.setItem("menuonline_canAccessTableDashboard", String(!!me?.canAccessTableDashboard));
+    }
+
+    function readFeaturesFromLocalStorage(){
+      const hasAny =
+        localStorage.getItem("menuonline_featureOrdersEnabled") !== null ||
+        localStorage.getItem("menuonline_featureProductsEnabled") !== null ||
+        localStorage.getItem("menuonline_featureCategoriesEnabled") !== null ||
+        localStorage.getItem("menuonline_featureShiftsEnabled") !== null ||
+        localStorage.getItem("menuonline_featureDashboardEnabled") !== null ||
+        localStorage.getItem("menuonline_featureTableManagementEnabled") !== null;
+
+      if(!hasAny) return null;
+
+      return {
+        featureOrdersEnabled: localStorage.getItem("menuonline_featureOrdersEnabled") !== "false",
+        featureProductsEnabled: localStorage.getItem("menuonline_featureProductsEnabled") !== "false",
+        featureCategoriesEnabled: localStorage.getItem("menuonline_featureCategoriesEnabled") !== "false",
+        featureShiftsEnabled: localStorage.getItem("menuonline_featureShiftsEnabled") !== "false",
+        featureDashboardEnabled: localStorage.getItem("menuonline_featureDashboardEnabled") !== "false",
+        featureTableManagementEnabled: localStorage.getItem("menuonline_featureTableManagementEnabled") === "true"
+      };
+    }
+
+    function readPermissionsFromLocalStorage(){
+      return {
+        canAccessOrders: localStorage.getItem("menuonline_canAccessOrders") === "true",
+        canAccessProducts: localStorage.getItem("menuonline_canAccessProducts") === "true",
+        canAccessCategories: localStorage.getItem("menuonline_canAccessCategories") === "true",
+        canAccessShifts: localStorage.getItem("menuonline_canAccessShifts") === "true",
+        canAccessDashboard: localStorage.getItem("menuonline_canAccessDashboard") === "true",
+        canAccessTablesWaiter: localStorage.getItem("menuonline_canAccessTablesWaiter") === "true",
+        canAccessTableConfig: localStorage.getItem("menuonline_canAccessTableConfig") === "true",
+        canAccessTableDashboard: localStorage.getItem("menuonline_canAccessTableDashboard") === "true"
+      };
+    }
+
+    function setTablesCards(features, permissions){
+      const featureEnabled = !!features?.featureTableManagementEnabled;
+
+      const canUseTables =
+        !!permissions?.canAccessTablesWaiter ||
+        !!permissions?.canAccessTableConfig ||
+        !!permissions?.canAccessTableDashboard;
+
+      const canConfigTables =
+        !!permissions?.canAccessTableConfig ||
+        !!permissions?.canAccessTableDashboard;
+
+      setCardVisible("cardTables", featureEnabled && canUseTables);
+      setCardVisible("cardTablesConfig", featureEnabled && canConfigTables);
+
+      if(featureEnabled && canUseTables){
+        const hint = document.getElementById("tablesCardHint");
+        const card = document.getElementById("cardTables");
+
+        if(permissions?.canAccessTablesWaiter && !permissions?.canAccessTableConfig && !permissions?.canAccessTableDashboard){
+          hint.textContent = "Acceso de mozo para operar mesas.";
+          card.href = "./tables/tables.html";
+        } else if(permissions?.canAccessTableDashboard){
+          hint.textContent = "Acceso a operación, configuración y dashboard del salón.";
+          card.href = "./tables/tables.html";
+        } else if(permissions?.canAccessTableConfig){
+          hint.textContent = "Acceso a operación y configuración de mesas.";
+          card.href = "./tables/tables.html";
+        } else {
+          hint.textContent = "Operación de mesas y atención del salón.";
+          card.href = "./tables/tables.html";
+        }
+      }
+    }
+
+    function setHomeModules(features, permissions){
+      const safeFeatures = {
+        featureOrdersEnabled: features?.featureOrdersEnabled !== false,
+        featureProductsEnabled: features?.featureProductsEnabled !== false,
+        featureCategoriesEnabled: features?.featureCategoriesEnabled !== false,
+        featureShiftsEnabled: features?.featureShiftsEnabled !== false,
+        featureDashboardEnabled: features?.featureDashboardEnabled !== false,
+        featureTableManagementEnabled: features?.featureTableManagementEnabled === true
+      };
+
+      const safePermissions = {
+        canAccessOrders: !!permissions?.canAccessOrders,
+        canAccessProducts: !!permissions?.canAccessProducts,
+        canAccessCategories: !!permissions?.canAccessCategories,
+        canAccessShifts: !!permissions?.canAccessShifts,
+        canAccessDashboard: !!permissions?.canAccessDashboard,
+        canAccessTablesWaiter: !!permissions?.canAccessTablesWaiter,
+        canAccessTableConfig: !!permissions?.canAccessTableConfig,
+        canAccessTableDashboard: !!permissions?.canAccessTableDashboard
+      };
+
+      setCardVisible("cardOrders", safeFeatures.featureOrdersEnabled && safePermissions.canAccessOrders);
+      setCardVisible("cardProducts", safeFeatures.featureProductsEnabled && safePermissions.canAccessProducts);
+      setCardVisible("cardCategories", safeFeatures.featureCategoriesEnabled && safePermissions.canAccessCategories);
+      setCardVisible("cardShifts", safeFeatures.featureShiftsEnabled && safePermissions.canAccessShifts);
+      setCardVisible("cardDashboard", safeFeatures.featureDashboardEnabled && safePermissions.canAccessDashboard);
+
+      setTablesCards(safeFeatures, safePermissions);
+    }
+
+    async function fetchAuth(url, options = {}){
+      const token = localStorage.getItem(TOKEN_KEY) || localStorage.getItem(AUTH_KEY);
+      if(!token){
+        location.replace(LOGIN_PAGE);
+        return null;
+      }
+
+      const res = await fetch(url, {
+        ...options,
+        headers: {
+          ...(options.headers || {}),
+          Authorization: token.startsWith("Bearer ") ? token : ("Bearer " + token)
+        }
+      });
+
+      if(res.status === 401 || res.status === 403){
+        logout();
+        return null;
+      }
+
+      return res;
+    }
+
+    async function apiGetAdminMe(config){
+      const url = `${config.apiBaseUrl}/api/admin/me`;
+      const res = await fetchAuth(url);
+      if(!res) return null;
+      if(!res.ok) return null;
+      return await res.json().catch(() => null);
     }
 
     (async function init(){
-      // Guard: si no hay token, afuera
       const token = localStorage.getItem(TOKEN_KEY) || localStorage.getItem(AUTH_KEY);
       if(!token){
         location.replace(LOGIN_PAGE);
@@ -282,12 +589,94 @@
       document.getElementById("emailLabel").textContent = email;
 
       try{
-        await loadConfig(); // lo dejamos por si después lo necesitás
+        const config = await loadConfig();
         setPublicMenuLink(slug === "—" ? "" : slug);
+
+        const me = await apiGetAdminMe(config);
+
+        if(me){
+          const features = {
+            featureOrdersEnabled: me.featureOrdersEnabled,
+            featureProductsEnabled: me.featureProductsEnabled,
+            featureCategoriesEnabled: me.featureCategoriesEnabled,
+            featureShiftsEnabled: me.featureShiftsEnabled,
+            featureDashboardEnabled: me.featureDashboardEnabled,
+            featureTableManagementEnabled: me.featureTableManagementEnabled
+          };
+
+          const permissions = {
+            canAccessOrders: me.canAccessOrders,
+            canAccessProducts: me.canAccessProducts,
+            canAccessCategories: me.canAccessCategories,
+            canAccessShifts: me.canAccessShifts,
+            canAccessDashboard: me.canAccessDashboard,
+            canAccessTablesWaiter: me.canAccessTablesWaiter,
+            canAccessTableConfig: me.canAccessTableConfig,
+            canAccessTableDashboard: me.canAccessTableDashboard
+          };
+
+          saveFeaturesInLocalStorage(features);
+          saveUserPermissionsInLocalStorage(me);
+          setHomeModules(features, permissions);
+
+          if(me.companySlug && me.companySlug !== slug && slug === "—"){
+            document.getElementById("companyLabel").textContent = me.companySlug;
+            setPublicMenuLink(me.companySlug);
+          }
+
+          if(me.email && email === "—"){
+            document.getElementById("emailLabel").textContent = me.email;
+          }
+
+          return;
+        }
+
+        const localFeatures = readFeaturesFromLocalStorage();
+        const localPermissions = readPermissionsFromLocalStorage();
+
+        if(localFeatures){
+          setHomeModules(localFeatures, localPermissions);
+        }else{
+          setHomeModules({
+            featureOrdersEnabled: true,
+            featureProductsEnabled: true,
+            featureCategoriesEnabled: true,
+            featureShiftsEnabled: true,
+            featureDashboardEnabled: true,
+            featureTableManagementEnabled: false
+          }, {
+            canAccessOrders: true,
+            canAccessProducts: true,
+            canAccessCategories: true,
+            canAccessShifts: true,
+            canAccessDashboard: true,
+            canAccessTablesWaiter: false,
+            canAccessTableConfig: false,
+            canAccessTableDashboard: false
+          });
+        }
       }catch(e){
         console.error(e);
         toast("No pude cargar config.json", "error", 2000);
-        setPublicMenuLink(""); // deja fallback con aviso
+        setPublicMenuLink("");
+
+        setHomeModules({
+          featureOrdersEnabled: true,
+          featureProductsEnabled: true,
+          featureCategoriesEnabled: true,
+          featureShiftsEnabled: true,
+          featureDashboardEnabled: true,
+          featureTableManagementEnabled: false
+        }, {
+          canAccessOrders: true,
+          canAccessProducts: true,
+          canAccessCategories: true,
+          canAccessShifts: true,
+          canAccessDashboard: true,
+          canAccessTablesWaiter: false,
+          canAccessTableConfig: false,
+          canAccessTableDashboard: false
+        });
       }
     })();
   </script>

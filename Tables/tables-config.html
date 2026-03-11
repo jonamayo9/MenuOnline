@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Salón · Mesas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --line:#e6ebf2;
+      --text:#0f172a;
+      --muted:#64748b;
+      --shadow:0 18px 45px rgba(15,23,42,.08);
+    }
+
+    body{
+      background:
+        radial-gradient(circle at top left, #edf4ff 0%, #f8fafc 34%, #f4f7fb 100%);
+      color: var(--text);
+    }
+
+    .glass{
+      background: rgba(255,255,255,.75);
+      backdrop-filter: blur(14px);
+    }
+
+    .panel-card{
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .btn-main{
+      border-radius: 18px;
+      padding: .9rem 1rem;
+      font-weight: 800;
+      transition: .18s ease;
+    }
+
+    .btn-main:hover{
+      transform: translateY(-1px);
+    }
+
+    .field{
+      width: 100%;
+      border: 1px solid #dbe3ee;
+      border-radius: 18px;
+      padding: .95rem 1rem;
+      outline: none;
+      background: white;
+      transition: .18s ease;
+    }
+
+    .field:focus{
+      border-color: #94a3b8;
+      box-shadow: 0 0 0 3px rgba(148,163,184,.18);
+    }
+
+    .metric-card{
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:1rem 1.1rem;
+      background:linear-gradient(180deg,#fff 0%,#f8fafc 100%);
+      box-shadow: 0 10px 24px rgba(15,23,42,.04);
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:.35rem;
+      border-radius:999px;
+      padding:.38rem .8rem;
+      font-size:.74rem;
+      font-weight:800;
+      border:1px solid transparent;
+      white-space:nowrap;
+    }
+
+    .toast{
+      min-width: 280px;
+      border-radius: 18px;
+      color: white;
+      padding: 1rem 1.1rem;
+      box-shadow: 0 20px 40px rgba(15,23,42,.18);
+      display:flex;
+      align-items:center;
+      gap:.75rem;
+      transition: .2s ease;
+    }
+
+    .modal-panel{
+      background:#fff;
+      border:1px solid #e2e8f0;
+      border-radius:28px;
+      box-shadow:0 24px 60px rgba(15,23,42,.18);
+    }
+
+    .table-card{
+      background: linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+      border:1px solid #e7edf5;
+      border-radius:26px;
+      box-shadow: 0 16px 36px rgba(15,23,42,.06);
+      overflow: hidden;
+    }
+
+    .table-card.deleted{
+      opacity:.78;
+      background: linear-gradient(180deg,#fafafa 0%,#f8fafc 100%);
+    }
+
+    .soft-chip{
+      border:1px solid #e2e8f0;
+      background:#f8fafc;
+      border-radius:16px;
+      padding:.85rem 1rem;
+    }
+
+    .table-mini{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:.75rem;
+    }
+
+    .modal-shell{
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+    }
+
+    .modal-scroll{
+      position: relative;
+      z-index: 10;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 18px;
+    }
+
+    @media (max-width: 1024px){
+      .table-mini{
+        grid-template-columns: repeat(2, minmax(0,1fr));
+      }
+    }
+
+    @media (max-width: 640px){
+      .table-mini{
+        grid-template-columns: 1fr;
+      }
+
+      .mobile-stack{
+        flex-direction: column !important;
+        align-items: stretch !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen">
+  <div id="toastContainer" class="fixed top-6 right-6 z-[100] space-y-3"></div>
+
+  <!-- Modal crear/editar mesa -->
+  <div id="tableModal" class="hidden modal-shell">
+    <div class="absolute inset-0 bg-slate-950/50 backdrop-blur-sm"></div>
+
+    <div class="modal-scroll">
+      <div class="min-h-[100%] flex items-start justify-center">
+        <div class="w-full max-w-xl modal-panel overflow-hidden my-6">
+          <div class="px-6 py-5 flex items-center justify-between border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white sticky top-0 z-10">
+            <div>
+              <div id="tableModalTitle" class="text-2xl font-black tracking-tight">Nueva mesa</div>
+              <div class="text-sm text-slate-500 mt-1">Configurá nombre, número, capacidad y orden.</div>
+            </div>
+            <button id="closeTableModal" class="h-11 w-11 rounded-2xl hover:bg-slate-100 transition text-lg">✕</button>
+          </div>
+
+          <div class="p-6 space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-2">Número</label>
+                <input id="tableNumber" type="number" min="1" class="field" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-2">Capacidad</label>
+                <input id="tableCapacity" type="number" min="1" class="field" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-600 mb-2">Nombre</label>
+              <input id="tableName" type="text" placeholder="Mesa 1, Ventana, Patio..." class="field" />
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-2">Orden visual</label>
+                <input id="tableOrder" type="number" min="1" class="field" />
+              </div>
+
+              <div class="flex items-end">
+                <label class="w-full rounded-[22px] border border-slate-200 bg-gradient-to-b from-white to-slate-50 px-4 py-4 flex items-center justify-between gap-3 cursor-pointer">
+                  <div>
+                    <div class="font-bold text-slate-900">Mesa activa</div>
+                    <div class="text-sm text-slate-500 mt-1">Disponible para operar en el salón.</div>
+                  </div>
+                  <input id="tableEnabled" type="checkbox" class="h-5 w-5" checked />
+                </label>
+              </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+              <button id="btnTableBack" class="btn-main bg-slate-100 text-slate-800 hover:bg-slate-200">
+                Volver
+              </button>
+              <button id="btnTableSave" class="btn-main bg-slate-900 text-white hover:bg-slate-800">
+                Guardar mesa
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal confirmar eliminación -->
+<div id="deleteTableModal" class="hidden modal-shell">
+  <div class="absolute inset-0 bg-slate-950/50 backdrop-blur-sm"></div>
+
+  <div class="modal-scroll">
+    <div class="min-h-[100%] flex items-start justify-center">
+      <div class="w-full max-w-md modal-panel overflow-hidden my-10">
+        <div class="px-6 py-5 flex items-center justify-between border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+          <div>
+            <div class="text-2xl font-black tracking-tight">Eliminar mesa</div>
+            <div class="text-sm text-slate-500 mt-1">Esta acción no borra el historial.</div>
+          </div>
+          <button id="closeDeleteTableModal" class="h-11 w-11 rounded-2xl hover:bg-slate-100 transition text-lg">✕</button>
+        </div>
+
+        <div class="p-6">
+          <div class="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-4 text-sm text-rose-800">
+            Vas a eliminar <span id="deleteTableLabel" class="font-bold">esta mesa</span>.
+            Seguirá existiendo para historial y dashboard, pero dejará de aparecer en configuración.
+          </div>
+
+          <div class="flex justify-end gap-2 pt-5">
+            <button id="btnDeleteTableBack" class="btn-main bg-slate-100 text-slate-800 hover:bg-slate-200">
+              Volver
+            </button>
+            <button id="btnDeleteTableConfirm" class="btn-main bg-rose-600 text-white hover:bg-rose-700">
+              Sí, eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="max-w-7xl mx-auto p-4 md:p-6">
+    <!-- Header -->
+    <div class="glass rounded-[30px] panel-card p-5 md:p-6 mb-6 border border-white/60">
+      <div class="flex items-start justify-between gap-6 flex-wrap">
+        <div class="min-w-[280px]">
+          <div class="flex items-center gap-4">
+            <a href="./home.html"
+               class="h-12 w-12 grid place-items-center rounded-2xl bg-slate-900 text-white text-lg font-bold hover:bg-slate-800 transition">
+              ←
+            </a>
+
+            <div>
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-50 border border-violet-100 text-violet-700 text-xs font-bold uppercase tracking-[.12em] mb-2">
+                Gestión de salón
+              </div>
+              <h1 class="text-3xl md:text-4xl font-black tracking-tight leading-tight text-slate-950">
+                Administración de mesas
+              </h1>
+              <p class="mt-2 text-sm text-slate-500">
+                Creá, editá, ordená y administrá las mesas del salón.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <a href="./tables.html"
+             class="btn-main bg-white text-slate-800 border border-slate-200 hover:bg-slate-50">
+            Ir a gestión de mesas
+          </a>
+
+          <button id="refreshAll"
+            class="btn-main bg-slate-900 text-white hover:bg-slate-800">
+            Actualizar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Métricas -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="metric-card">
+        <div class="text-xs text-slate-400 font-bold uppercase tracking-[.14em]">Mesas totales</div>
+        <div id="metricTotal" class="mt-2 text-3xl font-black">0</div>
+    </div>
+
+    <div class="metric-card">
+        <div class="text-xs text-slate-400 font-bold uppercase tracking-[.14em]">Mesas activas</div>
+        <div id="metricEnabled" class="mt-2 text-3xl font-black">0</div>
+    </div>
+
+    <div class="metric-card">
+        <div class="text-xs text-slate-400 font-bold uppercase tracking-[.14em]">Promedio capacidad</div>
+        <div id="metricCapacity" class="mt-2 text-3xl font-black">0</div>
+    </div>
+    </div>
+
+    <!-- acciones -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <!-- Crear -->
+      <div class="panel-card p-5 md:p-6 xl:col-span-1">
+        <div class="flex items-center justify-between gap-3 mb-5">
+          <div>
+            <h2 class="text-2xl font-black tracking-tight">Crear mesa manual</h2>
+            <p class="text-sm text-slate-500 mt-1">Agregá una nueva mesa personalizada.</p>
+          </div>
+        </div>
+
+        <div class="rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-4">
+          <div class="text-sm text-slate-600 leading-relaxed">
+            Ideal para agregar mesas especiales como <b>Ventana</b>, <b>Patio</b> o <b>Barra</b>.
+          </div>
+
+          <div class="pt-5 flex justify-end">
+            <button id="btnNewTable" class="btn-main bg-violet-600 text-white hover:bg-violet-700">
+              + Crear mesa manual
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generar -->
+      <div class="panel-card p-5 md:p-6 xl:col-span-2">
+        <div class="flex items-center justify-between gap-3 mb-5 flex-wrap">
+          <div>
+            <h2 class="text-2xl font-black tracking-tight">Generar mesas</h2>
+            <p class="text-sm text-slate-500 mt-1">Creá varias mesas automáticamente para arrancar rápido.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-600 mb-2">Cantidad de mesas</label>
+            <input id="genCount" type="number" min="1" placeholder="10" class="field" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-600 mb-2">Capacidad por mesa</label>
+            <input id="genCapacity" type="number" min="1" placeholder="4" class="field" />
+          </div>
+
+          <div class="flex items-end">
+            <button id="btnGenerate" class="btn-main w-full bg-blue-600 text-white hover:bg-blue-700">
+              Generar mesas
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-5 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-4 text-sm text-blue-800">
+          Si la empresa ya tiene mesas creadas, la generación automática no se ejecuta.
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista -->
+    <div class="panel-card p-5 md:p-6 mt-6">
+      <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-5">
+        <div>
+          <h2 class="text-2xl font-black tracking-tight">Mesas del salón</h2>
+          <p class="text-sm text-slate-500 mt-1">Editá, ordená o eliminá mesas. También podés filtrar las eliminadas.</p>
+        </div>
+
+<div class="w-full xl:w-auto">
+  <div class="flex flex-col sm:flex-row gap-3 xl:justify-end">
+    <div class="relative min-w-0 sm:min-w-[320px]">
+      <input id="searchTable" type="text" placeholder="Buscar por nombre o número..."
+        class="w-full bg-white border border-slate-200 rounded-2xl pl-4 pr-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-300 transition" />
+    </div>
+
+    <div class="sm:w-[180px]">
+      <select id="filterTableStatus"
+        class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-300 transition">
+        <option value="all">Todas</option>
+        <option value="active" selected>Activas</option>
+        <option value="inactive">Inactivas</option>
+        <option value="deleted">Eliminadas</option>
+      </select>
+    </div>
+  </div>
+</div>
+      </div>
+
+      <div id="tablesList" class="grid grid-cols-1 xl:grid-cols-2 gap-4"></div>
+    </div>
+  </div>
+
+  <script>
+    let CONFIG = null;
+    let tablesCache = [];
+    let editingTableId = null;
+    let isRefreshing = false;
+    let deletingTableId = null;
+
+    const TOKEN_KEY = "menuonline_token";
+    const SLUG_KEY  = "menuonline_companySlug";
+    const LOGIN_PAGE = "./login.html";
+    const CONFIG_PATH = "/config.json";
+
+    function getSlug(){
+      return localStorage.getItem(SLUG_KEY) || CONFIG.companySlug;
+    }
+
+    function logoutToLogin(){
+      localStorage.removeItem(TOKEN_KEY);
+      location.replace(LOGIN_PAGE);
+    }
+
+    function openDeleteTableModal(table){
+  deletingTableId = Number(table.id);
+  document.getElementById("deleteTableLabel").textContent = table.name || `Mesa ${table.number}`;
+  document.getElementById("deleteTableModal").classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
+}
+
+function closeDeleteTableModal(){
+  deletingTableId = null;
+  document.getElementById("deleteTableModal").classList.add("hidden");
+  document.body.classList.remove("overflow-hidden");
+}
+
+async function confirmDeleteTable(){
+  if(!deletingTableId) return;
+
+  try{
+    toastShow("Eliminando mesa...", "info");
+    await apiDeleteTable(deletingTableId);
+    closeDeleteTableModal();
+    await refreshAll();
+    toastShow("Mesa eliminada", "success");
+  }catch(e){
+    console.error(e);
+    toastShow(e.message || "No pude eliminar la mesa", "error");
+  }
+}
+
+    function parseJwt(token){
+      try{
+        const base64Url = token.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const json = decodeURIComponent(atob(base64).split("").map(c =>
+          "%" + c.charCodeAt(0).toString(16).padStart(2,"0")
+        ).join(""));
+        return JSON.parse(json);
+      }catch{
+        return null;
+      }
+    }
+
+    function isTokenValid(token){
+      const payload = parseJwt(token);
+      const exp = payload?.exp;
+      if(!exp) return false;
+      return exp > Math.floor(Date.now()/1000);
+    }
+
+    function requireAuth(){
+      const t = localStorage.getItem(TOKEN_KEY);
+      if(!t || !isTokenValid(t)){
+        logoutToLogin();
+        return false;
+      }
+      return true;
+    }
+
+    function canConfigureTables(){
+      return localStorage.getItem("menuonline_canAccessTableConfig") === "true"
+        || localStorage.getItem("menuonline_canAccessTableDashboard") === "true";
+    }
+
+    function authHeaders(extra = {}){
+      const token = localStorage.getItem(TOKEN_KEY);
+      return { ...extra, "Authorization": "Bearer " + token };
+    }
+
+    async function fetchAuth(url, options = {}){
+      if(!requireAuth()) return null;
+
+      const res = await fetch(url, {
+        ...options,
+        headers: authHeaders(options.headers || {})
+      });
+
+      if(res.status === 401 || res.status === 403){
+        logoutToLogin();
+        return null;
+      }
+
+      return res;
+    }
+
+    async function loadConfig() {
+      const res = await fetch(CONFIG_PATH, { cache: "no-store" });
+      if (!res.ok) throw new Error("No pude leer config.json");
+      return await res.json();
+    }
+
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function isDeletedTable(t){
+      return !!(t.deleted || t.isDeleted || t.deletedAt);
+    }
+
+    function hasOpenSession(t){
+      return !!(t.hasOpenSession || t.currentSessionOpen || t.openSession);
+    }
+
+    let activeToastEl = null;
+
+    function toastShow(message, type = "info") {
+      const container = document.getElementById("toastContainer");
+
+      if (activeToastEl) {
+        activeToastEl.remove();
+        activeToastEl = null;
+      }
+
+      const colors = {
+        success: "bg-emerald-500",
+        error: "bg-rose-500",
+        info: "bg-slate-900"
+      };
+
+      const icon = type === "success" ? "✓" : type === "error" ? "⚠" : "⏳";
+
+      const el = document.createElement("div");
+      el.className = `toast ${colors[type]}`;
+      el.innerHTML = `
+        <div class="text-lg font-bold leading-none">${icon}</div>
+        <div class="text-sm font-semibold">${message}</div>
+      `;
+
+      container.appendChild(el);
+      activeToastEl = el;
+
+      setTimeout(() => {
+        if (activeToastEl === el) {
+          el.remove();
+          activeToastEl = null;
+        }
+      }, 2400);
+    }
+
+async function apiGetTablesSetup(){
+  const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/tables/setup?includeDeleted=true`;
+  const res = await fetchAuth(url);
+  if(!res) return [];
+  if(!res.ok) throw new Error("No pude cargar las mesas");
+  return await res.json();
+}
+
+    async function apiCreateTable(body){
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/tables`;
+      const res = await fetchAuth(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      if(!res) return null;
+      if(!res.ok){
+        const txt = await res.text();
+        throw new Error(txt || "No pude crear la mesa");
+      }
+      return await res.json();
+    }
+
+    async function apiUpdateTable(tableId, body){
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/tables/${tableId}`;
+      const res = await fetchAuth(url, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      if(!res) return null;
+      if(!res.ok){
+        const txt = await res.text();
+        throw new Error(txt || "No pude actualizar la mesa");
+      }
+      return await res.json();
+    }
+
+    async function apiDeleteTable(tableId){
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/tables/${tableId}`;
+      const res = await fetchAuth(url, { method: "DELETE" });
+
+      if(!res) return null;
+      if(!res.ok){
+        const txt = await res.text().catch(() => "");
+        throw new Error(txt || "No pude eliminar la mesa");
+      }
+      return true;
+    }
+
+    async function apiGenerateTables(body){
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/tables/generate`;
+      const res = await fetchAuth(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      if(!res) return null;
+      if(!res.ok){
+        const txt = await res.text();
+        throw new Error(txt || "No pude generar las mesas");
+      }
+      return await res.json();
+    }
+
+    function renderMetrics(items){
+    const total = items.filter(x => !isDeletedTable(x)).length;
+    const enabled = items.filter(x => x.enabled && !isDeletedTable(x)).length;
+    const activeForAvg = items.filter(x => !isDeletedTable(x));
+    const avg = activeForAvg.length
+        ? Math.round(activeForAvg.reduce((acc, x) => acc + Number(x.capacity || 0), 0) / activeForAvg.length)
+        : 0;
+
+    document.getElementById("metricTotal").textContent = total;
+    document.getElementById("metricEnabled").textContent = enabled;
+    document.getElementById("metricCapacity").textContent = avg;
+    }
+
+function applyTableSearch(items){
+  const q = document.getElementById("searchTable").value.trim().toLowerCase();
+  const status = document.getElementById("filterTableStatus").value;
+
+  return items.filter(x => {
+    const name = String(x.name || "").toLowerCase();
+    const number = String(x.number || "");
+    const matchesText = !q || name.includes(q) || number.includes(q);
+
+    const deleted = isDeletedTable(x);
+    const active = x.enabled && !deleted;
+    const inactive = !x.enabled && !deleted;
+
+    let matchesStatus = true;
+
+    if(status === "active") matchesStatus = active;
+    else if(status === "inactive") matchesStatus = inactive;
+    else if(status === "deleted") matchesStatus = deleted;
+
+    return matchesText && matchesStatus;
+  });
+}
+
+    function renderTables(items){
+      const list = document.getElementById("tablesList");
+      renderMetrics(items);
+
+      if(!items.length){
+        list.innerHTML = `
+          <div class="xl:col-span-2 rounded-[26px] border border-slate-200 bg-slate-50 px-6 py-8 text-slate-600">
+            No hay mesas creadas todavía.
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = items.map(t => {
+        const deleted = isDeletedTable(t);
+        const openSession = hasOpenSession(t);
+        const canDelete = !deleted && !openSession;
+
+        return `
+          <div class="table-card ${deleted ? "deleted" : ""}">
+            <div class="p-5 md:p-6">
+              <div class="flex items-start justify-between gap-4 flex-wrap">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <div class="text-2xl font-black text-slate-950">Mesa ${t.number}</div>
+
+                    ${deleted
+                      ? `<span class="badge bg-rose-50 text-rose-800 border-rose-100">Eliminada</span>`
+                      : t.enabled
+                        ? `<span class="badge bg-emerald-50 text-emerald-800 border-emerald-100">Activa</span>`
+                        : `<span class="badge bg-slate-100 text-slate-700 border-slate-200">Inactiva</span>`
+                    }
+
+                    ${openSession
+                      ? `<span class="badge bg-amber-50 text-amber-800 border-amber-100">Mesa abierta</span>`
+                      : ``
+                    }
+                  </div>
+
+                  <div class="mt-2 text-sm text-slate-500">
+                    ${escapeHtml(t.name || `Mesa ${t.number}`)}
+                  </div>
+                </div>
+
+                <div class="flex gap-2 flex-wrap">
+                  ${!deleted ? `
+                    <button class="btn-main bg-slate-100 text-slate-800 hover:bg-slate-200"
+                      data-edit="${t.id}">
+                      Editar
+                    </button>
+                  ` : ``}
+
+                  ${!deleted ? `
+                    <button
+                      class="btn-main ${canDelete ? "bg-rose-100 text-rose-800 hover:bg-rose-200" : "bg-slate-100 text-slate-400 cursor-not-allowed"}"
+                      data-delete="${t.id}"
+                      ${canDelete ? "" : "disabled"}>
+                      Eliminar
+                    </button>
+                  ` : ``}
+                </div>
+              </div>
+
+              <div class="table-mini mt-5">
+                <div class="soft-chip">
+                  <div class="text-[11px] text-slate-400 font-bold uppercase tracking-[.14em] mb-1">Número</div>
+                  <div class="font-black text-slate-900">${t.number}</div>
+                </div>
+
+                <div class="soft-chip">
+                  <div class="text-[11px] text-slate-400 font-bold uppercase tracking-[.14em] mb-1">Capacidad</div>
+                  <div class="font-black text-slate-900">${t.capacity}</div>
+                </div>
+
+                <div class="soft-chip">
+                  <div class="text-[11px] text-slate-400 font-bold uppercase tracking-[.14em] mb-1">Orden</div>
+                  <div class="font-black text-slate-900">${t.order}</div>
+                </div>
+
+                <div class="soft-chip">
+                  <div class="text-[11px] text-slate-400 font-bold uppercase tracking-[.14em] mb-1">Estado</div>
+                  <div class="font-black text-slate-900">
+                    ${deleted ? "Eliminada" : (t.enabled ? "Disponible" : "Inactiva")}
+                  </div>
+                </div>
+              </div>
+
+              ${!canDelete && !deleted ? `
+                <div class="mt-4 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                  Esta mesa no se puede eliminar porque actualmente está abierta.
+                </div>
+              ` : ``}
+
+              ${deleted ? `
+                <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                  La mesa está eliminada, pero sigue visible para historial y dashboard.
+                </div>
+              ` : ``}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      list.querySelectorAll("[data-edit]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = Number(btn.getAttribute("data-edit"));
+          const table = tablesCache.find(x => Number(x.id) === id);
+          if(table) openTableModal(table);
+        });
+      });
+
+        list.querySelectorAll("[data-delete]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            if(btn.disabled) return;
+
+            const id = Number(btn.getAttribute("data-delete"));
+            const table = tablesCache.find(x => Number(x.id) === id);
+            if(!table) return;
+
+            openDeleteTableModal(table);
+        });
+        });
+    }
+
+    function openTableModal(table = null){
+      editingTableId = table ? Number(table.id) : null;
+
+      document.getElementById("tableModalTitle").textContent =
+        table ? "Editar mesa" : "Nueva mesa";
+
+      document.getElementById("tableNumber").value = table?.number ?? "";
+      document.getElementById("tableName").value = table?.name ?? "";
+      document.getElementById("tableCapacity").value = table?.capacity ?? "";
+      document.getElementById("tableOrder").value = table?.order ?? "";
+      document.getElementById("tableEnabled").checked = table ? !!table.enabled : true;
+
+      document.getElementById("tableModal").classList.remove("hidden");
+      document.body.classList.add("overflow-hidden");
+    }
+
+    function closeTableModal(){
+      document.getElementById("tableModal").classList.add("hidden");
+      document.body.classList.remove("overflow-hidden");
+      editingTableId = null;
+    }
+
+    async function refreshAll(showToast = false){
+      if(isRefreshing) return;
+      isRefreshing = true;
+
+      const btn = document.getElementById("refreshAll");
+      const oldText = btn.textContent;
+      btn.textContent = "Cargando...";
+      btn.disabled = true;
+
+      try{
+        const tables = await apiGetTablesSetup();
+
+        tablesCache = Array.isArray(tables) ? tables : [];
+        renderTables(applyTableSearch(tablesCache));
+
+        if(showToast){
+          toastShow("Datos actualizados", "success");
+        }
+      }catch(e){
+        console.error(e);
+        toastShow(e.message || "No pude cargar la información", "error");
+      }finally{
+        btn.textContent = oldText;
+        btn.disabled = false;
+        isRefreshing = false;
+      }
+    }
+
+    async function generateTables(){
+      try{
+        const body = {
+          count: Number(document.getElementById("genCount").value || 0),
+          defaultCapacity: Number(document.getElementById("genCapacity").value || 0)
+        };
+
+        toastShow("Generando mesas...", "info");
+        await apiGenerateTables(body);
+
+        document.getElementById("genCount").value = "";
+        document.getElementById("genCapacity").value = "";
+
+        await refreshAll();
+        toastShow("Mesas generadas correctamente", "success");
+      }catch(e){
+        console.error(e);
+        toastShow(e.message || "No pude generar las mesas", "error");
+      }
+    }
+
+    async function saveTable(){
+      try{
+        const body = {
+          number: Number(document.getElementById("tableNumber").value || 0),
+          name: document.getElementById("tableName").value.trim() || null,
+          capacity: Number(document.getElementById("tableCapacity").value || 0),
+          enabled: document.getElementById("tableEnabled").checked,
+          order: Number(document.getElementById("tableOrder").value || 0)
+        };
+
+        toastShow(editingTableId ? "Actualizando mesa..." : "Creando mesa...", "info");
+
+        if(editingTableId){
+          await apiUpdateTable(editingTableId, body);
+        }else{
+          await apiCreateTable(body);
+        }
+
+        closeTableModal();
+        await refreshAll();
+        toastShow(editingTableId ? "Mesa actualizada" : "Mesa creada", "success");
+      }catch(e){
+        console.error(e);
+        toastShow(e.message || "No pude guardar la mesa", "error");
+      }
+    }
+
+    (async function init(){
+      try{
+        if(!requireAuth()) return;
+
+        if(!canConfigureTables()){
+          toastShow("No tenés permisos para configurar mesas.", "error");
+          setTimeout(() => location.href = "./home.html", 900);
+          return;
+        }
+
+        CONFIG = await loadConfig();
+
+        document.getElementById("refreshAll").addEventListener("click", async () => {
+          await refreshAll(true);
+        });
+
+        document.getElementById("btnGenerate").addEventListener("click", generateTables);
+
+        document.getElementById("btnNewTable").addEventListener("click", () => openTableModal(null));
+        document.getElementById("closeTableModal").addEventListener("click", closeTableModal);
+        document.getElementById("btnTableBack").addEventListener("click", closeTableModal);
+        document.getElementById("btnTableSave").addEventListener("click", saveTable);
+        document.getElementById("closeDeleteTableModal").addEventListener("click", closeDeleteTableModal);
+        document.getElementById("btnDeleteTableBack").addEventListener("click", closeDeleteTableModal);
+        document.getElementById("btnDeleteTableConfirm").addEventListener("click", confirmDeleteTable);
+
+        document.getElementById("deleteTableModal").addEventListener("click", (e) => {
+        if(e.target.id === "deleteTableModal") closeDeleteTableModal();
+        });
+
+        document.getElementById("searchTable").addEventListener("input", () => {
+          renderTables(applyTableSearch(tablesCache));
+        });
+
+        document.getElementById("filterTableStatus").addEventListener("change", () => {
+  renderTables(applyTableSearch(tablesCache));
+});
+
+        document.getElementById("tableModal").addEventListener("click", (e) => {
+          if(e.target.id === "tableModal") closeTableModal();
+        });
+
+        await refreshAll();
+
+      }catch(e){
+        console.error(e);
+        toastShow("Error: " + (e.message || e), "error");
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -7,40 +7,80 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-    :root { --accent: #d97706; --primary: #0f172a; --bg: #f8fafc; }
-    body{ font-family:'Plus Jakarta Sans',sans-serif; background:var(--bg); color:var(--primary); margin:0; }
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+    :root{
+      --accent:#d97706;
+      --accent-dark:#b45309;
+      --primary:#0f172a;
+      --bg:#f8fafc;
+    }
+
+    body{
+      font-family:'Plus Jakarta Sans',sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(245,158,11,.06), transparent 26%),
+        linear-gradient(180deg,#f8fafc 0%,#f1f5f9 100%);
+      color:var(--primary);
+      margin:0;
+    }
+
     .no-scrollbar::-webkit-scrollbar{ display:none; }
 
     .tab-btn{
-      position:relative; transition:.2s ease;
-      color:#94a3b8; font-size:13px; font-weight:800;
-      padding:10px 2px; white-space:nowrap;
+      position:relative;
+      transition:.2s ease;
+      color:#94a3b8;
+      font-size:13px;
+      font-weight:800;
+      padding:12px 2px;
+      white-space:nowrap;
     }
+
     .tab-btn:hover{ color:#334155; }
+
     .tab-active{ color:var(--primary); }
+
     .tab-active::after{
-      content:''; position:absolute; left:0; bottom:2px;
-      width:100%; height:3px; border-radius:999px;
+      content:'';
+      position:absolute;
+      left:0;
+      bottom:2px;
+      width:100%;
+      height:3px;
+      border-radius:999px;
       background:var(--accent);
       box-shadow:0 8px 16px rgba(217,119,6,.18);
     }
 
     .food-card{
-      background:white; border-radius:26px;
-      border:1px solid rgba(148,163,184,.35);
-      box-shadow:0 8px 24px rgba(15,23,42,0.05);
+      background:rgba(255,255,255,.98);
+      border-radius:30px;
+      border:1px solid rgba(226,232,240,.95);
+      box-shadow:0 14px 34px rgba(15,23,42,0.06);
       transition:.18s ease;
     }
-    .food-card:hover{ transform: translateY(-2px); box-shadow:0 18px 36px rgba(15,23,42,.08); }
 
-    #modal-checkout{
-      display:none; position:fixed; inset:0; z-index:100;
-      background: rgba(2,6,23,.55);
-      backdrop-filter: blur(10px);
+    .food-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 18px 42px rgba(15,23,42,.08);
     }
 
-    /* Clamp seguro sin plugin */
+    .glass-card{
+      background:rgba(255,255,255,.88);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+
+    #modal-checkout{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:100;
+      background:rgba(2,6,23,.55);
+      backdrop-filter:blur(10px);
+    }
+
     .clamp-2{
       display:-webkit-box;
       -webkit-line-clamp:2;
@@ -48,9 +88,214 @@
       overflow:hidden;
     }
 
-    /* Un poquito más grande en mobile/tablet */
+    .hero-soft{
+      background:
+        radial-gradient(circle at top left, rgba(245,158,11,.08), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(15,23,42,.03), transparent 38%),
+        #ffffff;
+    }
+
+    .subtle-card{
+      background:#fff;
+      border:1px solid #e2e8f0;
+      box-shadow:0 10px 24px rgba(15,23,42,.04);
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:.45rem;
+      padding:.45rem .8rem;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      border:1px solid transparent;
+      white-space:nowrap;
+    }
+
+    .qty-shell{
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+    }
+
+    .checkout-field{
+      width:100%;
+      padding:1rem;
+      background:#f8fafc;
+      border-radius:1rem;
+      outline:none;
+      border:1px solid #e2e8f0;
+      color:#0f172a;
+      transition:.18s ease;
+    }
+
+    .checkout-field:focus{
+      border-color:#f59e0b;
+      box-shadow:0 0 0 4px rgba(245,158,11,.12);
+    }
+
     @media (max-width: 768px){
       .tab-btn{ font-size:14px; padding:12px 2px; }
+    }
+
+    @media (max-width: 640px){
+      #btnWhatsApp{
+        display:none !important;
+      }
+
+      header .glass-card .max-w-4xl{
+        padding-top:.9rem !important;
+        padding-bottom:.9rem !important;
+      }
+
+      #companyName{
+        font-size:1.2rem !important;
+        line-height:1.08 !important;
+        max-width:170px !important;
+      }
+
+      #companyLogo,
+      #companyLogoPh{
+        transform:scale(.92);
+      }
+
+      #orderModeBadge,
+      #badgeOpen{
+        font-size:9px !important;
+        padding:.38rem .7rem !important;
+      }
+
+      #tabsWrap nav{
+        padding-top:.25rem !important;
+        padding-bottom:.25rem !important;
+      }
+
+      #tabs-categorias{
+        gap:1.2rem !important;
+      }
+
+      .tab-btn{
+        font-size:13px !important;
+        padding:10px 0 !important;
+      }
+
+      #heroInfo{
+        margin-bottom:1rem !important;
+      }
+
+      #heroInfo .hero-soft{
+        padding:1rem !important;
+        border-radius:1.4rem !important;
+      }
+
+      #scheduleToday{
+        padding:.85rem 1rem !important;
+        border-radius:1rem !important;
+      }
+
+      #scheduleWrap{
+        margin-top:.6rem !important;
+      }
+
+      #scheduleHint{
+        margin-top:.75rem !important;
+        font-size:.8rem !important;
+      }
+
+      #btnToggleSchedule{
+        margin-top:.65rem !important;
+      }
+
+      #heroStats{
+        display:none !important;
+      }
+
+      .food-card{
+        border-radius:1.4rem !important;
+        padding:.95rem !important;
+      }
+
+      .food-card > div{
+        gap:.85rem !important;
+        align-items:flex-start !important;
+      }
+
+      #lista-platos{
+        gap:.9rem !important;
+      }
+
+      .food-card .mobile-img{
+        width:84px !important;
+        height:84px !important;
+        border-radius:1rem !important;
+      }
+
+      .food-card .mobile-price{
+        font-size:1.05rem !important;
+        line-height:1 !important;
+        margin-top:.35rem !important;
+      }
+
+      .food-card h3{
+        font-size:1.05rem !important;
+        line-height:1.1 !important;
+      }
+
+      .food-card p{
+        font-size:.88rem !important;
+        line-height:1.3 !important;
+      }
+
+      .food-card .text-right{
+        min-width:78px !important;
+      }
+
+      .food-card .text-\[10px\]{
+        font-size:9px !important;
+      }
+
+      .qty-shell{
+        width:100%;
+        justify-content:space-between;
+        padding:.45rem .5rem !important;
+      }
+
+      .food-card .mobile-qty-btn{
+        width:40px !important;
+        height:40px !important;
+        font-size:1rem !important;
+      }
+
+      #barra-carrito{
+        padding:1rem !important;
+        border-radius:1.35rem !important;
+        left:.75rem !important;
+        right:.75rem !important;
+        bottom:.75rem !important;
+      }
+
+      #barra-carrito button{
+        padding:.95rem 1.15rem !important;
+        font-size:.78rem !important;
+        border-radius:1rem !important;
+      }
+
+      #btnWhatsAppMobile{
+        margin-top:.75rem !important;
+        padding:.85rem 1rem !important;
+        border-radius:1rem !important;
+        box-shadow:0 6px 16px rgba(15,23,42,.08) !important;
+      }
+
+      #modal-checkout .max-w-md{
+        border-radius:1.6rem !important;
+        padding:1.15rem !important;
+      }
+
+      #modal-checkout h2{
+        font-size:1.35rem !important;
+      }
     }
 
     @media print {
@@ -58,10 +303,16 @@
       body * { display:none !important; }
       #ticket-imprimir, #ticket-imprimir * { display:block !important; }
       #ticket-imprimir{
-        position:absolute; left:0; top:0; width:80mm !important;
-        padding:4mm !important; background:white !important; color:black !important;
+        position:absolute;
+        left:0;
+        top:0;
+        width:80mm !important;
+        padding:4mm !important;
+        background:white !important;
+        color:black !important;
         font-family:'Courier New',Courier,monospace !important;
-        font-size:12px !important; line-height:1.2 !important;
+        font-size:12px !important;
+        line-height:1.2 !important;
       }
       .no-print{ display:none !important; }
     }
@@ -69,8 +320,6 @@
 </head>
 
 <body>
-
-  <!-- (Opcional) Ticket impresión -->
   <div id="ticket-imprimir" class="hidden flex-col items-center">
     <div id="ticket-detalle" class="w-full"></div>
     <button onclick="window.print()" class="mt-6 no-print bg-slate-800 text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest">
@@ -82,20 +331,19 @@
 
     <!-- HEADER -->
     <header class="sticky top-0 z-40">
-      <!-- Top bar -->
-      <div class="bg-white/85 backdrop-blur border-b border-slate-100">
-        <div class="max-w-5xl mx-auto px-4 sm:px-5 py-4 flex items-center justify-between gap-4">
+      <div class="glass-card border-b border-slate-100/80">
+        <div class="max-w-4xl mx-auto px-4 sm:px-5 py-4 sm:py-4 flex items-center justify-between gap-4">
           <div class="flex items-center gap-4 min-w-0">
-            <div class="w-14 h-14 sm:w-14 sm:h-14 rounded-2xl bg-slate-50 border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center">
+            <div class="w-16 h-16 sm:w-14 sm:h-14 rounded-[1.35rem] bg-slate-50 border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center shrink-0">
               <img id="companyLogo" src="" alt="Logo" class="w-full h-full object-cover hidden">
-              <div id="companyLogoPh" class="text-slate-300 text-xl"><i class="fa-solid fa-utensils"></i></div>
+              <div id="companyLogoPh" class="text-slate-300 text-2xl"><i class="fa-solid fa-utensils"></i></div>
             </div>
 
             <div class="min-w-0">
-              <h1 id="companyName" class="text-xl sm:text-xl font-extrabold tracking-tight text-slate-900 leading-none truncate">Menú</h1>
-              <div class="mt-1 flex items-center gap-2 flex-wrap">
-                <span id="badgeOpen" class="hidden text-[10px] px-3 py-1 rounded-full font-black border tracking-tighter"></span>
-                <span class="text-[10px] text-amber-700 bg-amber-50 border border-amber-100 px-3 py-1 rounded-full font-extrabold uppercase tracking-widest">
+              <h1 id="companyName" class="text-[1.45rem] sm:text-xl font-extrabold tracking-tight text-slate-900 leading-tight truncate">Menú</h1>
+              <div class="mt-1.5 flex items-center gap-2 flex-wrap">
+                <span id="badgeOpen" class="hidden pill"></span>
+                <span id="orderModeBadge" class="pill text-amber-700 bg-amber-50 border-amber-100">
                   Pedido online
                 </span>
               </div>
@@ -103,47 +351,41 @@
           </div>
 
           <div class="flex items-center gap-3">
-            <!-- Buscador desktop -->
             <div class="hidden sm:block">
               <div class="relative">
                 <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                 <input id="search"
-                  placeholder="Buscar..."
-                  class="w-72 bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-2 text-sm outline-none
-                         focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition"/>
+                  placeholder="Buscar plato o bebida..."
+                  class="w-72 bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-2.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition">
               </div>
             </div>
 
             <button id="btnWhatsApp"
-              class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-900 text-white font-extrabold text-xs shadow
-                     hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all">
+              class="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900 text-white font-extrabold text-xs shadow hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all">
               <i class="fa-brands fa-whatsapp text-base"></i>
               WhatsApp
             </button>
           </div>
         </div>
 
-        <!-- Buscador mobile -->
-        <div class="max-w-5xl mx-auto px-4 sm:px-5 pb-4 sm:hidden">
+        <div class="max-w-4xl mx-auto px-4 sm:px-5 pb-4 sm:hidden">
           <div class="relative">
             <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
             <input id="searchMobile"
-              placeholder="Buscar..."
-              class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-4 text-base outline-none
-                     focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition"/>
+              placeholder="Buscar plato o bebida..."
+              class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-4 text-base outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition">
           </div>
 
           <button id="btnWhatsAppMobile"
-            class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-4 rounded-2xl bg-slate-900 text-white font-extrabold text-sm shadow">
+            class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-slate-900 text-white font-extrabold text-sm shadow-sm">
             <i class="fa-brands fa-whatsapp text-base"></i>
             WhatsApp
           </button>
         </div>
       </div>
 
-      <!-- Tabs -->
-      <div id="tabsWrap" class="bg-white border-b border-slate-100">
-        <nav class="max-w-5xl mx-auto px-4 sm:px-5 py-2 flex gap-8 overflow-x-auto no-scrollbar">
+      <div id="tabsWrap" class="bg-white/95 border-b border-slate-100">
+        <nav class="max-w-4xl mx-auto px-4 sm:px-5 py-2 flex gap-8 overflow-x-auto no-scrollbar">
           <div id="tabs-categorias" class="flex gap-8"></div>
         </nav>
       </div>
@@ -151,9 +393,9 @@
 
     <!-- MAIN -->
     <main class="flex-grow">
-      <div class="max-w-5xl mx-auto px-4 sm:px-5 py-6">
+      <div class="max-w-4xl mx-auto px-4 sm:px-5 py-5 sm:py-6">
 
-        <!-- NOT FOUND / ERROR VIEW -->
+        <!-- ERROR -->
         <div id="notFoundView" class="hidden">
           <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-10 text-center">
             <div class="text-6xl">😢</div>
@@ -171,54 +413,68 @@
           </div>
         </div>
 
-        <!-- HERO / HORARIOS -->
-        <div id="heroInfo" class="mb-6">
-          <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-            <div class="min-w-0 w-full">
-              <div class="text-[10px] text-slate-400 font-black uppercase tracking-[0.35em] flex items-center gap-2">
-                <i class="fa-regular fa-clock"></i> Horarios
-              </div>
-
-              <!-- compact -->
-              <div class="mt-3">
-                <div id="scheduleToday" class="hidden bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
-                  <div class="flex items-center justify-between gap-3">
-                    <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Hoy</div>
-                    <div id="scheduleTodayTxt" class="text-sm font-black text-slate-900 whitespace-nowrap">—</div>
-                  </div>
+        <!-- HERO -->
+        <div id="heroInfo" class="mb-5 sm:mb-6">
+          <div class="hero-soft rounded-[1.8rem] border border-slate-200 shadow-sm p-5 sm:p-6">
+            <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5">
+              <div class="min-w-0 w-full">
+                <div class="text-[10px] text-slate-400 font-black uppercase tracking-[0.35em] flex items-center gap-2">
+                  <i class="fa-regular fa-clock"></i> Horarios
                 </div>
 
-                <button id="btnToggleSchedule"
-                  class="mt-3 hidden inline-flex items-center gap-2 text-xs font-extrabold text-slate-700 hover:text-slate-900 transition">
-                  <i class="fa-solid fa-chevron-down text-[10px]"></i>
-                  Ver todos los horarios
-                </button>
+                <div class="mt-3">
+                  <div id="scheduleToday" class="hidden bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
+                    <div class="flex items-center justify-between gap-3">
+                      <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Hoy</div>
+                      <div id="scheduleTodayTxt" class="text-sm font-black text-slate-900 whitespace-nowrap">—</div>
+                    </div>
+                  </div>
 
-                <div id="scheduleWrap" class="mt-3 hidden rounded-2xl border border-slate-200 overflow-hidden"></div>
+                  <button id="btnToggleSchedule"
+                    class="mt-3 hidden inline-flex items-center gap-2 text-xs font-extrabold text-slate-700 hover:text-slate-900 transition">
+                    <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                    Ver todos los horarios
+                  </button>
+
+                  <div id="scheduleWrap" class="mt-3 hidden rounded-2xl border border-slate-200 overflow-hidden"></div>
+                </div>
+
+                <div id="scheduleHint" class="mt-3 text-xs text-slate-500 hidden">
+                  No hay horarios cargados. Se asume abierto.
+                </div>
               </div>
 
-              <div id="scheduleHint" class="mt-3 text-xs text-slate-500 hidden">
-                No hay horarios cargados. Se asume abierto.
-              </div>
-            </div>
+              <div id="heroStats" class="grid grid-cols-2 sm:grid-cols-3 gap-3 shrink-0 lg:min-w-[320px] lg:self-stretch">
+  <div class="subtle-card rounded-2xl px-4 py-4 text-center flex flex-col justify-center min-h-[92px]">
+    <div class="text-[10px] uppercase tracking-[0.2em] font-black text-slate-400">Menú</div>
+    <div id="heroItemsCount" class="text-xl font-black text-slate-900 mt-1">0</div>
+  </div>
 
-            <div class="flex gap-2 shrink-0">
-              <button id="btnRefresh"
-                class="px-4 py-3 rounded-2xl bg-slate-100 text-slate-800 font-extrabold text-xs hover:bg-slate-200 transition">
-                <i class="fa-solid fa-rotate-right mr-2"></i> Actualizar
-              </button>
+  <div class="subtle-card rounded-2xl px-4 py-4 text-center flex flex-col justify-center min-h-[92px]">
+    <div class="text-[10px] uppercase tracking-[0.2em] font-black text-slate-400">Categorías</div>
+    <div id="heroCategoriesCount" class="text-xl font-black text-slate-900 mt-1">0</div>
+  </div>
+
+  <button id="btnRefresh"
+    class="subtle-card rounded-2xl px-4 py-4 text-center hover:bg-slate-50 transition flex flex-col justify-center min-h-[92px]">
+    <div class="text-[10px] uppercase tracking-[0.2em] font-black text-slate-400">Acción</div>
+    <div class="text-sm font-black text-slate-900 mt-1">
+      <i class="fa-solid fa-rotate-right mr-1"></i> Actualizar
+    </div>
+  </button>
+</div>
             </div>
           </div>
         </div>
 
-        <!-- Cards -->
-        <div id="lista-platos" class="grid grid-cols-1 sm:grid-cols-2 gap-5"></div>
+        <!-- LISTA -->
+        <div id="lista-platos" class="grid grid-cols-1 gap-4"></div>
       </div>
     </main>
 
     <!-- FOOTER -->
     <footer class="mt-auto bg-white border-t border-slate-100">
-      <div class="max-w-5xl mx-auto px-4 sm:px-5 py-8 text-center">
+      <div class="max-w-4xl mx-auto px-4 sm:px-5 py-8 text-center">
         <p class="text-[10px] text-slate-400 font-black tracking-[0.35em] uppercase">MenuOnline</p>
         <p class="text-sm text-slate-700 font-bold mt-2">Pedidos simples, rápidos y sin vueltas.</p>
 
@@ -227,7 +483,7 @@
             Desarrollado por <span class="font-extrabold text-slate-800">SystemDev Solutions</span>
           </div>
           <button id="btnDevWpp"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-600 text-white font-extrabold text-xs shadow hover:shadow-lg transition">
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-600 text-white font-extrabold text-xs shadow-lg shadow-emerald-100 hover:bg-emerald-700 hover:-translate-y-0.5 transition-all">
             <i class="fa-brands fa-whatsapp"></i>
             Quiero uno para mi negocio
           </button>
@@ -237,8 +493,7 @@
 
     <!-- BARRA CARRITO -->
     <div id="barra-carrito"
-      class="fixed bottom-4 sm:bottom-6 left-3 sm:left-4 right-3 sm:right-4 max-w-lg mx-auto bg-slate-900 text-white shadow-2xl rounded-3xl p-5
-             flex justify-between items-center transform translate-y-40 transition-all duration-500 z-50">
+      class="fixed bottom-4 sm:bottom-6 left-3 sm:left-4 right-3 sm:right-4 max-w-lg mx-auto bg-slate-900 text-white shadow-2xl rounded-3xl p-5 flex justify-between items-center transform translate-y-40 transition-all duration-500 z-50">
       <div class="pl-2">
         <p class="text-[10px] font-bold uppercase opacity-40 tracking-widest">Total Pedido</p>
         <p class="text-2xl sm:text-2xl font-black text-amber-500 leading-none mt-1">$<span id="total-monto">0</span></p>
@@ -252,37 +507,27 @@
 
   <!-- MODAL CHECKOUT -->
   <div id="modal-checkout" class="flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-7 sm:p-8 shadow-2xl relative overflow-hidden border border-slate-100">
+    <div class="bg-white w-full max-w-md rounded-[2.2rem] p-6 sm:p-8 shadow-2xl relative overflow-hidden border border-slate-100">
       <div class="absolute top-0 left-0 w-full h-2 bg-amber-600"></div>
-      <h2 class="text-2xl font-black mb-6 text-slate-900 tracking-tight text-center">Detalle de compra</h2>
+      <h2 class="text-2xl font-black mb-2 text-slate-900 tracking-tight text-center">Detalle de compra</h2>
+      <p class="text-sm text-slate-500 text-center mb-6">Revisá tu pedido antes de enviarlo.</p>
 
       <div id="resumen-pedido"
         class="bg-slate-50 rounded-2xl p-5 mb-6 text-sm divide-y divide-slate-100 text-slate-600 max-h-48 overflow-y-auto"></div>
 
       <div class="space-y-4 mb-6">
         <input type="text" id="nombre-cliente" placeholder="Tu nombre"
-          class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-slate-100 text-slate-800">
+          class="checkout-field">
+
         <input type="text" id="direccion-cliente" placeholder="Dirección de entrega"
-          class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-slate-100 text-slate-800">
+          class="checkout-field">
+
         <select id="pago-cliente"
-          class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border border-slate-100"
+          class="checkout-field font-bold"
           onchange="calcularTotalFinal()">
-          <option value="Efectivo">💵 Efectivo</option>
-          <option value="Transferencia">💳 Transferencia (+10%)</option>
         </select>
       </div>
 
-      <div class="bg-slate-50 p-6 rounded-2xl mb-6 space-y-3 text-sm">
-        <div class="flex justify-between text-slate-500 font-medium text-xs"><span>Subtotal:</span><span id="det-subtotal"></span></div>
-        <div id="row-recargo" class="flex justify-between text-amber-600 hidden font-black text-xs">
-          <span>Diferencia Transf. (10%):</span><span id="det-recargo"></span>
-        </div>
-        <div class="flex justify-between text-slate-900 text-2xl font-black pt-3 border-t border-slate-200">
-          <span>TOTAL:</span><span id="monto-final-checkout"></span>
-        </div>
-      </div>
-
-      <!-- Alias transferencia -->
       <div id="alias-card"
         class="hidden bg-slate-900 p-5 rounded-2xl mb-6 flex justify-between items-center text-white gap-3">
         <div class="min-w-0">
@@ -295,10 +540,30 @@
         </button>
       </div>
 
-      <button id="btn-confirmar-final" onclick="enviarWhatsApp()"
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-6 space-y-2 text-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-slate-500 font-semibold">Subtotal</span>
+          <span id="det-subtotal" class="font-black text-slate-900">$0</span>
+        </div>
+
+        <div id="row-recargo" class="hidden flex items-center justify-between">
+          <span class="text-slate-500 font-semibold">Recargo transferencia</span>
+          <span id="det-recargo" class="font-black text-slate-900">$0</span>
+        </div>
+
+        <div class="h-px bg-slate-200 my-2"></div>
+
+        <div class="flex items-center justify-between">
+          <span class="text-slate-900 font-extrabold">Total</span>
+          <span id="monto-final-checkout" class="text-xl font-black text-slate-900">$0</span>
+        </div>
+      </div>
+
+      <button id="btn-confirmar-final" onclick="confirmarCheckout()"
         class="w-full bg-amber-600 text-white py-5 rounded-3xl font-black text-lg shadow-xl active:scale-95 transition-all">
         ENVIAR PEDIDO <i class="fa-brands fa-whatsapp ml-1"></i>
       </button>
+
       <button onclick="cerrarModales()"
         class="w-full text-slate-400 mt-4 text-[10px] font-bold uppercase">
         Volver
@@ -307,45 +572,36 @@
   </div>
 
   <script>
-    // ============================
-    // CONFIG DEV (CAMBIAR ESTO)
-    // ============================
     const DEV_WHATSAPP = "54911XXXXXXXXXX";
-    const DEBUG_IMAGES = false;
+    const MP_PENDING_KEY = "menuonline_mp_pending_order";
+    const MP_RETURN_HANDLED_KEY = "menuonline_mp_return_handled";
 
-    // ============================
-    // STATE
-    // ============================
     let CFG = {};
     let DTO = null;
     let Company = { name:"", alias:"", whatsapp:"", logoUrl:"", turnos:[] };
+    let PublicFeatures = {
+      ordersEnabled: true,
+      menuOnlyEnabled: false,
+      mercadoPagoEnabled: false,
+      whatsappEnabled: false,
+      shiftsEnabled: true,
+      aliasEnabled: false
+    };
     let Categories = [];
     let Items = [];
     let carrito = {};
     let catActual = "";
     let searchText = "";
-
-    // ✅ NUEVO: estado para expandir descripciones
-    let descExpanded = {}; // { [id]: true }
+    let descExpanded = {};
 
     const SLUG_KEY = "menuonline_companySlug";
-    // PROD
-    const CONFIG_PATH = "/MenuOnline/config.json";
-    // DEV
-    //const CONFIG_PATH = "/config.json"; 
+    const CONFIG_PATH = "/config.json";
 
-    // ============================
-    // URL / helpers
-    // ============================
     function getCompanySlug(){
       const qs = new URLSearchParams(location.search);
       const fromQuery = (qs.get("companySlug") || qs.get("c") || "").trim();
       if(fromQuery) return fromQuery;
-
-      const fromLs = (localStorage.getItem(SLUG_KEY) || "").trim();
-      if(fromLs) return fromLs;
-
-      return "";
+      return (localStorage.getItem(SLUG_KEY) || "").trim();
     }
 
     function apiUrl(path){
@@ -356,16 +612,13 @@
     function imgUrl(path){
       const s = String(path || "").trim();
       if(!s) return "";
-
       if(s.startsWith("http://") || s.startsWith("https://")) return s;
-
       if(s.includes("localhost:5600")){
         try{
           const u = new URL(s);
           return apiUrl(u.pathname);
         }catch{}
       }
-
       return apiUrl(s.startsWith("/") ? s : ("/" + s));
     }
 
@@ -394,6 +647,7 @@
         .replaceAll('"',"&quot;")
         .replaceAll("'","&#039;");
     }
+
     function escapeAttr(s){
       return String(s ?? "")
         .replaceAll("&","&amp;")
@@ -406,9 +660,12 @@
     function placeholderSvgDataUrl(){
       const svg =
         `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400">
-          <defs><linearGradient id="g" x1="0" x2="1">
-            <stop offset="0" stop-color="#f1f5f9"/><stop offset="1" stop-color="#e2e8f0"/>
-          </linearGradient></defs>
+          <defs>
+            <linearGradient id="g" x1="0" x2="1">
+              <stop offset="0" stop-color="#f1f5f9"/>
+              <stop offset="1" stop-color="#e2e8f0"/>
+            </linearGradient>
+          </defs>
           <rect width="100%" height="100%" fill="url(#g)"/>
           <circle cx="200" cy="160" r="54" fill="#cbd5e1"/>
           <rect x="110" y="240" width="180" height="24" rx="12" fill="#cbd5e1"/>
@@ -417,16 +674,159 @@
       return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
     }
 
-    // ============================
-    // ERROR VIEW
-    // ============================
+    function getPagoSeleccionado(){
+      const pagoEl = document.getElementById("pago-cliente");
+      return pagoEl ? pagoEl.value : "Efectivo";
+    }
+
+    function buildCheckoutItems(){
+      return Object.values(carrito).map(p => ({
+        menuItemId: p.id,
+        qty: p.qty,
+        note: p.note || ""
+      }));
+    }
+
+    function buildWhatsAppMessage({ nombre, direccion, pago, createdOrderNumber }){
+      let subtotal = 0;
+      Object.values(carrito).forEach(p => subtotal += p.price * p.qty);
+
+      const recargo = (pago === "Transferencia" && PublicFeatures.aliasEnabled) ? Math.round(subtotal * 0.10) : 0;
+      const total = subtotal + recargo;
+
+      let msg = `*✅ PEDIDO RECIBIDO*`;
+      if(createdOrderNumber) msg += ` *#${createdOrderNumber}*`;
+
+      msg += `\n\n*Cliente:* ${nombre}\n*Dirección:* ${direccion}\n*Pago:* ${pago}\n`;
+      msg += `--------------------------\n`;
+
+      Object.values(carrito).forEach(p => {
+        msg += `• ${p.qty} x ${p.name} ($${formatMoney(p.price * p.qty)})\n`;
+        if(p.note) msg += `  _Nota: ${p.note}_\n`;
+      });
+
+      msg += `--------------------------\n*TOTAL: $${formatMoney(total)}*`;
+
+      const alias = String(Company.alias || "").trim();
+      if(pago === "Transferencia" && alias && PublicFeatures.aliasEnabled){
+        msg += `\n*Alias:* ${alias}`;
+      }
+
+      msg += `\n\nGracias 🙌`;
+      return msg;
+    }
+
+    function savePendingMercadoPagoOrder(data){
+      localStorage.setItem(MP_PENDING_KEY, JSON.stringify(data));
+      localStorage.removeItem(MP_RETURN_HANDLED_KEY);
+    }
+
+    function getPendingMercadoPagoOrder(){
+      try{
+        const raw = localStorage.getItem(MP_PENDING_KEY);
+        if(!raw) return null;
+        return JSON.parse(raw);
+      }catch{
+        return null;
+      }
+    }
+
+    function clearPendingMercadoPagoOrder(){
+      localStorage.removeItem(MP_PENDING_KEY);
+      localStorage.removeItem(MP_RETURN_HANDLED_KEY);
+    }
+
+    function markMercadoPagoReturnHandled(paymentId){
+      localStorage.setItem(MP_RETURN_HANDLED_KEY, paymentId || "1");
+    }
+
+    function wasMercadoPagoReturnHandled(paymentId){
+      const val = localStorage.getItem(MP_RETURN_HANDLED_KEY);
+      if(!val) return false;
+      if(!paymentId) return val === "1";
+      return val === paymentId;
+    }
+
+    function cleanMercadoPagoQueryParams(){
+      const url = new URL(window.location.href);
+      [
+        "collection_id","collection_status","payment_id","status","external_reference",
+        "merchant_order_id","preference_id","payment_type","site_id","processing_mode"
+      ].forEach(k => url.searchParams.delete(k));
+
+      window.history.replaceState({}, document.title, url.toString());
+    }
+
+    function updateCheckoutButton(){
+      const btn = document.getElementById("btn-confirmar-final");
+      if(!btn) return;
+
+      if(!PublicFeatures.ordersEnabled || PublicFeatures.menuOnlyEnabled){
+        btn.innerHTML = `NO DISPONIBLE`;
+        btn.disabled = true;
+        return;
+      }
+
+      const pago = getPagoSeleccionado();
+      btn.innerHTML = pago === "MercadoPago"
+        ? `IR A PAGAR <i class="fa-solid fa-credit-card ml-1"></i>`
+        : `ENVIAR PEDIDO <i class="fa-brands fa-whatsapp ml-1"></i>`;
+      btn.disabled = false;
+    }
+
+    async function handleMercadoPagoReturn(){
+      const qs = new URLSearchParams(window.location.search);
+      const collectionStatus = (qs.get("collection_status") || qs.get("status") || "").trim().toLowerCase();
+      const paymentId = (qs.get("payment_id") || qs.get("collection_id") || "").trim();
+
+      if(!collectionStatus) return;
+      if(wasMercadoPagoReturnHandled(paymentId)) return;
+
+      const pending = getPendingMercadoPagoOrder();
+      if(!pending){
+        markMercadoPagoReturnHandled(paymentId);
+        cleanMercadoPagoQueryParams();
+        return;
+      }
+
+      if(collectionStatus === "approved"){
+        const phone = sanitizePhone(Company.whatsapp || pending.companyWhatsapp);
+        if(!phone){
+          alert("El pago fue aprobado, pero no hay WhatsApp configurado en la empresa.");
+          markMercadoPagoReturnHandled(paymentId);
+          cleanMercadoPagoQueryParams();
+          return;
+        }
+
+        const msg = pending.message || "";
+        markMercadoPagoReturnHandled(paymentId);
+        cleanMercadoPagoQueryParams();
+        localStorage.removeItem(MP_PENDING_KEY);
+        window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+        return;
+      }
+
+      if(collectionStatus === "pending" || collectionStatus === "in_process"){
+        alert("Tu pago quedó pendiente. Cuando se confirme, podés volver a intentar o contactar al local.");
+        markMercadoPagoReturnHandled(paymentId);
+        cleanMercadoPagoQueryParams();
+        return;
+      }
+
+      if(collectionStatus === "rejected" || collectionStatus === "cancelled" || collectionStatus === "cancelled_by_user"){
+        alert("El pago no fue aprobado. Podés intentar nuevamente.");
+        clearPendingMercadoPagoOrder();
+        cleanMercadoPagoQueryParams();
+      }
+    }
+
     function showNotFound(msg){
       document.getElementById("notFoundView").classList.remove("hidden");
       document.getElementById("notFoundMsg").textContent = msg || "Revisá el link o el companySlug.";
-
       document.getElementById("heroInfo").classList.add("hidden");
       document.getElementById("tabsWrap").classList.add("hidden");
       document.getElementById("lista-platos").innerHTML = "";
+      document.getElementById("barra-carrito").style.display = "none";
     }
 
     function hideNotFound(){
@@ -435,9 +835,6 @@
       document.getElementById("tabsWrap").classList.remove("hidden");
     }
 
-    // ============================
-    // LOAD
-    // ============================
     async function loadConfig(){
       const res = await fetch(CONFIG_PATH, { cache:"no-store" });
       if(!res.ok) throw new Error("No pude leer config.json");
@@ -468,9 +865,6 @@
       DTO = await res.json();
     }
 
-    // ============================
-    // MAP DTO (tolerante)
-    // ============================
     function mapDto(dto){
       const c = dto?.company || dto?.Company || dto?.negocio || dto?.Negocio || {};
 
@@ -482,10 +876,53 @@
         turnos: c.turnos ?? c.Turnos ?? []
       };
 
+      const rawMenuOnly = toBool(
+        c.menuOnlyEnabled ??
+        c.MenuOnlyEnabled ??
+        c.featureMenuOnlyEnabled ??
+        c.FeatureMenuOnlyEnabled ??
+        false
+      );
+
+      const rawOrdersEnabled = toBool(
+        c.ordersEnabled ??
+        c.OrdersEnabled ??
+        c.featureOrdersEnabled ??
+        c.FeatureOrdersEnabled ??
+        true
+      );
+
+      PublicFeatures = {
+        menuOnlyEnabled: rawMenuOnly,
+        ordersEnabled: rawMenuOnly ? false : rawOrdersEnabled,
+        mercadoPagoEnabled: toBool(c.mercadoPagoEnabled ?? c.MercadoPagoEnabled ?? false),
+        whatsappEnabled: rawMenuOnly
+          ? false
+          : toBool(
+              c.whatsappEnabled ??
+              c.WhatsappEnabled ??
+              !!sanitizePhone(c.whatsapp ?? c.Whatsapp ?? c.telefono ?? c.Telefono ?? "")
+            ),
+        shiftsEnabled: toBool(
+          c.shiftsEnabled ??
+          c.ShiftsEnabled ??
+          c.featureShiftsEnabled ??
+          c.FeatureShiftsEnabled ??
+          true
+        ),
+        aliasEnabled: rawMenuOnly
+          ? false
+          : toBool(
+              c.aliasEnabled ??
+              c.AliasEnabled ??
+              !!String(c.alias ?? c.Alias ?? "").trim()
+            )
+      };
+
       const cats = dto?.categories ?? dto?.Categories ?? dto?.categorias ?? dto?.Categorias ?? [];
       Categories = Array.isArray(cats) ? cats.map(x => ({
         id: x.id ?? x.Id ?? 0,
-        name: x.name ?? x.Name ?? x.nombre ?? x.Nombre ?? "",
+        name: x.name ?? x.Name ?? x.nombre ?? x.Nombre ?? String(x),
         enabled: toBool(x.enabled ?? x.Enabled ?? true),
         sortOrder: x.sortOrder ?? x.SortOrder ?? 0
       })) : [];
@@ -510,18 +947,16 @@
       });
     }
 
-    // ============================
-    // UI: header + whatsapp empresa
-    // ============================
     function setOpenBadge(type){
       const el = document.getElementById("badgeOpen");
       el.classList.remove("hidden");
+
       if(type === "open"){
-        el.className = "text-[10px] px-3 py-1 rounded-full font-black border tracking-tighter bg-emerald-50 text-emerald-700 border-emerald-100";
-        el.innerHTML = "● ABIERTO";
+        el.className = "pill bg-emerald-50 text-emerald-700 border-emerald-100";
+        el.innerHTML = "● Abierto";
       } else {
-        el.className = "text-[10px] px-3 py-1 rounded-full font-black border tracking-tighter bg-rose-50 text-rose-700 border-rose-100";
-        el.innerHTML = "CERRADO";
+        el.className = "pill bg-rose-50 text-rose-700 border-rose-100";
+        el.innerHTML = "Cerrado";
       }
     }
 
@@ -545,8 +980,9 @@
       const phone = sanitizePhone(Company.whatsapp);
       const btnW = document.getElementById("btnWhatsApp");
       const btnWM = document.getElementById("btnWhatsAppMobile");
+      const showWhatsapp = !PublicFeatures.menuOnlyEnabled && PublicFeatures.whatsappEnabled && !!phone;
 
-      if(phone){
+      if(showWhatsapp){
         btnW.classList.remove("hidden");
         btnWM.classList.remove("hidden");
         btnW.onclick = () => window.open(`https://wa.me/${phone}`, "_blank");
@@ -555,11 +991,61 @@
         btnW.classList.add("hidden");
         btnWM.classList.add("hidden");
       }
+
+      document.getElementById("heroItemsCount").textContent = String(Items.filter(x => x.enabled).length);
+      document.getElementById("heroCategoriesCount").textContent = String(Categories.filter(x => x.enabled).length);
     }
 
-    // ============================
-    // HORARIOS (compact)
-    // ============================
+    function applyPublicMode(){
+      const cartBar = document.getElementById("barra-carrito");
+      const orderBadge = document.getElementById("orderModeBadge");
+
+      const isVisualOnly = PublicFeatures.menuOnlyEnabled || !PublicFeatures.ordersEnabled;
+
+      if(orderBadge){
+        orderBadge.textContent = isVisualOnly ? "Solo menú" : "Pedido online";
+        orderBadge.className = isVisualOnly
+          ? "pill text-slate-700 bg-slate-100 border-slate-200"
+          : "pill text-amber-700 bg-amber-50 border-amber-100";
+      }
+
+      if(isVisualOnly){
+        carrito = {};
+        if(cartBar) cartBar.style.display = "none";
+        actualizarBarra();
+      } else {
+        if(cartBar) cartBar.style.display = "";
+      }
+    }
+
+    function renderPaymentOptions(){
+      const sel = document.getElementById("pago-cliente");
+      if(!sel) return;
+
+      const isVisualOnly = PublicFeatures.menuOnlyEnabled || !PublicFeatures.ordersEnabled;
+      const options = [];
+
+      if(!isVisualOnly){
+        options.push(`<option value="Efectivo">💵 Efectivo</option>`);
+
+        if(PublicFeatures.aliasEnabled){
+          options.push(`<option value="Transferencia">💳 Transferencia (+10%)</option>`);
+        }
+
+        if(PublicFeatures.mercadoPagoEnabled){
+          options.push(`<option value="MercadoPago">🟦 Mercado Pago</option>`);
+        }
+      }
+
+      if(!options.length){
+        sel.innerHTML = `<option value="">No disponible</option>`;
+        sel.disabled = true;
+      } else {
+        sel.innerHTML = options.join("");
+        sel.disabled = false;
+      }
+    }
+
     function parseShiftLabel(t){
       if(!t) return "";
 
@@ -608,6 +1094,13 @@
     }
 
     function renderHorarios(){
+      if(!PublicFeatures.shiftsEnabled){
+        document.getElementById("heroInfo").classList.add("hidden");
+        return;
+      } else {
+        document.getElementById("heroInfo").classList.remove("hidden");
+      }
+
       const wrap = document.getElementById("scheduleWrap");
       const hint = document.getElementById("scheduleHint");
       const btn = document.getElementById("btnToggleSchedule");
@@ -660,14 +1153,26 @@
         return;
       }
 
-      const rows = [];
+      const grouped = new Map();
+
       for(const t of turnos){
         const day = parseShiftLabel(t);
         const h = parseShiftHours(t);
-        if(!day) continue;
-        const hoursTxt = (h.abre && h.cierra) ? `${h.abre} - ${h.cierra}` : "—";
-        rows.push({ day, hoursTxt });
+        if(!day || !h.abre || !h.cierra) continue;
+
+        const range = `${h.abre} - ${h.cierra}`;
+
+        if(!grouped.has(day)){
+          grouped.set(day, []);
+        }
+
+        grouped.get(day).push(range);
       }
+
+      const rows = Array.from(grouped.entries()).map(([day, ranges]) => ({
+        day,
+        hoursTxt: [...new Set(ranges)].join(" · ")
+      }));
 
       if(!rows.length){
         wrap.classList.remove("hidden");
@@ -675,7 +1180,6 @@
         return;
       }
 
-      // Resumen HOY
       try{
         const map = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
         const hoy = map[new Date().getDay()];
@@ -701,16 +1205,13 @@
       wrap.innerHTML = rows.map(r => `
         <div class="bg-white px-4 py-3 flex items-center justify-between gap-4 border-b border-slate-100 last:border-b-0">
           <div class="text-sm font-extrabold text-slate-900 truncate">${escapeHtml(r.day)}</div>
-          <div class="text-sm font-black text-slate-700 whitespace-nowrap">${escapeHtml(r.hoursTxt)}</div>
+          <div class="text-sm font-black text-slate-700 text-right">${escapeHtml(r.hoursTxt)}</div>
         </div>
       `).join("");
 
       wireScheduleToggle();
     }
 
-    // ============================
-    // OPEN/CLOSED (día + hora)
-    // ============================
     function dayLabelMatchesToday(label, dayIndex){
       const map = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
       const l = normText(label);
@@ -727,25 +1228,34 @@
 
       const setClosed = () => {
         setOpenBadge("closed");
-        btn.disabled = true;
-        btn.classList.remove("bg-amber-600");
-        btn.classList.add("bg-slate-100");
-        btn.innerText = "LOCAL CERRADO";
+        if(PublicFeatures.ordersEnabled && !PublicFeatures.menuOnlyEnabled){
+          btn.disabled = true;
+          btn.classList.remove("bg-amber-600");
+          btn.classList.add("bg-slate-100");
+          btn.innerText = "LOCAL CERRADO";
+        }
       };
 
       const setOpen = () => {
         setOpenBadge("open");
-        btn.disabled = false;
-        btn.classList.remove("bg-slate-100");
-        btn.classList.add("bg-amber-600");
-        btn.innerHTML = `ENVIAR PEDIDO <i class="fa-brands fa-whatsapp ml-1"></i>`;
+        if(PublicFeatures.ordersEnabled && !PublicFeatures.menuOnlyEnabled){
+          btn.disabled = false;
+          btn.classList.remove("bg-slate-100");
+          btn.classList.add("bg-amber-600");
+          updateCheckoutButton();
+        }
       };
+
+      if(!PublicFeatures.shiftsEnabled){
+        setOpen();
+        return;
+      }
 
       if(!turnos.length){ setOpen(); return; }
 
       const ahora = new Date();
       const dayIndex = ahora.getDay();
-      const minutos = ahora.getHours()*60 + ahora.getMinutes();
+      const minutos = ahora.getHours() * 60 + ahora.getMinutes();
 
       const anyHasDay = turnos.some(t => parseShiftLabel(t));
 
@@ -791,9 +1301,6 @@
       if(abierto) setOpen(); else setClosed();
     }
 
-    // ============================
-    // Categorías + render
-    // ============================
     function wireSearch(){
       const s1 = document.getElementById("search");
       const s2 = document.getElementById("searchMobile");
@@ -870,7 +1377,6 @@
       return false;
     }
 
-    // ✅ toggle “Ver más / Ver menos”
     function toggleDesc(id){
       descExpanded[id] = !descExpanded[id];
       renderMenu();
@@ -899,6 +1405,7 @@
       }
 
       const ph = placeholderSvgDataUrl();
+      const isVisualOnly = PublicFeatures.menuOnlyEnabled || !PublicFeatures.ordersEnabled;
 
       items.forEach(p => {
         const inCart = carrito[p.id]?.qty || 0;
@@ -913,57 +1420,76 @@
 
         const isOpen = !!descExpanded[p.id];
         const desc = String(p.description || "").trim();
-        const hasLong = desc.length > 70; // umbral para mostrar botón
+        const hasLong = desc.length > 70;
 
-        const card = document.createElement("div");
-        card.className = "food-card p-6 sm:p-5 flex gap-5 sm:gap-4 items-start";
-
-        card.innerHTML = `
-          <div class="w-28 h-28 sm:w-24 sm:h-24 rounded-3xl overflow-hidden bg-slate-50 border border-slate-100 shadow-sm shrink-0">
-            <img src="${img}" class="w-full h-full object-cover" onerror="this.src='${ph}'" />
-          </div>
-
-          <div class="flex-1 min-w-0">
-            <div class="flex items-start justify-between gap-4">
-              <div class="min-w-0 flex-1 pr-2">
-                <h3 class="font-extrabold text-slate-900 text-lg sm:text-base leading-tight tracking-tight truncate">
-                  ${escapeHtml(p.name)}
-                </h3>
-
-                ${desc ? `
-                  <p class="text-sm sm:text-xs text-slate-500 mt-1 leading-snug ${isOpen ? "" : "clamp-2"} break-words">
-                    ${escapeHtml(desc)}
-                  </p>
-                  ${hasLong ? `
-                    <button type="button"
-                      class="mt-1 text-xs sm:text-[11px] font-extrabold text-amber-700 hover:text-amber-800"
-                      onclick="toggleDesc(${p.id})">
-                      ${isOpen ? "Ver menos" : "Ver más"}
-                    </button>
-                  ` : ``}
-                ` : ``}
-              </div>
-
-              <div class="text-right shrink-0 min-w-[92px]">
-                <div class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Precio</div>
-                <div class="text-3xl sm:text-2xl font-black text-slate-900 leading-none mt-1">$${formatMoney(p.price)}</div>
-              </div>
+        const controls = !isVisualOnly ? `
+          <div class="mt-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div class="flex-1">
+              <input type="text"
+                placeholder="Aclaración..."
+                value="${escapeAttr(carrito[p.id]?.note || "")}"
+                class="w-full text-sm bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 outline-none text-slate-600 placeholder:text-slate-400 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+                oninput="actualizarNota(${p.id}, this.value)" />
             </div>
 
-            <input type="text"
-              placeholder="Aclaración..."
-              value="${escapeAttr(carrito[p.id]?.note || "")}"
-              class="mt-3 w-full text-sm sm:text-[11px] bg-transparent border-b border-slate-100 py-3 sm:py-2 outline-none text-slate-500 focus:border-amber-400 transition-all"
-              oninput="actualizarNota(${p.id}, this.value)" />
+            <div class="qty-shell inline-flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-2 py-2 self-start sm:self-auto">
+              <button class="mobile-qty-btn w-11 h-11 sm:w-11 sm:h-11 rounded-xl bg-white flex items-center justify-center text-slate-700 border border-slate-200 hover:bg-slate-100 transition text-lg"
+                onclick="modificar(${p.id}, -1)">−</button>
 
-            <div class="mt-4 flex items-center gap-4">
-              <button class="w-12 h-12 sm:w-10 sm:h-10 rounded-2xl sm:rounded-xl bg-slate-50 flex items-center justify-center text-slate-600 border border-slate-100 hover:bg-slate-200 transition text-xl sm:text-base"
-                onclick="modificar(${p.id}, -1)">-</button>
+              <span class="font-black text-lg sm:text-xl min-w-[28px] text-center text-slate-900">${inCart}</span>
 
-              <span class="font-black text-xl sm:text-lg w-7 text-center text-slate-800">${inCart}</span>
-
-              <button class="w-12 h-12 sm:w-10 sm:h-10 rounded-2xl sm:rounded-xl bg-amber-600 text-white flex items-center justify-center font-black active:scale-90 shadow-md shadow-amber-100 transition text-xl sm:text-base"
+              <button class="mobile-qty-btn w-11 h-11 sm:w-11 sm:h-11 rounded-xl bg-amber-600 text-white flex items-center justify-center font-black active:scale-90 shadow-md shadow-amber-100 transition text-lg"
                 onclick="modificar(${p.id}, 1)">+</button>
+            </div>
+          </div>
+        ` : `
+          <div class="mt-4">
+            <div class="inline-flex items-center gap-2 text-xs font-extrabold text-slate-500 bg-slate-50 border border-slate-200 rounded-full px-4 py-2">
+              <i class="fa-regular fa-eye"></i>
+              Solo visualización
+            </div>
+          </div>
+        `;
+
+        const card = document.createElement("div");
+        card.className = "food-card p-4 sm:p-5";
+
+        card.innerHTML = `
+          <div class="flex gap-4 items-start">
+            <div class="mobile-img w-24 h-24 sm:w-28 sm:h-28 rounded-[1.15rem] sm:rounded-[1.4rem] overflow-hidden bg-slate-50 border border-slate-100 shadow-sm shrink-0">
+              <img src="${img}" class="w-full h-full object-cover" onerror="this.src='${ph}'" />
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-4">
+                <div class="min-w-0 flex-1">
+                  <h3 class="font-extrabold text-slate-900 text-[1.15rem] sm:text-[1.28rem] leading-tight tracking-tight break-words">
+                    ${escapeHtml(p.name)}
+                  </h3>
+
+                  ${desc ? `
+                    <p class="text-sm sm:text-sm text-slate-500 mt-1.5 leading-snug ${isOpen ? "" : "clamp-2"} break-words max-w-xl">
+                      ${escapeHtml(desc)}
+                    </p>
+                    ${hasLong ? `
+                      <button type="button"
+                        class="mt-1 text-xs sm:text-xs font-extrabold text-amber-700 hover:text-amber-800"
+                        onclick="toggleDesc(${p.id})">
+                        ${isOpen ? "Ver menos" : "Ver más"}
+                      </button>
+                    ` : ``}
+                  ` : ``}
+                </div>
+
+                <div class="text-right shrink-0 min-w-[92px] sm:min-w-[120px]">
+                  <div class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Precio</div>
+                  <div class="mobile-price text-[1.85rem] sm:text-[2.1rem] font-black text-slate-900 leading-none mt-1">
+                    $${formatMoney(p.price)}
+                  </div>
+                </div>
+              </div>
+
+              ${controls}
             </div>
           </div>
         `;
@@ -972,10 +1498,9 @@
       });
     }
 
-    // ============================
-    // CARRITO
-    // ============================
     function modificar(id, delta){
+      if(!PublicFeatures.ordersEnabled || PublicFeatures.menuOnlyEnabled) return;
+
       const item = Items.find(x => x.id === id);
       if(!item) return;
 
@@ -991,19 +1516,31 @@
     }
 
     function actualizarNota(id, texto){
+      if(!PublicFeatures.ordersEnabled || PublicFeatures.menuOnlyEnabled) return;
       if(carrito[id]) carrito[id].note = texto || "";
     }
 
     function actualizarBarra(){
-      let total = 0; let items = 0;
-      Object.values(carrito).forEach(p => { total += (p.price * p.qty); items += p.qty; });
+      const barra = document.getElementById("barra-carrito");
+      const isVisualOnly = PublicFeatures.menuOnlyEnabled || !PublicFeatures.ordersEnabled;
+
+      if(isVisualOnly){
+        barra.style.transform = "translateY(200px)";
+        return;
+      }
+
+      let total = 0;
+      let items = 0;
+
+      Object.values(carrito).forEach(p => {
+        total += (p.price * p.qty);
+        items += p.qty;
+      });
+
       document.getElementById("total-monto").innerText = formatMoney(total);
-      document.getElementById("barra-carrito").style.transform = items > 0 ? "translateY(0)" : "translateY(200px)";
+      barra.style.transform = items > 0 ? "translateY(0)" : "translateY(200px)";
     }
 
-    // ============================
-    // CHECKOUT
-    // ============================
     function calcularTotalFinal(){
       let subtotal = 0;
       Object.values(carrito).forEach(p => { subtotal += p.price * p.qty; });
@@ -1011,15 +1548,13 @@
       const pagoEl = document.getElementById("pago-cliente");
       const pago = pagoEl ? pagoEl.value : "Efectivo";
 
-      const recargo = (pago === "Transferencia") ? Math.round(subtotal * 0.10) : 0;
+      const recargo = (pago === "Transferencia" && PublicFeatures.aliasEnabled) ? Math.round(subtotal * 0.10) : 0;
 
-      // recargo UI
       const rowRec = document.getElementById("row-recargo");
       if(rowRec) rowRec.classList.toggle("hidden", pago !== "Transferencia");
 
-      // ✅ Alias UI (siempre que sea Transferencia y exista alias)
       const alias = String(Company?.alias || "").trim();
-      const showAlias = (pago === "Transferencia" && alias.length > 0);
+      const showAlias = (pago === "Transferencia" && alias.length > 0 && PublicFeatures.aliasEnabled);
 
       const aliasCard = document.getElementById("alias-card");
       const aliasTxt = document.getElementById("txt-alias");
@@ -1027,7 +1562,6 @@
       if(aliasCard) aliasCard.classList.toggle("hidden", !showAlias);
       if(showAlias && aliasTxt) aliasTxt.textContent = alias;
 
-      // totales UI
       const detSub = document.getElementById("det-subtotal");
       const detRec = document.getElementById("det-recargo");
       const detTot = document.getElementById("monto-final-checkout");
@@ -1035,9 +1569,13 @@
       if(detSub) detSub.innerText = "$" + formatMoney(subtotal);
       if(detRec) detRec.innerText = "$" + formatMoney(recargo);
       if(detTot) detTot.innerText = "$" + formatMoney(subtotal + recargo);
+
+      updateCheckoutButton();
     }
 
     function abrirCheckout(){
+      if(!PublicFeatures.ordersEnabled || PublicFeatures.menuOnlyEnabled) return;
+
       const resumen = document.getElementById("resumen-pedido");
       resumen.innerHTML = "";
 
@@ -1050,14 +1588,13 @@
       });
 
       document.getElementById("modal-checkout").style.display = "flex";
-      calcularTotalFinal(); // ✅ fuerza alias + recargo al abrir
+      calcularTotalFinal();
     }
 
     function cerrarModales(){
       document.getElementById("modal-checkout").style.display = "none";
     }
 
-    // ✅ Copiar alias a prueba de navegadores
     async function copiarAlias(){
       const a = String(Company.alias || "").trim();
       if(!a) return;
@@ -1090,21 +1627,22 @@
       }
     }
 
-    async function enviarWhatsApp(){
+    async function enviarPedidoWhatsApp(){
+      if(!PublicFeatures.ordersEnabled || PublicFeatures.menuOnlyEnabled){
+        alert("Esta empresa no tiene pedidos habilitados.");
+        return;
+      }
+
       const nombre = document.getElementById("nombre-cliente").value.trim();
       const direccion = document.getElementById("direccion-cliente").value.trim();
-      const pago = document.getElementById("pago-cliente").value;
+      const pago = getPagoSeleccionado();
 
       if(!nombre || !direccion){
         alert("Completá tu nombre y dirección.");
         return;
       }
 
-      const items = Object.values(carrito).map(p => ({
-        menuItemId: p.id,
-        qty: p.qty,
-        note: p.note || ""
-      }));
+      const items = buildCheckoutItems();
 
       if(!items.length){
         alert("Agregá al menos 1 producto.");
@@ -1112,18 +1650,18 @@
       }
 
       const phone = sanitizePhone(Company.whatsapp);
-      if(!phone){
+      if(!phone || !PublicFeatures.whatsappEnabled){
         alert("No hay WhatsApp configurado en la empresa.");
         return;
       }
 
       const btn = document.getElementById("btn-confirmar-final");
-      const original = btn.innerHTML;
       btn.disabled = true;
       btn.innerHTML = "ENVIANDO...";
 
       try{
         const slug = getCompanySlug();
+
         const resp = await fetch(apiUrl(`/api/public/${slug}/orders`), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1143,30 +1681,12 @@
         }
 
         const created = await resp.json().catch(()=> ({}));
-
-        let subtotal = 0;
-        Object.values(carrito).forEach(p => subtotal += p.price * p.qty);
-        const recargo = (pago === "Transferencia") ? Math.round(subtotal * 0.10) : 0;
-        const total = subtotal + recargo;
-
-        let msg = `*✅ PEDIDO RECIBIDO*`;
-        if(created?.orderNumber) msg += ` *#${created.orderNumber}*`;
-        msg += `\n\n*Cliente:* ${nombre}\n*Dirección:* ${direccion}\n*Pago:* ${pago}\n`;
-        msg += `--------------------------\n`;
-
-        Object.values(carrito).forEach(p => {
-          msg += `• ${p.qty} x ${p.name} ($${formatMoney(p.price * p.qty)})\n`;
-          if(p.note) msg += `  _Nota: ${p.note}_\n`;
+        const msg = buildWhatsAppMessage({
+          nombre,
+          direccion,
+          pago,
+          createdOrderNumber: created?.orderNumber || ""
         });
-
-        msg += `--------------------------\n*TOTAL: $${formatMoney(total)}*`;
-
-        const alias = String(Company.alias || "").trim();
-        if(pago === "Transferencia" && alias){
-          msg += `\n*Alias:* ${alias}`;
-        }
-
-        msg += `\n\nGracias 🙌`;
 
         carrito = {};
         cerrarModales();
@@ -1179,13 +1699,125 @@
         alert("No hay conexión con el servidor.");
       }finally{
         btn.disabled = false;
-        btn.innerHTML = original;
+        updateCheckoutButton();
       }
     }
 
-    // ============================
-    // INIT
-    // ============================
+    async function iniciarPagoMercadoPago(){
+      if(!PublicFeatures.ordersEnabled || PublicFeatures.menuOnlyEnabled){
+        alert("Esta empresa no tiene pedidos habilitados.");
+        return;
+      }
+
+      if(!PublicFeatures.mercadoPagoEnabled){
+        alert("Mercado Pago no está habilitado en esta empresa.");
+        return;
+      }
+
+      const nombre = document.getElementById("nombre-cliente").value.trim();
+      const direccion = document.getElementById("direccion-cliente").value.trim();
+      const pago = getPagoSeleccionado();
+
+      if(!nombre || !direccion){
+        alert("Completá tu nombre y dirección.");
+        return;
+      }
+
+      const items = buildCheckoutItems();
+
+      if(!items.length){
+        alert("Agregá al menos 1 producto.");
+        return;
+      }
+
+      const phone = sanitizePhone(Company.whatsapp);
+
+      const btn = document.getElementById("btn-confirmar-final");
+      btn.disabled = true;
+      btn.innerHTML = "REDIRIGIENDO...";
+
+      try{
+        const slug = getCompanySlug();
+
+        const msg = buildWhatsAppMessage({
+          nombre,
+          direccion,
+          pago,
+          createdOrderNumber: ""
+        });
+
+        savePendingMercadoPagoOrder({
+          companySlug: slug,
+          companyWhatsapp: phone,
+          customerName: nombre,
+          address: direccion,
+          paymentMethod: pago,
+          message: msg,
+          createdAt: new Date().toISOString()
+        });
+
+        const resp = await fetch(apiUrl(`/api/public/${slug}/payments/mercadopago`), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customerName: nombre,
+            address: direccion,
+            items
+          })
+        });
+
+        if(!resp.ok){
+          const err = await resp.text().catch(() => "");
+          console.error("MercadoPago error:", err);
+          alert("No se pudo iniciar el pago con Mercado Pago.");
+          return;
+        }
+
+        const data = await resp.json();
+
+        if(!data?.initPoint){
+          alert("No se recibió el link de pago.");
+          return;
+        }
+
+        const pending = getPendingMercadoPagoOrder();
+        if(pending){
+          pending.createdOrderNumber = data.orderNumber || "";
+          pending.message = buildWhatsAppMessage({
+            nombre,
+            direccion,
+            pago,
+            createdOrderNumber: data.orderNumber || ""
+          });
+          savePendingMercadoPagoOrder(pending);
+        }
+
+        window.location.href = data.initPoint;
+      }catch(e){
+        console.error(e);
+        alert("No hay conexión con el servidor.");
+      }finally{
+        btn.disabled = false;
+        updateCheckoutButton();
+      }
+    }
+
+    async function confirmarCheckout(){
+      if(!PublicFeatures.ordersEnabled || PublicFeatures.menuOnlyEnabled){
+        alert("Esta empresa no tiene pedidos habilitados.");
+        return;
+      }
+
+      const pago = getPagoSeleccionado();
+
+      if(pago === "MercadoPago"){
+        await iniciarPagoMercadoPago();
+        return;
+      }
+
+      await enviarPedidoWhatsApp();
+    }
+
     function initDevFooter(){
       const devPhone = sanitizePhone(DEV_WHATSAPP);
       const btn = document.getElementById("btnDevWpp");
@@ -1222,6 +1854,8 @@
         }
 
         aplicarEmpresaEnHeader();
+        applyPublicMode();
+        renderPaymentOptions();
         renderHorarios();
         validarHorario();
         wireSearch();
@@ -1230,6 +1864,9 @@
         catActual = cats[0] || "";
         renderTabs(cats);
         renderMenu();
+
+        updateCheckoutButton();
+        await handleMercadoPagoReturn();
       }catch(e){
         console.error(e);
       }

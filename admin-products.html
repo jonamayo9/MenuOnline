@@ -3,225 +3,336 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Productos</title>
+  <title>System Dev Solutions | Productos</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+    }
+
+    .module-card{
+      position: relative;
+      overflow: hidden;
+    }
+
+    .module-card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(15,23,42,.02) 100%);
+      pointer-events:none;
+    }
+
+    .hero-glow::before{
+      content:"";
+      position:absolute;
+      right:-40px;
+      top:-40px;
+      width:180px;
+      height:180px;
+      background: radial-gradient(circle, rgba(15,23,42,.08) 0%, rgba(15,23,42,0) 70%);
+      filter: blur(10px);
+      pointer-events:none;
+    }
+  </style>
 </head>
 
 <body class="bg-slate-100 text-slate-800 min-h-screen">
 
-<div class="max-w-6xl mx-auto p-6">
+<div class="relative min-h-screen overflow-hidden">
+  <!-- Fondo -->
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(148,163,184,0.18),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(15,23,42,0.08),_transparent_28%)]"></div>
 
-  <!-- HEADER -->
-  <div class="bg-white rounded-3xl shadow-sm p-6 mb-6 border border-slate-200">
-    <div class="flex justify-between items-center flex-wrap gap-4">
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
 
-      <!-- 👇 agregado: botón volver + título -->
-      <div class="flex items-center gap-4">
-        <a href="./home.html"
-           class="h-11 w-11 grid place-items-center rounded-2xl bg-slate-100 text-slate-800 text-lg font-bold
-                  hover:bg-slate-200 transition"
-           title="Volver">
-          ←
-        </a>
-
-        <div>
-          <h1 class="text-3xl font-extrabold">Productos</h1>
-          <p class="text-sm text-slate-500 mt-1">Creá y administrá tu menú.</p>
-        </div>
-      </div>
-      <!-- 👆 agregado -->
-
-      <button id="refresh"
-        class="px-4 py-2 rounded-xl bg-slate-900 text-white font-semibold hover:shadow-lg transition text-sm">
-        Actualizar
-      </button>
+    <!-- Branding -->
+    <div class="text-center mb-8 md:mb-10">
+      <h1 class="text-3xl md:text-4xl font-extrabold tracking-tighter text-slate-900 uppercase">
+        System Dev <span class="text-slate-500 font-light">Solutions</span>
+      </h1>
+      <p class="text-[13px] tracking-[0.3em] text-slate-400 font-semibold mt-1">Digital Solutions for Local Commerce</p>
     </div>
-  </div>
 
-  <!-- FORM CREAR -->
-  <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 mb-6">
-    <div class="text-lg font-extrabold mb-4">Nuevo producto</div>
+    <!-- Header -->
+    <div class="glass-card hero-glow relative rounded-[2rem] md:rounded-[2.5rem] border border-white/70 shadow-xl p-6 md:p-8 mb-6">
+      <div class="flex justify-between items-center flex-wrap gap-4">
+        <div class="flex items-center gap-4 min-w-0">
+          <a href="./home.html"
+             class="h-12 w-12 shrink-0 grid place-items-center rounded-2xl bg-slate-100 text-slate-800 text-lg font-bold hover:bg-slate-200 transition"
+             title="Volver">
+            ←
+          </a>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap mb-2">
+              <div class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.25em] font-bold border bg-slate-900 text-white border-slate-900">
+                Admin Panel
+              </div>
+              <div class="px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.2em] font-bold border bg-slate-50 text-slate-600 border-slate-200">
+                Productos
+              </div>
+            </div>
 
-      <div>
-        <label class="text-xs text-slate-400 mb-1 block">Nombre</label>
-        <input id="name" placeholder="Ej: Hamburguesa clásica"
-          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
-      </div>
+            <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">Productos</h2>
+            <p class="text-sm md:text-base text-slate-500 mt-2">Creá y administrá tu menú de forma simple, moderna y ordenada.</p>
+          </div>
+        </div>
 
-      <div>
-        <label class="text-xs text-slate-400 mb-1 block">Precio</label>
-        <input id="price" type="text" inputmode="decimal" placeholder="Ej: 4500"
-          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
-        <p class="text-[11px] text-slate-400 mt-1">Acepta números y decimales (ej: 4500 o 4500,50).</p>
-      </div>
-
-      <div>
-        <label class="text-xs text-slate-400 mb-1 block">Categoría</label>
-        <select id="category"
-          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
-          <option value="">Seleccionar categoría</option>
-        </select>
-      </div>
-
-      <div class="md:col-span-3">
-        <label class="text-xs text-slate-400 mb-1 block">Descripción</label>
-        <textarea id="description" rows="2" placeholder="Ej: Con cheddar, panceta y papas"
-          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"></textarea>
-      </div>
-
-      <div>
-        <label class="text-xs text-slate-400 mb-1 block">Imagen</label>
-        <input id="imageFile" type="file" accept="image/*"
-          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
-        <p class="text-xs text-slate-400 mt-1">Opcional. Si no cargás imagen se usará la predeterminada.</p>
-      </div>
-
-      <div>
-        <label class="text-xs text-slate-400 mb-1 block">Estado</label>
-        <select id="enabled"
-          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
-          <option value="true">Activo</option>
-          <option value="false">Inactivo</option>
-        </select>
-      </div>
-
-      <div class="flex items-end justify-end">
-        <button id="save"
-          class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 hover:shadow-lg active:scale-[0.99] transition text-sm">
-          Crear
+        <button id="refresh"
+          class="px-5 py-3 rounded-2xl bg-slate-900 text-white font-bold shadow-lg hover:bg-black hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 text-sm">
+          Actualizar
         </button>
       </div>
-
     </div>
 
-    <img id="imagePreview" class="mt-4 w-24 h-24 object-cover rounded-xl border border-slate-200 hidden"/>
-  </div>
+    <!-- Nuevo producto -->
+    <div class="glass-card rounded-[2rem] border border-white/70 shadow-sm p-6 md:p-8 mb-6">
+      <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
+        <div>
+          <div class="text-2xl font-extrabold tracking-tight text-slate-900">Nuevo producto</div>
+          <div class="text-sm text-slate-500 mt-1">Completá los datos para agregar un nuevo ítem al menú.</div>
+        </div>
 
-  <!-- TOOLBAR LISTADO -->
-  <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 mb-4">
-    <div class="flex flex-wrap items-end gap-4 justify-between">
-      <div>
-        <div class="font-extrabold">Listado</div>
-        <div class="text-sm text-slate-500">Filtrá por categoría.</div>
+        <div class="px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold border bg-emerald-50 text-emerald-800 border-emerald-100">
+          Alta
+        </div>
       </div>
 
-      <div class="flex items-end gap-3">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label class="text-xs text-slate-400 mb-1 block">Filtro categoría</label>
-          <select id="filterCategory"
-            class="min-w-[240px] bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
-            <option value="">Todas</option>
+          <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Nombre</label>
+          <input id="name" placeholder="Ej: Hamburguesa clásica"
+            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
+        </div>
+
+        <div>
+          <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Precio</label>
+          <input id="price" type="text" inputmode="decimal" placeholder="Ej: 4500"
+            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
+          <p class="text-[11px] text-slate-400 mt-2">Acepta números y decimales.</p>
+        </div>
+
+        <div>
+          <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Categoría</label>
+          <select id="category"
+            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition">
+            <option value="">Seleccionar categoría</option>
           </select>
         </div>
 
-        <button id="clearFilter"
-          class="px-4 py-2 rounded-xl bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200 transition text-sm">
-          Limpiar
-        </button>
+        <div class="md:col-span-3">
+          <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Descripción</label>
+          <textarea id="description" rows="3" placeholder="Ej: Con cheddar, panceta y papas"
+            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-slate-400 transition"></textarea>
+        </div>
+
+        <div>
+          <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Imagen</label>
+          <input id="imageFile" type="file" accept="image/*"
+            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm"/>
+          <p class="text-xs text-slate-400 mt-2">Opcional.</p>
+        </div>
+
+        <div>
+          <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Estado</label>
+          <select id="enabled"
+            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition">
+            <option value="true">Activo</option>
+            <option value="false">Inactivo</option>
+          </select>
+        </div>
+
+        <div class="flex items-end">
+          <div class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-4">
+            <div class="text-xs uppercase tracking-[0.22em] text-slate-400 font-bold">Vista previa</div>
+            <img id="imagePreview" class="mt-3 w-24 h-24 object-cover rounded-2xl border border-slate-200 hidden"/>
+            <div id="emptyPreviewBox" class="mt-3 w-24 h-24 rounded-2xl border border-slate-200 bg-white flex items-center justify-center text-slate-300 text-xs font-bold">
+              IMG
+            </div>
+          </div>
+        </div>
+
+        <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+          <label class="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-[1.4rem] px-4 py-4 cursor-pointer hover:bg-white transition">
+            <input id="visibleInPublicMenu" type="checkbox" class="h-4 w-4" checked />
+            <div>
+              <div class="text-sm font-semibold text-slate-800">Visible en menú público</div>
+              <div class="text-xs text-slate-500 mt-1">Aparece en la carta pública.</div>
+            </div>
+          </label>
+
+          <label class="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-[1.4rem] px-4 py-4 cursor-pointer hover:bg-white transition">
+            <input id="visibleInTables" type="checkbox" class="h-4 w-4" checked />
+            <div>
+              <div class="text-sm font-semibold text-slate-800">Visible para mesas</div>
+              <div class="text-xs text-slate-500 mt-1">Se puede agregar desde gestión de mesas.</div>
+            </div>
+          </label>
+
+          <label class="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-[1.4rem] px-4 py-4 cursor-pointer hover:bg-white transition">
+            <input id="isInternalForTables" type="checkbox" class="h-4 w-4" />
+            <div>
+              <div class="text-sm font-semibold text-slate-800">Interno para mesas</div>
+              <div class="text-xs text-slate-500 mt-1">No va a carta pública, solo uso interno.</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="flex items-end justify-end md:col-span-3">
+          <button id="save"
+            class="px-5 py-3 rounded-2xl bg-emerald-600 text-white font-bold shadow-lg hover:bg-emerald-700 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 text-sm">
+            Crear producto
+          </button>
+        </div>
       </div>
     </div>
+
+    <!-- Filtros -->
+    <div class="glass-card rounded-[2rem] border border-white/70 shadow-sm p-5 md:p-6 mb-5">
+      <div class="flex flex-wrap items-end gap-4 justify-between">
+        <div>
+          <div class="text-xl font-extrabold tracking-tight text-slate-900">Listado</div>
+          <div class="text-sm text-slate-500 mt-1">Filtrá y administrá tus productos por categoría.</div>
+        </div>
+
+        <div class="flex items-end gap-3 flex-wrap">
+          <div>
+            <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Filtro categoría</label>
+            <select id="filterCategory"
+              class="min-w-[240px] bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition">
+              <option value="">Todas</option>
+            </select>
+          </div>
+
+          <button id="clearFilter"
+            class="px-4 py-3 rounded-2xl bg-slate-100 text-slate-800 font-bold hover:bg-slate-200 transition text-sm">
+            Limpiar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Listado -->
+    <div id="list" class="space-y-4"></div>
   </div>
-
-  <!-- LISTA -->
-  <div id="list" class="space-y-4"></div>
-
 </div>
 
-<!-- MODAL EDITAR -->
-<div id="editModal" class="hidden fixed inset-0 z-50">
+<!-- Modal editar -->
+<div id="editModal" class="hidden fixed inset-0 z-50 px-4 py-8 overflow-y-auto">
   <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
 
-  <div class="relative max-w-xl mx-auto mt-16 bg-white rounded-3xl shadow-2xl border border-slate-200 p-6">
-    <div class="flex justify-between items-center mb-4">
-      <div class="text-xl font-extrabold">Editar producto</div>
-      <button id="closeModal" class="px-3 py-2 hover:bg-slate-100 rounded-xl">✕</button>
+  <div class="relative max-w-2xl mx-auto glass-card rounded-[2rem] shadow-2xl border border-white/70 p-6 md:p-8">
+    <div class="flex justify-between items-center mb-6 gap-4">
+      <div>
+        <div class="text-2xl font-extrabold tracking-tight text-slate-900">Editar producto</div>
+        <div class="text-sm text-slate-500 mt-1">Actualizá la información del producto seleccionado.</div>
+      </div>
+
+      <button id="closeModal" class="h-11 w-11 grid place-items-center rounded-2xl bg-slate-100 hover:bg-slate-200 transition text-slate-700 font-bold">✕</button>
     </div>
 
     <input type="hidden" id="editId"/>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="md:col-span-2">
-        <label class="text-xs text-slate-400 mb-1 block">Nombre</label>
+        <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Nombre</label>
         <input id="editName"
-          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+          class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
       </div>
 
       <div>
-        <label class="text-xs text-slate-400 mb-1 block">Precio</label>
+        <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Precio</label>
         <input id="editPrice" type="text" inputmode="decimal"
-          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+          class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
       </div>
 
       <div>
-        <label class="text-xs text-slate-400 mb-1 block">Categoría</label>
+        <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Categoría</label>
         <select id="editCategory"
-          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"></select>
+          class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"></select>
       </div>
 
       <div class="md:col-span-2">
-        <label class="text-xs text-slate-400 mb-1 block">Descripción</label>
-        <textarea id="editDescription" rows="2"
-          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"></textarea>
+        <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Descripción</label>
+        <textarea id="editDescription" rows="3"
+          class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-slate-400 transition"></textarea>
       </div>
 
       <div>
-        <label class="text-xs text-slate-400 mb-1 block">Imagen</label>
+        <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Imagen</label>
         <input id="editImageFile" type="file" accept="image/*"
-          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+          class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm"/>
       </div>
 
       <div>
-        <label class="text-xs text-slate-400 mb-1 block">Estado</label>
+        <label class="text-xs text-slate-400 font-bold uppercase tracking-tight mb-2 block">Estado</label>
         <select id="editEnabled"
-          class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
+          class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition">
           <option value="true">Activo</option>
           <option value="false">Inactivo</option>
         </select>
       </div>
 
-      <div class="md:col-span-2 flex items-center gap-3">
+      <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <label class="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-[1.4rem] px-4 py-4 cursor-pointer hover:bg-white transition">
+          <input id="editVisibleInPublicMenu" type="checkbox" class="h-4 w-4" />
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Visible en menú público</div>
+          </div>
+        </label>
+
+        <label class="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-[1.4rem] px-4 py-4 cursor-pointer hover:bg-white transition">
+          <input id="editVisibleInTables" type="checkbox" class="h-4 w-4" />
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Visible para mesas</div>
+          </div>
+        </label>
+
+        <label class="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-[1.4rem] px-4 py-4 cursor-pointer hover:bg-white transition">
+          <input id="editIsInternalForTables" type="checkbox" class="h-4 w-4" />
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Interno para mesas</div>
+          </div>
+        </label>
+      </div>
+
+      <div class="md:col-span-2 flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-[1.4rem] p-4">
         <img id="editPreview"
-          class="w-20 h-20 object-cover rounded-xl border border-slate-200"
+          class="w-24 h-24 object-cover rounded-2xl border border-slate-200 bg-white"
           src="/img/default-product.png"/>
-        <div class="text-xs text-slate-500">Si cargás una imagen nueva, se reemplaza.</div>
+        <div class="text-sm text-slate-500">Si cargás una imagen nueva, se reemplaza la actual.</div>
       </div>
     </div>
 
-    <div class="mt-5 text-right">
+    <div class="mt-6 text-right">
       <button id="update"
-        class="px-4 py-2 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 hover:shadow-lg transition text-sm">
+        class="px-5 py-3 rounded-2xl bg-amber-500 text-white font-bold shadow-lg hover:bg-amber-600 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 text-sm">
         Guardar cambios
       </button>
     </div>
   </div>
 </div>
 
-<!-- TOAST -->
+<!-- Toast -->
 <div id="toastContainer" class="fixed top-6 right-6 z-50"></div>
 
 <script>
   let CONFIG = null;
-
   let selectedImage = null;
   let selectedEditImage = null;
-
   let itemsCache = [];
   let categoriesCache = [];
+  let filterCategoryId = "";
 
-  let filterCategoryId = ""; // "" = todas
-
-  // =========================
-  // AUTH GUARD (UNICO - sin duplicados)
-  // =========================
   const TOKEN_KEY = "menuonline_token";
   const SLUG_KEY  = "menuonline_companySlug";
   const LOGIN_PAGE = "./login.html";
-    // PROD
-    const CONFIG_PATH = "/MenuOnline/config.json";
-    // DEV
-    //const CONFIG_PATH = "/config.json"; 
+  const CONFIG_PATH = "/config.json";
 
   function logoutToLogin(){
     localStorage.removeItem(TOKEN_KEY);
@@ -242,13 +353,10 @@
   function isTokenValid(){
     const t = localStorage.getItem(TOKEN_KEY);
     if(!t) return false;
-
     const payload = parseJwt(t);
-    const exp = payload?.exp; // epoch seconds
+    const exp = payload?.exp;
     if(!exp) return false;
-
-    const now = Math.floor(Date.now()/1000);
-    return exp > now;
+    return exp > Math.floor(Date.now()/1000);
   }
 
   function requireAuth(){
@@ -280,13 +388,9 @@
   }
 
   function getSlug(){
-    // primero localStorage; si no, cae a CONFIG cuando ya cargó
     return localStorage.getItem(SLUG_KEY) || (CONFIG ? CONFIG.companySlug : "");
   }
 
-  // -------------------------
-  // utils
-  // -------------------------
   async function loadConfig(){
     const r = await fetch(CONFIG_PATH, { cache: "no-store" });
     if(!r.ok) throw new Error("No pude leer config.json");
@@ -294,23 +398,23 @@
   }
 
   function resolveImgUrl(u){
-  const s = String(u || "").trim();
-  if(!s) return "";
-  if(s.startsWith("http://") || s.startsWith("https://")) return s;
+    const s = String(u || "").trim();
+    if(!s) return "";
+    if(s.startsWith("http://") || s.startsWith("https://")) return s;
 
-  const base = String(CONFIG?.apiBaseUrl || "").replace(/\/+$/,"");
-  if(!base) return s;
+    const base = String(CONFIG?.apiBaseUrl || "").replace(/\/+$/,"");
+    if(!base) return s;
 
-  if(s.startsWith("/")) return base + s;
-  return base + "/" + s;
-}
+    if(s.startsWith("/")) return base + s;
+    return base + "/" + s;
+  }
 
   function toast(msg, type="info", ms=1800){
     const c = document.getElementById("toastContainer");
     c.innerHTML = "";
     const colors = { info:"bg-slate-900", success:"bg-emerald-600", error:"bg-rose-600" };
     const el = document.createElement("div");
-    el.className = `${colors[type]} text-white px-5 py-4 rounded-2xl shadow-2xl`;
+    el.className = `${colors[type]} text-white px-5 py-4 rounded-2xl shadow-2xl font-semibold text-sm`;
     el.innerText = msg;
     c.appendChild(el);
     if(ms) setTimeout(() => el.remove(), ms);
@@ -345,8 +449,19 @@
 
   function badgeEnabled(enabled){
     return enabled
-      ? `<span class="text-xs px-2 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-semibold">Activo</span>`
-      : `<span class="text-xs px-2 py-1 rounded-lg bg-slate-100 text-slate-600 font-semibold">Inactivo</span>`;
+      ? `<span class="text-xs px-3 py-1 rounded-xl bg-emerald-100 text-emerald-800 font-semibold">Activo</span>`
+      : `<span class="text-xs px-3 py-1 rounded-xl bg-slate-100 text-slate-600 font-semibold">Inactivo</span>`;
+  }
+  
+  function flagBadges(item){
+    const on = "text-xs px-3 py-1 rounded-xl bg-violet-100 text-violet-800 font-semibold";
+    const off = "text-xs px-3 py-1 rounded-xl bg-slate-100 text-slate-500 font-semibold";
+
+    return `
+      <span class="${item.visibleInPublicMenu ? on : off}">Menú público</span>
+      <span class="${item.visibleInTables ? on : off}">Mesas</span>
+      <span class="${item.isInternalForTables ? on : off}">Interno</span>
+    `;
   }
 
   function formatPrice(n){
@@ -355,24 +470,21 @@
     return num.toLocaleString("es-AR");
   }
 
-function imgBoxRow(imgUrl){
-  const src = resolveImgUrl(imgUrl);
+  function imgBoxRow(imgUrl){
+    const src = resolveImgUrl(imgUrl);
 
-  if(!src){
-    return `<div class="w-16 h-16 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-400 text-xs font-semibold">IMG</div>`;
+    if(!src){
+      return `<div class="w-20 h-20 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-400 text-xs font-semibold">IMG</div>`;
+    }
+
+    return `
+      <div class="w-20 h-20 rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center">
+        <img src="${src}" class="w-full h-full object-cover"
+          onerror="this.parentElement.outerHTML='<div class=&quot;w-20 h-20 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-400 text-xs font-semibold&quot;>IMG</div>'"/>
+      </div>
+    `;
   }
 
-  return `
-    <div class="w-16 h-16 rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center">
-      <img src="${src}" class="w-full h-full object-cover"
-        onerror="this.parentElement.outerHTML='<div class=&quot;w-16 h-16 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-400 text-xs font-semibold&quot;>IMG</div>'"/>
-    </div>
-  `;
-}
-
-  // -------------------------
-  // api (todo con fetchAuth)
-  // -------------------------
   async function upload(file){
     const fd = new FormData();
     fd.append("file", file);
@@ -441,9 +553,6 @@ function imgBoxRow(imgUrl){
     });
   }
 
-  // -------------------------
-  // render
-  // -------------------------
   function render(){
     const el = document.getElementById("list");
 
@@ -454,7 +563,13 @@ function imgBoxRow(imgUrl){
     }
 
     if(!list.length){
-      el.innerHTML = `<div class="bg-white p-6 rounded-3xl border border-slate-200">No hay productos para ese filtro</div>`;
+      el.innerHTML = `
+        <div class="glass-card rounded-[2rem] border border-white/70 p-8 text-center shadow-sm">
+          <div class="text-5xl mb-3">🍽️</div>
+          <div class="text-xl font-extrabold text-slate-900">No hay productos para ese filtro</div>
+          <div class="text-sm text-slate-500 mt-2">Probá cambiando la categoría o creando un nuevo producto.</div>
+        </div>
+      `;
       return;
     }
 
@@ -462,42 +577,44 @@ function imgBoxRow(imgUrl){
       const catName = categoryNameById(i.categoryId);
 
       return `
-        <div class="bg-white rounded-3xl border border-slate-200 p-6 hover:shadow-md transition flex justify-between items-center gap-5">
-          <div class="flex items-start gap-4 min-w-0">
+        <div class="module-card glass-card rounded-[2rem] border border-white/70 p-5 md:p-6 hover:shadow-xl transition-all duration-200 flex justify-between items-center gap-5 flex-wrap">
+          <div class="flex items-start gap-4 min-w-0 flex-1">
             ${imgBoxRow(i.imageUrl)}
-            <div class="min-w-0">
+
+            <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2 flex-wrap">
-                <div class="text-lg font-extrabold truncate">${i.name}</div>
+                <div class="text-xl font-extrabold tracking-tight text-slate-900 truncate">${i.name}</div>
                 ${badgeEnabled(i.enabled)}
-                <span class="text-xs px-2 py-1 rounded-xl bg-slate-100 text-slate-700 font-semibold">${catName}</span>
+                <span class="text-xs px-3 py-1 rounded-xl bg-slate-100 text-slate-700 font-semibold">${catName}</span>
+                ${flagBadges(i)}
               </div>
 
               ${i.description
-                ? `<div class="text-sm text-slate-500 mt-2 line-clamp-2">${i.description}</div>`
-                : `<div class="text-sm text-slate-300 mt-2">(Sin descripción)</div>`
+                ? `<div class="text-sm text-slate-500 mt-3 line-clamp-2">${i.description}</div>`
+                : `<div class="text-sm text-slate-300 mt-3">(Sin descripción)</div>`
               }
             </div>
           </div>
 
-          <div class="flex items-center gap-3 shrink-0">
+          <div class="flex items-center gap-3 shrink-0 flex-wrap">
             <div class="text-3xl font-extrabold text-slate-900 whitespace-nowrap">
               $ ${formatPrice(i.price)}
             </div>
 
             <button data-toggle="${i.id}"
-              class="px-3 py-2 rounded-xl text-sm font-semibold ${
-                i.enabled ? "bg-slate-100 hover:bg-slate-200" : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+              class="px-4 py-3 rounded-2xl text-sm font-bold ${
+                i.enabled ? "bg-slate-100 hover:bg-slate-200 text-slate-800" : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
               } transition">
               ${i.enabled ? "Desactivar" : "Activar"}
             </button>
 
             <button data-edit="${i.id}"
-              class="px-3 py-2 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:shadow-lg transition">
+              class="px-4 py-3 bg-slate-900 text-white rounded-2xl text-sm font-bold hover:shadow-lg transition">
               Editar
             </button>
 
             <button data-del="${i.id}"
-              class="px-3 py-2 bg-rose-100 text-rose-800 rounded-xl text-sm font-semibold hover:bg-rose-200 transition">
+              class="px-4 py-3 bg-rose-100 text-rose-800 rounded-2xl text-sm font-bold hover:bg-rose-200 transition">
               Eliminar
             </button>
           </div>
@@ -510,9 +627,6 @@ function imgBoxRow(imgUrl){
     document.querySelectorAll("[data-toggle]").forEach(b => b.onclick = () => toggleEnabled(Number(b.dataset.toggle)));
   }
 
-  // -------------------------
-  // actions
-  // -------------------------
   async function removeItem(id){
     if(!confirm("¿Eliminar producto?")) return;
 
@@ -548,7 +662,10 @@ function imgBoxRow(imgUrl){
         price: item.price,
         categoryId: item.categoryId,
         enabled: !item.enabled,
-        imageUrl: item.imageUrl || null
+        imageUrl: item.imageUrl || null,
+        visibleInPublicMenu: !!item.visibleInPublicMenu,
+        visibleInTables: !!item.visibleInTables,
+        isInternalForTables: !!item.isInternalForTables
       };
 
       const r = await updateItem(id, payload);
@@ -576,7 +693,10 @@ function imgBoxRow(imgUrl){
     document.getElementById("editDescription").value = i.description ?? "";
     document.getElementById("editCategory").value = String(i.categoryId ?? "");
     document.getElementById("editEnabled").value = String(!!i.enabled);
-    document.getElementById("editPreview").src = i.imageUrl || "/img/default-product.png";
+    document.getElementById("editVisibleInPublicMenu").checked = !!i.visibleInPublicMenu;
+    document.getElementById("editVisibleInTables").checked = !!i.visibleInTables;
+    document.getElementById("editIsInternalForTables").checked = !!i.isInternalForTables;
+    document.getElementById("editPreview").src = resolveImgUrl(i.imageUrl) || "/img/default-product.png";
 
     selectedEditImage = null;
     document.getElementById("editImageFile").value = "";
@@ -588,9 +708,6 @@ function imgBoxRow(imgUrl){
     document.getElementById("editModal").classList.add("hidden");
   };
 
-  // -------------------------
-  // events
-  // -------------------------
   document.getElementById("refresh").addEventListener("click", async () => {
     try{
       await loadCategories();
@@ -615,12 +732,15 @@ function imgBoxRow(imgUrl){
   document.getElementById("imageFile").addEventListener("change", (e) => {
     selectedImage = e.target.files?.[0] ?? null;
     const preview = document.getElementById("imagePreview");
+    const emptyBox = document.getElementById("emptyPreviewBox");
 
     if(selectedImage){
       preview.src = URL.createObjectURL(selectedImage);
       preview.classList.remove("hidden");
+      emptyBox.classList.add("hidden");
     } else {
       preview.classList.add("hidden");
+      emptyBox.classList.remove("hidden");
     }
   });
 
@@ -640,6 +760,9 @@ function imgBoxRow(imgUrl){
       const cat = document.getElementById("category").value;
       const enabled = document.getElementById("enabled").value === "true";
       const price = parsePriceToNumber(document.getElementById("price").value);
+      const visibleInPublicMenu = document.getElementById("visibleInPublicMenu").checked;
+      const visibleInTables = document.getElementById("visibleInTables").checked;
+      const isInternalForTables = document.getElementById("isInternalForTables").checked;
 
       if(!name){ toast("Escribí un nombre", "error"); return; }
       if(!cat){ toast("Seleccioná categoría", "error"); return; }
@@ -651,7 +774,17 @@ function imgBoxRow(imgUrl){
       let imageUrl = null;
       if(selectedImage) imageUrl = await upload(selectedImage);
 
-      const payload = { name, description: desc, price, categoryId: Number(cat), enabled, imageUrl };
+      const payload = {
+        name,
+        description: desc,
+        price,
+        categoryId: Number(cat),
+        enabled,
+        imageUrl,
+        visibleInPublicMenu,
+        visibleInTables,
+        isInternalForTables
+      };
 
       const r = await createItem(payload);
       if(!r) return;
@@ -670,9 +803,13 @@ function imgBoxRow(imgUrl){
       document.getElementById("price").value = "";
       document.getElementById("category").value = "";
       document.getElementById("enabled").value = "true";
+      document.getElementById("visibleInPublicMenu").checked = true;
+      document.getElementById("visibleInTables").checked = true;
+      document.getElementById("isInternalForTables").checked = false;
       document.getElementById("imageFile").value = "";
       selectedImage = null;
       document.getElementById("imagePreview").classList.add("hidden");
+      document.getElementById("emptyPreviewBox").classList.remove("hidden");
 
       await refresh();
     }catch(e){
@@ -691,6 +828,9 @@ function imgBoxRow(imgUrl){
       const cat = document.getElementById("editCategory").value;
       const enabled = document.getElementById("editEnabled").value === "true";
       const price = parsePriceToNumber(document.getElementById("editPrice").value);
+      const visibleInPublicMenu = document.getElementById("editVisibleInPublicMenu").checked;
+      const visibleInTables = document.getElementById("editVisibleInTables").checked;
+      const isInternalForTables = document.getElementById("editIsInternalForTables").checked;
 
       if(!name){ toast("Escribí un nombre", "error"); return; }
       if(!cat){ toast("Seleccioná categoría", "error"); return; }
@@ -705,7 +845,17 @@ function imgBoxRow(imgUrl){
       }
       if(imageUrl && imageUrl.includes("/img/default-product.png")) imageUrl = null;
 
-      const payload = { name, description: desc, price, categoryId: Number(cat), enabled, imageUrl };
+      const payload = {
+        name,
+        description: desc,
+        price,
+        categoryId: Number(cat),
+        enabled,
+        imageUrl,
+        visibleInPublicMenu,
+        visibleInTables,
+        isInternalForTables
+      };
 
       const r = await updateItem(id, payload);
       if(!r) return;
@@ -726,16 +876,12 @@ function imgBoxRow(imgUrl){
     }
   });
 
-  // -------------------------
-  // init
-  // -------------------------
   guardPriceInput(document.getElementById("price"));
   guardPriceInput(document.getElementById("editPrice"));
 
   (async function init(){
     try{
       if(!requireAuth()) return;
-
       CONFIG = await loadConfig();
       await loadCategories();
       await refresh();

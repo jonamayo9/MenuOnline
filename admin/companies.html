@@ -8,7 +8,7 @@
 </head>
 
 <body class="bg-slate-100 text-slate-800 min-h-screen">
-  <div class="max-w-6xl mx-auto p-6">
+  <div class="max-w-7xl mx-auto p-6">
 
     <!-- HEADER -->
     <div class="bg-white rounded-3xl shadow-sm p-6 mb-6 border border-slate-200">
@@ -21,150 +21,264 @@
 
           <div>
             <h1 class="text-3xl font-extrabold tracking-tight">Empresas</h1>
-            <p class="text-sm text-slate-500 mt-1">ABM de empresas (solo SuperAdmin).</p>
+            <p class="text-sm text-slate-500 mt-1">Gestión completa de empresas (solo SuperAdmin).</p>
           </div>
         </div>
 
-        <button id="refresh"
-          class="px-5 py-3 rounded-2xl bg-slate-900 text-white font-semibold shadow hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
-          Actualizar
-        </button>
-      </div>
-    </div>
+        <div class="flex items-center gap-3 flex-wrap">
+          <div class="relative">
+            <input id="search"
+              placeholder="Buscar por nombre o slug..."
+              class="w-72 bg-slate-50 border border-slate-200 rounded-2xl pl-4 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
+          </div>
 
-    <!-- CREATE FORM -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 mb-6">
-      <div class="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <div class="text-lg font-extrabold">Nueva empresa</div>
-          <div class="text-sm text-slate-500 mt-1">Creá una empresa (slug único).</div>
-        </div>
-      </div>
+          <button id="btnNewCompany"
+            class="px-5 py-3 rounded-2xl bg-emerald-100 text-emerald-800 font-semibold hover:bg-emerald-200 transition">
+            Nueva empresa
+          </button>
 
-      <div class="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
-        <div class="md:col-span-3 flex flex-col">
-          <label class="text-xs text-slate-400 mb-1 block">Slug (único)</label>
-          <input id="c_slug" placeholder="ej: como-en-casa"
-            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
-          <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Solo letras/números/guiones.</div>
-        </div>
-
-        <div class="md:col-span-4 flex flex-col">
-          <label class="text-xs text-slate-400 mb-1 block">Nombre</label>
-          <input id="c_name" placeholder="Ej: COMO EN CASA"
-            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
-          <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
-        </div>
-
-        <div class="md:col-span-2 flex flex-col">
-          <label class="text-xs text-slate-400 mb-1 block">Estado</label>
-          <select id="c_enabled"
-            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
-            <option value="true">Habilitada</option>
-            <option value="false">Deshabilitada</option>
-          </select>
-          <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
-        </div>
-
-        <div class="md:col-span-3 flex flex-col justify-end">
-          <div class="text-[11px] text-slate-400 mb-1 min-h-[16px]">&nbsp;</div>
-          <button id="btnCreate"
-            class="w-full px-5 py-3 rounded-2xl bg-emerald-100 text-emerald-800 font-semibold hover:bg-emerald-200 transition">
-            Crear
+          <button id="refresh"
+            class="px-5 py-3 rounded-2xl bg-slate-900 text-white font-semibold shadow hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
+            Actualizar
           </button>
         </div>
       </div>
     </div>
 
-    <div class="flex justify-end items-center mb-3">
-      <div class="text-sm text-slate-500" id="summary"></div>
+    <!-- SUMMARY -->
+    <div class="flex justify-between items-center mb-4 gap-3 flex-wrap">
+      <div id="summary" class="text-sm text-slate-500"></div>
     </div>
 
+    <!-- LIST -->
     <div id="list" class="space-y-4"></div>
   </div>
 
-  <!-- MODAL -->
+  <!-- MODAL CREATE / EDIT -->
   <div id="modal" class="hidden fixed inset-0 z-50">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
 
-    <div class="relative max-w-3xl mx-auto mt-10 bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
-      <div class="p-6 border-b border-slate-200 flex items-center justify-between">
-        <div>
-          <div class="text-xl font-extrabold">Editar empresa</div>
-          <div id="m_sub" class="text-sm text-slate-500 mt-1">—</div>
+  <div class="relative z-10 h-screen overflow-y-auto">
+    <div class="min-h-screen flex items-start justify-center p-4 md:p-8">
+      <div class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-slate-200 my-6 flex flex-col max-h-[calc(100vh-3rem)]">
+        
+        <div class="p-6 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white z-10 rounded-t-3xl">
+          <div>
+            <div id="m_title" class="text-xl font-extrabold">Empresa</div>
+            <div id="m_sub" class="text-sm text-slate-500 mt-1">—</div>
+          </div>
+
+          <button id="m_close" class="px-3 py-2 rounded-xl hover:bg-slate-100">✕</button>
         </div>
 
-        <button id="m_close" class="px-3 py-2 rounded-xl hover:bg-slate-100">✕</button>
-      </div>
+        <div class="p-6 space-y-6 overflow-y-auto">
+          <!-- INFO -->
+          <div id="m_info_cards" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+              <div class="text-xs text-slate-400 font-semibold">Id</div>
+              <div id="m_id" class="font-extrabold mt-1">—</div>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+              <div class="text-xs text-slate-400 font-semibold">Creada</div>
+              <div id="m_created" class="font-extrabold mt-1">—</div>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+              <div class="text-xs text-slate-400 font-semibold">Slug</div>
+              <div id="m_slug_readonly" class="font-extrabold mt-1">—</div>
+            </div>
+          </div>
 
-      <div class="p-6 space-y-5">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-            <div class="text-xs text-slate-400 font-semibold">Id</div>
-            <div id="m_id" class="font-extrabold mt-1">—</div>
+          <input id="m_id_hidden" type="hidden" />
+          <input id="m_logoUrl_hidden" type="hidden" />
+          <input id="m_mode" type="hidden" value="create" />
+
+          <!-- DATOS EMPRESA -->
+          <div class="bg-slate-50 border border-slate-200 rounded-3xl p-5">
+            <div class="text-lg font-extrabold">Datos de la empresa</div>
+            <div class="text-sm text-slate-500 mt-1">Información general y visual del negocio.</div>
+
+            <div class="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+              <div class="md:col-span-3 flex flex-col">
+                <label class="text-xs text-slate-400 mb-1 block">Slug (único)</label>
+                <input id="m_slug" placeholder="ej: como-en-casa"
+                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
+                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Solo letras, números y guiones.</div>
+              </div>
+
+              <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs text-slate-400 mb-1 block">Nombre</label>
+                <input id="m_name"
+                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
+                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
+              </div>
+
+              <div class="md:col-span-3 flex flex-col">
+                <label class="text-xs text-slate-400 mb-1 block">WhatsApp</label>
+                <input id="m_whatsapp" placeholder="54911..."
+                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
+              </div>
+
+              <div class="md:col-span-2 flex flex-col">
+                <label class="text-xs text-slate-400 mb-1 block">Estado</label>
+                <select id="m_enabled"
+                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm">
+                  <option value="true">Habilitada</option>
+                  <option value="false">Deshabilitada</option>
+                </select>
+                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
+              </div>
+
+              <div class="md:col-span-4 flex flex-col">
+                <label class="text-xs text-slate-400 mb-1 block">Alias MP</label>
+                <input id="m_alias" placeholder="ALIAS.MP"
+                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Alias para transferencias manuales.</div>
+              </div>
+
+              <div class="md:col-span-5 flex flex-col">
+                <label class="text-xs text-slate-400 mb-1 block">Logo (archivo)</label>
+                <input id="m_logoFile" type="file" accept="image/*"
+                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Se sube al guardar y se guarda la URL.</div>
+              </div>
+
+              <div class="md:col-span-3 flex items-end gap-3">
+                <img id="m_logoPreview" class="w-20 h-20 object-cover rounded-2xl border border-slate-200 hidden" />
+                <button id="m_clearLogo"
+                  class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-800 font-semibold hover:bg-slate-100 transition">
+                  Quitar logo
+                </button>
+              </div>
+            </div>
           </div>
-          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-            <div class="text-xs text-slate-400 font-semibold">Creada</div>
-            <div id="m_created" class="font-extrabold mt-1">—</div>
+
+          <!-- MERCADO PAGO -->
+          <div class="bg-slate-50 border border-slate-200 rounded-3xl p-5">
+            <div class="text-lg font-extrabold">Mercado Pago</div>
+            <div class="text-sm text-slate-500 mt-1">Configuración de cobro por empresa. Solo SuperAdmin.</div>
+
+            <div class="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+              <div class="md:col-span-3 flex flex-col">
+                <label class="text-xs text-slate-400 mb-1 block">Estado Mercado Pago</label>
+                <select id="m_mpEnabled"
+                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm">
+                  <option value="false">Deshabilitado</option>
+                  <option value="true">Habilitado</option>
+                </select>
+                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Activa pagos online para esta empresa.</div>
+              </div>
+
+              <div class="md:col-span-6 flex flex-col">
+                <label class="text-xs text-slate-400 mb-1 block">Access Token</label>
+                <input id="m_mpAccessToken" placeholder="APP_USR-..."
+                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
+                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Solo se usa desde el backend. Nunca se expone públicamente.</div>
+              </div>
+
+              <div class="md:col-span-3 flex flex-col">
+                <label class="text-xs text-slate-400 mb-1 block">Token guardado</label>
+                <div id="m_mpMaskedToken"
+                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 min-h-[42px] flex items-center">
+                  Sin token
+                </div>
+                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Se muestra enmascarado.</div>
+              </div>
+
+              <div class="md:col-span-12 flex justify-end">
+                <button id="m_clearMpToken"
+                  class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-800 font-semibold hover:bg-slate-100 transition">
+                  Limpiar token
+                </button>
+              </div>
+            </div>
           </div>
-          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-            <div class="text-xs text-slate-400 font-semibold">Slug</div>
-            <div id="m_slug_readonly" class="font-extrabold mt-1">—</div>
+
+          <!-- MODULOS -->
+          <div class="bg-slate-50 border border-slate-200 rounded-3xl p-5">
+            <div class="text-lg font-extrabold">Módulos habilitados</div>
+            <div class="text-sm text-slate-500 mt-1">Definen qué se muestra y qué se puede usar en el panel admin.</div>
+
+            <div class="mt-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
+                <input id="m_featureOrdersEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+                <span class="text-sm font-semibold">Panel de pedidos</span>
+              </label>
+
+              <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
+                <input id="m_featureProductsEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+                <span class="text-sm font-semibold">Productos</span>
+              </label>
+
+              <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
+                <input id="m_featureCategoriesEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+                <span class="text-sm font-semibold">Categorías</span>
+              </label>
+
+              <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
+                <input id="m_featureShiftsEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+                <span class="text-sm font-semibold">Horarios</span>
+              </label>
+
+              <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
+                <input id="m_featureDashboardEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+                <span class="text-sm font-semibold">Resumen diario</span>
+              </label>
+
+              <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
+                <input id="m_featureMenuOnlyEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+                <span class="text-sm font-semibold">Solo menú</span>
+              </label>
+
+              <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
+                <input id="m_featureTableManagementEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+                <span class="text-sm font-semibold">Gestión de mesas</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- CONFIGURACION MESAS -->
+          <div id="m_tablesConfigSection" class="bg-slate-50 border border-slate-200 rounded-3xl p-5 hidden">
+            <div class="text-lg font-extrabold">Configuración de mesas</div>
+            <div class="text-sm text-slate-500 mt-1">Configuración operativa del salón para esta empresa.</div>
+
+            <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label class="flex items-start gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-4">
+                <input id="m_tablesEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300 mt-1">
+                <div>
+                  <div class="text-sm font-semibold text-slate-900">Activar sistema de mesas</div>
+                  <div class="text-xs text-slate-500 mt-1">Permite abrir mesas y gestionar el salón.</div>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-4">
+                <input id="m_enableGuestCount" type="checkbox" class="h-4 w-4 rounded border-slate-300 mt-1">
+                <div>
+                  <div class="text-sm font-semibold text-slate-900">Registrar cantidad de personas</div>
+                  <div class="text-xs text-slate-500 mt-1">Guarda cuántos clientes hay en cada mesa.</div>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-4">
+                <input id="m_enableAdultsChildrenSplit" type="checkbox" class="h-4 w-4 rounded border-slate-300 mt-1">
+                <div>
+                  <div class="text-sm font-semibold text-slate-900">Separar mayores / menores</div>
+                  <div class="text-xs text-slate-500 mt-1">Permite registrar adultos y niños por separado.</div>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-4">
+                <input id="m_requireAdultsChildrenSplit" type="checkbox" class="h-4 w-4 rounded border-slate-300 mt-1">
+                <div>
+                  <div class="text-sm font-semibold text-slate-900">Requerir mayores / menores</div>
+                  <div class="text-xs text-slate-500 mt-1">Obliga a completar ambos valores.</div>
+                </div>
+              </label>
+            </div>
           </div>
         </div>
 
-        <input id="m_id_hidden" type="hidden" />
-        <input id="m_logoUrl_hidden" type="hidden" />
-
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
-          <div class="md:col-span-4 flex flex-col">
-            <label class="text-xs text-slate-400 mb-1 block">Nombre</label>
-            <input id="m_name"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
-            <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
-          </div>
-
-          <div class="md:col-span-3 flex flex-col">
-            <label class="text-xs text-slate-400 mb-1 block">WhatsApp</label>
-            <input id="m_whatsapp" placeholder="54911..."
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
-            <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
-          </div>
-
-          <div class="md:col-span-3 flex flex-col">
-            <label class="text-xs text-slate-400 mb-1 block">Alias MP</label>
-            <input id="m_alias" placeholder="ALIAS.MP"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
-            <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
-          </div>
-
-          <div class="md:col-span-2 flex flex-col">
-            <label class="text-xs text-slate-400 mb-1 block">Estado</label>
-            <select id="m_enabled"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
-              <option value="true">Habilitada</option>
-              <option value="false">Deshabilitada</option>
-            </select>
-            <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
-          </div>
-
-          <div class="md:col-span-6 flex flex-col">
-            <label class="text-xs text-slate-400 mb-1 block">Logo (archivo)</label>
-            <input id="m_logoFile" type="file" accept="image/*"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
-            <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Se sube al guardar y se guarda la URL.</div>
-          </div>
-
-          <div class="md:col-span-6 flex items-end gap-3">
-            <img id="m_logoPreview" class="w-20 h-20 object-cover rounded-2xl border border-slate-200 hidden" />
-            <button id="m_clearLogo"
-              class="px-4 py-2 rounded-xl bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200 transition">
-              Quitar logo
-            </button>
-          </div>
-        </div>
-
-        <div class="flex justify-end gap-2 flex-wrap pt-2">
+        <div class="p-6 border-t border-slate-200 flex justify-end gap-2 flex-wrap bg-white sticky bottom-0">
           <button id="m_cancel"
             class="px-4 py-2 rounded-xl bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200 transition">
             Cancelar
@@ -178,6 +292,7 @@
       </div>
     </div>
   </div>
+</div>
 
   <div id="toastContainer" class="fixed top-6 right-6 z-50"></div>
 
@@ -185,6 +300,7 @@
     let CONFIG = null;
     let isRefreshing = false;
     let companiesCache = [];
+    let filteredCompanies = [];
 
     let modalOpen = false;
     let modalLogoFile = null;
@@ -245,7 +361,6 @@
       return res;
     }
 
-    // TOAST
     let activeToastEl = null;
     function toastShow(message, type = "info") {
       const container = document.getElementById("toastContainer");
@@ -287,7 +402,6 @@
       }, ms);
     }
 
-    // HELPERS
     function setSummary(items){
       document.getElementById("summary").textContent = items.length ? `${items.length} empresa(s)` : "";
     }
@@ -296,6 +410,18 @@
       return enabled
         ? "bg-emerald-50 text-emerald-800 border-emerald-100"
         : "bg-rose-50 text-rose-800 border-rose-100";
+    }
+
+    function mpBadge(enabled){
+      return enabled
+        ? "bg-emerald-50 text-emerald-800 border-emerald-100"
+        : "bg-slate-100 text-slate-700 border-slate-200";
+    }
+
+    function moduleBadge(enabled){
+      return enabled
+        ? "bg-indigo-50 text-indigo-800 border-indigo-100"
+        : "bg-slate-100 text-slate-500 border-slate-200";
     }
 
     function normalizeSlug(raw){
@@ -327,7 +453,64 @@
       return CONFIG.apiBaseUrl + path;
     }
 
-    // CONFIG + API
+    function companyMatchesSearch(c, q){
+      const text = `${c.name || ""} ${c.slug || ""}`.toLowerCase();
+      return text.includes(q);
+    }
+
+    function currentSearch(){
+      return (document.getElementById("search").value || "").trim().toLowerCase();
+    }
+
+    function applySearchAndRender(){
+      const q = currentSearch();
+      filteredCompanies = q
+        ? companiesCache.filter(c => companyMatchesSearch(c, q))
+        : [...companiesCache];
+
+      render(filteredCompanies);
+    }
+
+    function getEnabledModulesText(c){
+      const modules = [];
+      if(c.featureOrdersEnabled) modules.push("Pedidos");
+      if(c.featureProductsEnabled) modules.push("Productos");
+      if(c.featureCategoriesEnabled) modules.push("Categorías");
+      if(c.featureShiftsEnabled) modules.push("Horarios");
+      if(c.featureDashboardEnabled) modules.push("Resumen");
+      if(c.featureMenuOnlyEnabled) modules.push("Solo menú");
+      if(c.featureTableManagementEnabled) modules.push("Mesas");
+
+      return modules.length ? modules.join(" · ") : "Sin módulos";
+    }
+
+    function syncTablesConfigVisibility(){
+      const moduleEnabled = document.getElementById("m_featureTableManagementEnabled").checked;
+      const section = document.getElementById("m_tablesConfigSection");
+
+      if(moduleEnabled){
+        section.classList.remove("hidden");
+      }else{
+        section.classList.add("hidden");
+        document.getElementById("m_tablesEnabled").checked = false;
+        document.getElementById("m_enableGuestCount").checked = false;
+        document.getElementById("m_enableAdultsChildrenSplit").checked = false;
+        document.getElementById("m_requireAdultsChildrenSplit").checked = false;
+      }
+    }
+
+    function syncAdultsChildrenRules(){
+      const split = document.getElementById("m_enableAdultsChildrenSplit").checked;
+      const require = document.getElementById("m_requireAdultsChildrenSplit");
+
+      if(!split){
+        require.checked = false;
+        require.disabled = true;
+      }else{
+        require.disabled = false;
+      }
+    }
+
     async function loadConfig(){
       const r = await fetch(CONFIG_PATH, { cache: "no-store" });
       if(!r.ok) throw new Error("No pude leer config.json");
@@ -366,7 +549,6 @@
       return await fetchAuth(url, { method:"DELETE" });
     }
 
-    // ✅ Subir logo (Cloudinary) -> el endpoint te devuelve { url: "https://..." }
     async function apiUploadLogo(companyId, file) {
       if (!companyId) throw new Error("companyId vacío");
       if (!(file instanceof File)) throw new Error("file inválido");
@@ -374,7 +556,6 @@
       const fd = new FormData();
       fd.append("file", file);
 
-      // 👉 este endpoint lo tenés que implementar en el backend (ver abajo)
       const url = `${CONFIG.apiBaseUrl}/api/superadmin/companies/${encodeURIComponent(companyId)}/logo`;
 
       const r = await fetchAuth(url, { method: "POST", body: fd });
@@ -390,7 +571,6 @@
       return data?.url || data?.Url || null;
     }
 
-    // RENDER
     function render(items){
       const el = document.getElementById("list");
       setSummary(items);
@@ -399,7 +579,7 @@
         el.innerHTML = `
           <div class="p-6 bg-white rounded-3xl border border-slate-200 shadow-sm">
             <div class="font-semibold">No hay empresas</div>
-            <div class="text-sm text-slate-600 mt-1">Creá la primera desde el formulario.</div>
+            <div class="text-sm text-slate-600 mt-1">Probá cambiando la búsqueda o creá una nueva empresa.</div>
           </div>`;
         return;
       }
@@ -407,11 +587,14 @@
       el.innerHTML = items.map(c => `
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
           <div class="flex items-start justify-between gap-4 flex-wrap">
-            <div class="min-w-[280px]">
+            <div class="min-w-[320px] flex-1">
               <div class="flex items-center gap-3 flex-wrap">
                 <div class="text-xl font-extrabold">${escapeHtml(c.name)}</div>
                 <span class="px-3 py-1 rounded-full text-xs font-semibold border ${badge(!!c.enabled)}">
                   ${c.enabled ? "Habilitada" : "Deshabilitada"}
+                </span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${mpBadge(!!c.mercadoPagoEnabled)}">
+                  MP ${c.mercadoPagoEnabled ? "Activo" : "Inactivo"}
                 </span>
               </div>
 
@@ -422,6 +605,24 @@
               <div class="text-sm text-slate-500 mt-1">
                 WhatsApp: <span class="font-semibold text-slate-800">${escapeHtml(c.whatsapp || "—")}</span>
                 · Alias: <span class="font-semibold text-slate-800">${escapeHtml(c.alias || "—")}</span>
+              </div>
+
+              <div class="text-sm text-slate-500 mt-1">
+                Token MP: <span class="font-semibold text-slate-800">${escapeHtml(c.mercadoPagoMaskedToken || (c.mercadoPagoHasToken ? "Configurado" : "Sin token"))}</span>
+              </div>
+
+              <div class="text-sm text-slate-500 mt-1">
+                Módulos: <span class="font-semibold text-slate-800">${escapeHtml(getEnabledModulesText(c))}</span>
+              </div>
+
+              <div class="mt-3 flex flex-wrap gap-2">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(!!c.featureOrdersEnabled)}">Pedidos</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(!!c.featureProductsEnabled)}">Productos</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(!!c.featureCategoriesEnabled)}">Categorías</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(!!c.featureShiftsEnabled)}">Horarios</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(!!c.featureDashboardEnabled)}">Resumen</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(!!c.featureMenuOnlyEnabled)}">Solo menú</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(!!c.featureTableManagementEnabled)}">Mesas</span>
               </div>
 
               <div class="text-xs text-slate-400 mt-2">
@@ -453,7 +654,7 @@
         btn.addEventListener("click", () => {
           const id = Number(btn.getAttribute("data-id"));
           const c = companiesCache.find(x => x.id === id);
-          if(c) openModal(c);
+          if(c) openModalEdit(c);
         });
       });
 
@@ -487,49 +688,133 @@
       el.querySelectorAll("button[data-users='1']").forEach(btn => {
         btn.addEventListener("click", () => {
           const id = Number(btn.getAttribute("data-id"));
-          localStorage.setItem("menuonline_manage_companyId", String(id));
-          localStorage.setItem("menuonline_manage_companyName", btn.getAttribute("data-name") || "");
+          const c = companiesCache.find(x => x.id === id);
+          if(!c) return;
+
+          localStorage.setItem("menuonline_manage_companyId", String(c.id));
+          localStorage.setItem("menuonline_manage_companyName", c.name || "");
+
+          localStorage.setItem("menuonline_featureOrdersEnabled", String(!!c.featureOrdersEnabled));
+          localStorage.setItem("menuonline_featureProductsEnabled", String(!!c.featureProductsEnabled));
+          localStorage.setItem("menuonline_featureCategoriesEnabled", String(!!c.featureCategoriesEnabled));
+          localStorage.setItem("menuonline_featureShiftsEnabled", String(!!c.featureShiftsEnabled));
+          localStorage.setItem("menuonline_featureDashboardEnabled", String(!!c.featureDashboardEnabled));
+          localStorage.setItem("menuonline_featureMenuOnlyEnabled", String(!!c.featureMenuOnlyEnabled));
+          localStorage.setItem("menuonline_featureTableManagementEnabled", String(!!c.featureTableManagementEnabled));
+
           location.href = "./admin-users.html";
         });
       });
     }
 
-    // MODAL
-    function openModal(c){
-      modalOpen = true;
+    function resetModalFields(){
       modalLogoFile = null;
+      document.getElementById("m_id_hidden").value = "";
+      document.getElementById("m_name").value = "";
+      document.getElementById("m_whatsapp").value = "";
+      document.getElementById("m_alias").value = "";
+      document.getElementById("m_enabled").value = "true";
+      document.getElementById("m_slug").value = "";
+      document.getElementById("m_logoUrl_hidden").value = "";
+      document.getElementById("m_logoFile").value = "";
+      document.getElementById("m_mpEnabled").value = "false";
+      document.getElementById("m_mpAccessToken").value = "";
+      document.getElementById("m_mpMaskedToken").textContent = "Sin token";
 
-      document.getElementById("modal").classList.remove("hidden");
-      document.getElementById("m_sub").textContent = `Empresa: ${c.name || "—"}`;
-      document.getElementById("m_id").textContent = c.id ?? "—";
-      document.getElementById("m_created").textContent = fmtDate(c.createdAtUtc);
-      document.getElementById("m_slug_readonly").textContent = c.slug ?? "—";
+      document.getElementById("m_featureOrdersEnabled").checked = true;
+      document.getElementById("m_featureProductsEnabled").checked = true;
+      document.getElementById("m_featureCategoriesEnabled").checked = true;
+      document.getElementById("m_featureShiftsEnabled").checked = true;
+      document.getElementById("m_featureDashboardEnabled").checked = true;
+      document.getElementById("m_featureMenuOnlyEnabled").checked = false;
+      document.getElementById("m_featureTableManagementEnabled").checked = false;
 
-      document.getElementById("m_id_hidden").value = String(c.id || "");
-      document.getElementById("m_name").value = c.name ?? "";
-      document.getElementById("m_whatsapp").value = c.whatsapp ?? "";
-      document.getElementById("m_alias").value = c.alias ?? "";
-      document.getElementById("m_enabled").value = String(!!c.enabled);
-
-      document.getElementById("m_logoUrl_hidden").value = c.logoUrl || "";
+      document.getElementById("m_tablesEnabled").checked = false;
+      document.getElementById("m_enableGuestCount").checked = true;
+      document.getElementById("m_enableAdultsChildrenSplit").checked = false;
+      document.getElementById("m_requireAdultsChildrenSplit").checked = false;
+      document.getElementById("m_requireAdultsChildrenSplit").disabled = true;
+      document.getElementById("m_tablesConfigSection").classList.add("hidden");
 
       const prev = document.getElementById("m_logoPreview");
-      document.getElementById("m_logoFile").value = "";
-
-      if(c.logoUrl){
-        prev.src = buildImageUrl(c.logoUrl);
-        prev.classList.remove("hidden");
-      } else {
-        prev.classList.add("hidden");
-        prev.removeAttribute("src");
-      }
+      prev.classList.add("hidden");
+      prev.removeAttribute("src");
     }
 
-    function closeModal(){
-      modalOpen = false;
-      modalLogoFile = null;
-      document.getElementById("modal").classList.add("hidden");
-    }
+    function openModalCreate(){
+  modalOpen = true;
+  document.body.classList.add("overflow-hidden");
+  resetModalFields();
+
+  document.getElementById("m_mode").value = "create";
+  document.getElementById("modal").classList.remove("hidden");
+  document.getElementById("m_title").textContent = "Nueva empresa";
+  document.getElementById("m_sub").textContent = "Completá todos los datos necesarios para crearla.";
+  document.getElementById("m_info_cards").classList.add("hidden");
+  document.getElementById("m_slug").disabled = false;
+
+  syncTablesConfigVisibility();
+  syncAdultsChildrenRules();
+}
+
+function openModalEdit(c){
+  modalOpen = true;
+  document.body.classList.add("overflow-hidden");
+  resetModalFields();
+
+  document.getElementById("m_mode").value = "edit";
+  document.getElementById("modal").classList.remove("hidden");
+  document.getElementById("m_title").textContent = "Editar empresa";
+  document.getElementById("m_sub").textContent = `Empresa: ${c.name || "—"}`;
+  document.getElementById("m_info_cards").classList.remove("hidden");
+
+  document.getElementById("m_id").textContent = c.id ?? "—";
+  document.getElementById("m_created").textContent = fmtDate(c.createdAtUtc);
+  document.getElementById("m_slug_readonly").textContent = c.slug ?? "—";
+
+  document.getElementById("m_id_hidden").value = String(c.id || "");
+  document.getElementById("m_slug").value = c.slug ?? "";
+  document.getElementById("m_slug").disabled = true;
+  document.getElementById("m_name").value = c.name ?? "";
+  document.getElementById("m_whatsapp").value = c.whatsapp ?? "";
+  document.getElementById("m_alias").value = c.alias ?? "";
+  document.getElementById("m_enabled").value = String(!!c.enabled);
+
+  document.getElementById("m_logoUrl_hidden").value = c.logoUrl || "";
+
+  document.getElementById("m_mpEnabled").value = String(!!c.mercadoPagoEnabled);
+  document.getElementById("m_mpMaskedToken").textContent =
+    c.mercadoPagoMaskedToken || (c.mercadoPagoHasToken ? "Configurado" : "Sin token");
+
+  document.getElementById("m_featureOrdersEnabled").checked = c.featureOrdersEnabled !== false;
+  document.getElementById("m_featureProductsEnabled").checked = c.featureProductsEnabled !== false;
+  document.getElementById("m_featureCategoriesEnabled").checked = c.featureCategoriesEnabled !== false;
+  document.getElementById("m_featureShiftsEnabled").checked = c.featureShiftsEnabled !== false;
+  document.getElementById("m_featureDashboardEnabled").checked = c.featureDashboardEnabled !== false;
+  document.getElementById("m_featureMenuOnlyEnabled").checked = c.featureMenuOnlyEnabled === true;
+  document.getElementById("m_featureTableManagementEnabled").checked = c.featureTableManagementEnabled === true;
+
+  document.getElementById("m_tablesEnabled").checked = c.tablesEnabled === true;
+  document.getElementById("m_enableGuestCount").checked = c.enableGuestCount !== false;
+  document.getElementById("m_enableAdultsChildrenSplit").checked = c.enableAdultsChildrenSplit === true;
+  document.getElementById("m_requireAdultsChildrenSplit").checked = c.requireAdultsChildrenSplit === true;
+
+  syncTablesConfigVisibility();
+  syncAdultsChildrenRules();
+
+  const prev = document.getElementById("m_logoPreview");
+  if(c.logoUrl){
+    prev.src = buildImageUrl(c.logoUrl);
+    prev.classList.remove("hidden");
+  }
+}
+
+function closeModal(){
+  modalOpen = false;
+  modalLogoFile = null;
+  document.body.classList.remove("overflow-hidden");
+  document.getElementById("modal").classList.add("hidden");
+}
 
     async function refresh(){
       if(isRefreshing) return;
@@ -543,7 +828,7 @@
       try{
         const items = await apiGetCompanies();
         companiesCache = items;
-        render(companiesCache);
+        applySearchAndRender();
       } finally {
         btn.textContent = old;
         btn.disabled = false;
@@ -551,52 +836,26 @@
       }
     }
 
-    // EVENTS
     document.getElementById("btnLogout").addEventListener("click", logoutToLogin);
     document.getElementById("refresh").addEventListener("click", refresh);
+    document.getElementById("btnNewCompany").addEventListener("click", openModalCreate);
+    document.getElementById("search").addEventListener("input", applySearchAndRender);
 
-    document.getElementById("c_slug").addEventListener("blur", (e) => {
-      e.target.value = normalizeSlug(e.target.value);
-    });
-
-    document.getElementById("btnCreate").addEventListener("click", async () => {
-      const slug = normalizeSlug(document.getElementById("c_slug").value);
-      const name = (document.getElementById("c_name").value || "").trim();
-      const enabled = document.getElementById("c_enabled").value === "true";
-
-      if(!slug){ toastShow("Slug requerido", "error"); toastAutoClose(1800); return; }
-      if(!name){ toastShow("Nombre requerido", "error"); toastAutoClose(1800); return; }
-
-      try{
-        toastShow("Creando empresa...", "info");
-        const payload = { slug, name, enabled };
-        const r = await apiCreateCompany(payload);
-        if(!r) return;
-
-        if(r.status === 409){
-          toastUpdate("Slug ya existe", "error", 2200);
-          return;
-        }
-        if(!r.ok){
-          const t = await r.text().catch(()=> "");
-          console.error(t);
-          toastUpdate("Error creando (mirá consola)", "error", 2500);
-          return;
-        }
-
-        toastUpdate("Empresa creada", "success", 1800);
-        document.getElementById("c_slug").value = "";
-        document.getElementById("c_name").value = "";
-        document.getElementById("c_enabled").value = "true";
-        await refresh();
-      }catch(e){
-        console.error(e);
-        toastUpdate(e?.message || "Error creando", "error", 2500);
-      }
+    document.getElementById("m_slug").addEventListener("blur", (e) => {
+      if (!e.target.disabled) e.target.value = normalizeSlug(e.target.value);
     });
 
     document.getElementById("m_close").addEventListener("click", closeModal);
     document.getElementById("m_cancel").addEventListener("click", closeModal);
+
+    document.getElementById("m_featureTableManagementEnabled").addEventListener("change", () => {
+      syncTablesConfigVisibility();
+      syncAdultsChildrenRules();
+    });
+
+    document.getElementById("m_enableAdultsChildrenSplit").addEventListener("change", () => {
+      syncAdultsChildrenRules();
+    });
 
     document.addEventListener("keydown", (e) => {
       if(e.key === "Escape" && !document.getElementById("modal").classList.contains("hidden")){
@@ -608,7 +867,6 @@
       if(e.target.id === "modal") closeModal();
     });
 
-    // ✅ SOLO preview local (no sube acá)
     document.getElementById("m_logoFile").addEventListener("change", (e) => {
       modalLogoFile = e.target.files?.[0] ?? null;
       const prev = document.getElementById("m_logoPreview");
@@ -627,42 +885,106 @@
       prev.removeAttribute("src");
     });
 
-    // ✅ Save: sube (si hay archivo) y después guarda la empresa
-    document.getElementById("m_save").addEventListener("click", async () => {
-      const id = Number(document.getElementById("m_id_hidden").value);
-      if(!id) return;
+    document.getElementById("m_clearMpToken").addEventListener("click", () => {
+      document.getElementById("m_mpAccessToken").value = "";
+      document.getElementById("m_mpMaskedToken").textContent = "Sin token";
+    });
 
+    document.getElementById("m_save").addEventListener("click", async () => {
+      const mode = document.getElementById("m_mode").value;
+      const id = Number(document.getElementById("m_id_hidden").value || 0);
+
+      const slug = normalizeSlug(document.getElementById("m_slug").value);
       const name = (document.getElementById("m_name").value || "").trim();
       const whatsapp = (document.getElementById("m_whatsapp").value || "").trim();
       const alias = (document.getElementById("m_alias").value || "").trim();
       const enabled = document.getElementById("m_enabled").value === "true";
 
+      const mercadoPagoEnabled = document.getElementById("m_mpEnabled").value === "true";
+      const mercadoPagoAccessToken = (document.getElementById("m_mpAccessToken").value || "").trim();
+
+      const featureOrdersEnabled = document.getElementById("m_featureOrdersEnabled").checked;
+      const featureProductsEnabled = document.getElementById("m_featureProductsEnabled").checked;
+      const featureCategoriesEnabled = document.getElementById("m_featureCategoriesEnabled").checked;
+      const featureShiftsEnabled = document.getElementById("m_featureShiftsEnabled").checked;
+      const featureDashboardEnabled = document.getElementById("m_featureDashboardEnabled").checked;
+      const featureMenuOnlyEnabled = document.getElementById("m_featureMenuOnlyEnabled").checked;
+      const featureTableManagementEnabled = document.getElementById("m_featureTableManagementEnabled").checked;
+
+      const tablesEnabled = document.getElementById("m_tablesEnabled").checked;
+      const enableGuestCount = document.getElementById("m_enableGuestCount").checked;
+      const enableAdultsChildrenSplit = document.getElementById("m_enableAdultsChildrenSplit").checked;
+      const requireAdultsChildrenSplit = document.getElementById("m_requireAdultsChildrenSplit").checked;
+
       if(!name){
         toastShow("Nombre requerido", "error"); toastAutoClose(1800); return;
+      }
+
+      if(mode === "create" && !slug){
+        toastShow("Slug requerido", "error"); toastAutoClose(1800); return;
       }
 
       try{
         let logoUrl = document.getElementById("m_logoUrl_hidden").value || null;
 
-        if(modalLogoFile){
+        if(mode === "edit" && modalLogoFile){
           toastShow("Subiendo logo...", "info");
-          logoUrl = await apiUploadLogo(id, modalLogoFile);  // ✅ FIX
+          logoUrl = await apiUploadLogo(id, modalLogoFile);
           if(!logoUrl) throw new Error("No pude subir el logo");
           document.getElementById("m_logoUrl_hidden").value = logoUrl;
 
           const prev = document.getElementById("m_logoPreview");
-          prev.src = buildImageUrl(logoUrl); // si es https queda igual
+          prev.src = buildImageUrl(logoUrl);
           prev.classList.remove("hidden");
         }
 
-        toastShow("Guardando cambios...", "info");
         const payload = {
+          slug,
           name,
           whatsapp: whatsapp || null,
           alias: alias || null,
           logoUrl: logoUrl || null,
-          enabled
+          enabled,
+          mercadoPagoEnabled,
+          mercadoPagoAccessToken: mercadoPagoAccessToken || null,
+          featureOrdersEnabled,
+          featureProductsEnabled,
+          featureCategoriesEnabled,
+          featureShiftsEnabled,
+          featureDashboardEnabled,
+          featureMenuOnlyEnabled,
+          featureTableManagementEnabled,
+          tablesEnabled,
+          enableGuestCount,
+          enableAdultsChildrenSplit,
+          requireAdultsChildrenSplit
         };
+
+        if(mode === "create"){
+          toastShow("Creando empresa...", "info");
+
+          const r = await apiCreateCompany(payload);
+          if(!r) return;
+
+          if(r.status === 409){
+            toastUpdate("Slug ya existe", "error", 2200);
+            return;
+          }
+
+          if(!r.ok){
+            const t = await r.text().catch(()=> "");
+            console.error(t);
+            toastUpdate("Error creando (mirá consola)", "error", 2500);
+            return;
+          }
+
+          toastUpdate("Empresa creada", "success", 1800);
+          closeModal();
+          await refresh();
+          return;
+        }
+
+        toastShow("Guardando cambios...", "info");
 
         const r = await apiUpdateCompany(id, payload);
         if(!r) return;
