@@ -91,7 +91,7 @@
           <input id="m_id_hidden" type="hidden" />
           <input id="m_logoUrl_hidden" type="hidden" />
           <input id="m_mode" type="hidden" value="create" />
-
+          <input id="m_mpClearToken_hidden" type="hidden" value="false" />
           <!-- DATOS EMPRESA -->
           <div class="bg-slate-50 border border-slate-200 rounded-3xl p-5">
             <div class="text-lg font-extrabold">Datos de la empresa</div>
@@ -735,6 +735,7 @@
       document.getElementById("m_requireAdultsChildrenSplit").checked = false;
       document.getElementById("m_requireAdultsChildrenSplit").disabled = true;
       document.getElementById("m_tablesConfigSection").classList.add("hidden");
+      document.getElementById("m_mpClearToken_hidden").value = "false";
 
       const prev = document.getElementById("m_logoPreview");
       prev.classList.add("hidden");
@@ -798,6 +799,12 @@ function openModalEdit(c){
   document.getElementById("m_enableGuestCount").checked = c.enableGuestCount !== false;
   document.getElementById("m_enableAdultsChildrenSplit").checked = c.enableAdultsChildrenSplit === true;
   document.getElementById("m_requireAdultsChildrenSplit").checked = c.requireAdultsChildrenSplit === true;
+  document.getElementById("m_mpClearToken_hidden").value = "false";
+  document.getElementById("m_mpAccessToken").addEventListener("input", () => {
+  if ((document.getElementById("m_mpAccessToken").value || "").trim()) {
+    document.getElementById("m_mpClearToken_hidden").value = "false";
+  }
+});
 
   syncTablesConfigVisibility();
   syncAdultsChildrenRules();
@@ -885,10 +892,11 @@ function closeModal(){
       prev.removeAttribute("src");
     });
 
-    document.getElementById("m_clearMpToken").addEventListener("click", () => {
-      document.getElementById("m_mpAccessToken").value = "";
-      document.getElementById("m_mpMaskedToken").textContent = "Sin token";
-    });
+document.getElementById("m_clearMpToken").addEventListener("click", () => {
+  document.getElementById("m_mpAccessToken").value = "";
+  document.getElementById("m_mpMaskedToken").textContent = "Sin token";
+  document.getElementById("m_mpClearToken_hidden").value = "true";
+});
 
     document.getElementById("m_save").addEventListener("click", async () => {
       const mode = document.getElementById("m_mode").value;
@@ -900,8 +908,10 @@ function closeModal(){
       const alias = (document.getElementById("m_alias").value || "").trim();
       const enabled = document.getElementById("m_enabled").value === "true";
 
-      const mercadoPagoEnabled = document.getElementById("m_mpEnabled").value === "true";
-      const mercadoPagoAccessToken = (document.getElementById("m_mpAccessToken").value || "").trim();
+const mercadoPagoEnabled = document.getElementById("m_mpEnabled").value === "true";
+const mercadoPagoAccessToken = (document.getElementById("m_mpAccessToken").value || "").trim();
+const clearMercadoPagoAccessToken =
+  document.getElementById("m_mpClearToken_hidden").value === "true";
 
       const featureOrdersEnabled = document.getElementById("m_featureOrdersEnabled").checked;
       const featureProductsEnabled = document.getElementById("m_featureProductsEnabled").checked;
@@ -946,7 +956,7 @@ function closeModal(){
           logoUrl: logoUrl || null,
           enabled,
           mercadoPagoEnabled,
-          mercadoPagoAccessToken: mercadoPagoAccessToken || null,
+          clearMercadoPagoAccessToken,
           featureOrdersEnabled,
           featureProductsEnabled,
           featureCategoriesEnabled,
@@ -959,6 +969,14 @@ function closeModal(){
           enableAdultsChildrenSplit,
           requireAdultsChildrenSplit
         };
+
+        if (mode === "create") {
+          payload.mercadoPagoAccessToken = mercadoPagoAccessToken || null;
+        } else {
+          if (mercadoPagoAccessToken) {
+            payload.mercadoPagoAccessToken = mercadoPagoAccessToken;
+          }
+        }
 
         if(mode === "create"){
           toastShow("Creando empresa...", "info");

@@ -1,55 +1,226 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pago aprobado</title>
-<script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estado del pago</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-slate-100 flex items-center justify-center min-h-screen">
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
 
-<div class="bg-white rounded-3xl shadow-xl p-10 text-center max-w-md">
+  <div class="bg-white rounded-3xl shadow-xl p-8 md:p-10 text-center max-w-md w-full">
+    <div id="icon" class="text-5xl mb-4">⏳</div>
 
-<div class="text-5xl mb-4">✅</div>
+    <h1 id="title" class="text-2xl font-black mb-2">
+      Verificando pago
+    </h1>
 
-<h1 class="text-2xl font-black mb-2">
-Pago aprobado
-</h1>
+    <p id="message" class="text-slate-500 mb-6">
+      Estamos confirmando tu pago. Esto puede tardar unos segundos...
+    </p>
 
-<p class="text-slate-500 mb-6">
-Tu pago fue confirmado correctamente.
-</p>
+    <div id="order-info" class="hidden mb-6 text-sm text-slate-600 bg-slate-50 rounded-2xl p-4 text-left space-y-1"></div>
 
-<button
-id="btn-wpp"
-class="bg-green-600 text-white px-6 py-4 rounded-2xl font-bold w-full">
+    <div id="hint-box" class="hidden mb-6 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-800 text-left"></div>
 
-Enviar pedido por WhatsApp
+    <button
+      id="btn-wpp"
+      class="hidden bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-2xl font-bold w-full transition mb-3">
+      Enviar pedido por WhatsApp
+    </button>
 
-</button>
+    <button
+      id="btn-menu"
+      class="hidden bg-slate-800 hover:bg-slate-900 text-white px-6 py-4 rounded-2xl font-bold w-full transition">
+      Volver al menú
+    </button>
+  </div>
 
-</div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
 
-<script>
+    const paymentId = params.get("payment_id");
+    const orderId = params.get("external_reference");
+    const statusFromMp = params.get("status");
 
-const params = new URLSearchParams(window.location.search)
+    const icon = document.getElementById("icon");
+    const title = document.getElementById("title");
+    const message = document.getElementById("message");
+    const orderInfo = document.getElementById("order-info");
+    const hintBox = document.getElementById("hint-box");
+    const btnWpp = document.getElementById("btn-wpp");
+    const btnMenu = document.getElementById("btn-menu");
 
-const orderNumber = params.get("external_reference")
-const paymentId = params.get("payment_id")
+    // CAMBIAR ESTO
+    const companySlug = "TU_COMPANY_SLUG";
+    const apiBaseUrl = "https://TU_BACKEND_URL";
+    const menuUrl = `https://jonamayo9.github.io/MenuOnline/?company=${encodeURIComponent(companySlug)}`;
 
-document.getElementById("btn-wpp").onclick = () => {
+    const maxAttempts = 8;
+    const retryDelayMs = 3000;
+    let currentAttempt = 0;
 
-const mensaje = `Hola! Te envio mi pedido pagado.\nPedido: ${orderNumber}\nPago MercadoPago: ${paymentId}`
+    function showMenuButton() {
+      btnMenu.classList.remove("hidden");
+      btnMenu.onclick = () => {
+        window.location.href = menuUrl;
+      };
+    }
 
-const telefono = "54911XXXXXXXX"
+    function showOrderInfo(orderNumber) {
+      orderInfo.classList.remove("hidden");
+      orderInfo.innerHTML = `
+        <div><strong>Pedido:</strong> ${orderNumber || orderId || "-"}</div>
+        <div><strong>Pago:</strong> ${paymentId || "-"}</div>
+      `;
+    }
 
-window.location.href =
-`https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`
+    function showHint(text) {
+      hintBox.classList.remove("hidden");
+      hintBox.textContent = text;
+    }
 
-}
+    function clearHint() {
+      hintBox.classList.add("hidden");
+      hintBox.textContent = "";
+    }
 
-</script>
+    function showApproved(data) {
+      icon.textContent = "✅";
+      title.textContent = "¡Pago aprobado!";
+      message.textContent = data.message || "Tu pago fue aprobado y tu pedido fue enviado al local.";
+      clearHint();
+      showOrderInfo(data.orderNumber);
+
+      if (data.whatsappUrl) {
+        btnWpp.classList.remove("hidden");
+        btnWpp.onclick = () => {
+          window.location.href = data.whatsappUrl;
+        };
+      }
+
+      showMenuButton();
+    }
+
+    function showStillVerifying(data) {
+      icon.textContent = "⏳";
+      title.textContent = "Verificando pago";
+      message.textContent = data.message || "Estamos confirmando tu pago. Esto puede tardar unos segundos...";
+      showOrderInfo(data.orderNumber);
+      showHint("No cierres esta pantalla. Si ya pagaste, no vuelvas a pagar.");
+    }
+
+    function showPendingFinal(data) {
+      icon.textContent = "⚠️";
+      title.textContent = "Pago en revisión";
+      message.textContent = "Todavía no pudimos confirmarlo desde el sistema.";
+      showOrderInfo(data.orderNumber);
+      showHint("Si ya realizaste el pago, no lo repitas. Esperá unos segundos más o comunicate con el local.");
+      showMenuButton();
+
+      if (data.whatsappUrl) {
+        btnWpp.classList.remove("hidden");
+        btnWpp.textContent = "Contactar por WhatsApp";
+        btnWpp.onclick = () => {
+          window.location.href = data.whatsappUrl;
+        };
+      }
+    }
+
+    function showRejected(data) {
+      icon.textContent = "❌";
+      title.textContent = "Pago rechazado";
+      message.textContent = data.message || "El pago fue rechazado.";
+      showOrderInfo(data.orderNumber);
+      clearHint();
+      showMenuButton();
+    }
+
+    function showValidationError(text) {
+      icon.textContent = "⚠️";
+      title.textContent = "No se pudo validar el pago";
+      message.textContent = text;
+      showMenuButton();
+    }
+
+    async function fetchPaymentStatus() {
+      const url = `${apiBaseUrl}/api/public/${encodeURIComponent(companySlug)}/payments/mercadopago/confirm?orderId=${encodeURIComponent(orderId || "")}&paymentId=${encodeURIComponent(paymentId || "")}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      let data = null;
+      try {
+        data = await response.json();
+      } catch {
+        data = null;
+      }
+
+      if (!response.ok) {
+        throw new Error(data?.message || "Error al validar el pago");
+      }
+
+      return data;
+    }
+
+    async function verifyPayment() {
+      if (!orderId) {
+        showValidationError("No llegó el identificador del pedido.");
+        return;
+      }
+
+      if (!paymentId && statusFromMp !== "approved") {
+        showValidationError("No llegaron datos suficientes para validar el pago.");
+        return;
+      }
+
+      while (currentAttempt < maxAttempts) {
+        currentAttempt++;
+
+        try {
+          const data = await fetchPaymentStatus();
+
+          if (data?.approved === true) {
+            showApproved(data);
+            return;
+          }
+
+          if (data?.rejected === true) {
+            showRejected(data);
+            return;
+          }
+
+          showStillVerifying(data || {});
+
+          if (currentAttempt < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, retryDelayMs));
+          }
+        } catch (error) {
+          console.error(error);
+
+          if (currentAttempt < maxAttempts) {
+            showStillVerifying({});
+            await new Promise(resolve => setTimeout(resolve, retryDelayMs));
+          } else {
+            icon.textContent = "⚠️";
+            title.textContent = "No pudimos confirmarlo todavía";
+            message.textContent = "Hubo un problema al verificar el pago.";
+            showHint("Si ya pagaste, no lo vuelvas a pagar. Podés volver al menú o comunicarte con el local.");
+            showMenuButton();
+          }
+        }
+      }
+
+      showPendingFinal({});
+    }
+
+    verifyPayment();
+  </script>
 
 </body>
 </html>
