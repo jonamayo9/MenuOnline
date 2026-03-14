@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pago no completado</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+  <div class="bg-white rounded-3xl shadow-xl p-8 md:p-10 text-center max-w-md w-full">
+    <div class="text-5xl mb-4">❌</div>
+
+    <h1 class="text-2xl font-black mb-2">
+      Pago no completado
+    </h1>
+
+    <p class="text-slate-500 mb-6">
+      El pago fue rechazado o cancelado. Podés volver al menú e intentarlo nuevamente.
+    </p>
+
+    <div id="info" class="mb-6 text-sm text-slate-600 bg-slate-50 rounded-2xl p-4 text-left space-y-1"></div>
+
+    <button
+      id="btn-menu"
+      class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-4 rounded-2xl font-bold w-full transition">
+      Volver al menú
+    </button>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+
+    const companySlug = params.get("company");
+    const paymentId = params.get("payment_id");
+    const orderId = params.get("external_reference");
+    const status = params.get("status");
+
+    const info = document.getElementById("info");
+    const btnMenu = document.getElementById("btn-menu");
+
+    const menuUrl = companySlug
+      ? `https://jonamayo9.github.io/MenuOnline/?company=${encodeURIComponent(companySlug)}`
+      : "https://jonamayo9.github.io/MenuOnline/";
+
+    info.innerHTML = `
+      <div><strong>Pedido:</strong> ${orderId || "-"}</div>
+      <div><strong>Pago:</strong> ${paymentId || "-"}</div>
+      <div><strong>Estado:</strong> ${status || "-"}</div>
+    `;
+
+    btnMenu.onclick = () => {
+      window.location.href = menuUrl;
+    };
+  </script>
+
+</body>
+</html>

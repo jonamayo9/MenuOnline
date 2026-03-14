@@ -43,6 +43,7 @@
     const paymentId = params.get("payment_id");
     const orderId = params.get("external_reference");
     const statusFromMp = params.get("status");
+    const companySlug = params.get("company");
 
     const icon = document.getElementById("icon");
     const title = document.getElementById("title");
@@ -52,10 +53,12 @@
     const btnWpp = document.getElementById("btn-wpp");
     const btnMenu = document.getElementById("btn-menu");
 
-    // CAMBIAR ESTO
-    const companySlug = "TU_COMPANY_SLUG";
-    const apiBaseUrl = "https://TU_BACKEND_URL";
-    const menuUrl = `https://jonamayo9.github.io/MenuOnline/?company=${encodeURIComponent(companySlug)}`;
+    // CAMBIAR SOLO ESTO
+    const apiBaseUrl = "https://gourmet-backend-1.onrender.com";
+
+    const menuUrl = companySlug
+      ? `https://jonamayo9.github.io/MenuOnline/?company=${encodeURIComponent(companySlug)}`
+      : "https://jonamayo9.github.io/MenuOnline/";
 
     const maxAttempts = 8;
     const retryDelayMs = 3000;
@@ -95,6 +98,7 @@
 
       if (data.whatsappUrl) {
         btnWpp.classList.remove("hidden");
+        btnWpp.textContent = "Enviar pedido por WhatsApp";
         btnWpp.onclick = () => {
           window.location.href = data.whatsappUrl;
         };
@@ -141,6 +145,7 @@
       icon.textContent = "⚠️";
       title.textContent = "No se pudo validar el pago";
       message.textContent = text;
+      clearHint();
       showMenuButton();
     }
 
@@ -169,6 +174,11 @@
     }
 
     async function verifyPayment() {
+      if (!companySlug) {
+        showValidationError("No llegó la empresa del pedido.");
+        return;
+      }
+
       if (!orderId) {
         showValidationError("No llegó el identificador del pedido.");
         return;
@@ -201,7 +211,7 @@
             await new Promise(resolve => setTimeout(resolve, retryDelayMs));
           }
         } catch (error) {
-          console.error(error);
+          console.error("Error verificando pago:", error);
 
           if (currentAttempt < maxAttempts) {
             showStillVerifying({});
