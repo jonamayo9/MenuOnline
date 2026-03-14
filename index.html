@@ -445,24 +445,24 @@
               </div>
 
               <div id="heroStats" class="grid grid-cols-2 sm:grid-cols-3 gap-3 shrink-0 lg:min-w-[320px] lg:self-stretch">
-  <div class="subtle-card rounded-2xl px-4 py-4 text-center flex flex-col justify-center min-h-[92px]">
-    <div class="text-[10px] uppercase tracking-[0.2em] font-black text-slate-400">Menú</div>
-    <div id="heroItemsCount" class="text-xl font-black text-slate-900 mt-1">0</div>
-  </div>
+                <div class="subtle-card rounded-2xl px-4 py-4 text-center flex flex-col justify-center min-h-[92px]">
+                  <div class="text-[10px] uppercase tracking-[0.2em] font-black text-slate-400">Menú</div>
+                  <div id="heroItemsCount" class="text-xl font-black text-slate-900 mt-1">0</div>
+                </div>
 
-  <div class="subtle-card rounded-2xl px-4 py-4 text-center flex flex-col justify-center min-h-[92px]">
-    <div class="text-[10px] uppercase tracking-[0.2em] font-black text-slate-400">Categorías</div>
-    <div id="heroCategoriesCount" class="text-xl font-black text-slate-900 mt-1">0</div>
-  </div>
+                <div class="subtle-card rounded-2xl px-4 py-4 text-center flex flex-col justify-center min-h-[92px]">
+                  <div class="text-[10px] uppercase tracking-[0.2em] font-black text-slate-400">Categorías</div>
+                  <div id="heroCategoriesCount" class="text-xl font-black text-slate-900 mt-1">0</div>
+                </div>
 
-  <button id="btnRefresh"
-    class="subtle-card rounded-2xl px-4 py-4 text-center hover:bg-slate-50 transition flex flex-col justify-center min-h-[92px]">
-    <div class="text-[10px] uppercase tracking-[0.2em] font-black text-slate-400">Acción</div>
-    <div class="text-sm font-black text-slate-900 mt-1">
-      <i class="fa-solid fa-rotate-right mr-1"></i> Actualizar
-    </div>
-  </button>
-</div>
+                <button id="btnRefresh"
+                  class="subtle-card rounded-2xl px-4 py-4 text-center hover:bg-slate-50 transition flex flex-col justify-center min-h-[92px]">
+                  <div class="text-[10px] uppercase tracking-[0.2em] font-black text-slate-400">Acción</div>
+                  <div class="text-sm font-black text-slate-900 mt-1">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Actualizar
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -547,7 +547,7 @@
         </div>
 
         <div id="row-recargo" class="hidden flex items-center justify-between">
-          <span class="text-slate-500 font-semibold">Recargo transferencia</span>
+          <span id="det-ajuste-label" class="text-slate-500 font-semibold">Ajuste por pago</span>
           <span id="det-recargo" class="font-black text-slate-900">$0</span>
         </div>
 
@@ -583,9 +583,14 @@
       ordersEnabled: true,
       menuOnlyEnabled: false,
       mercadoPagoEnabled: false,
+      transferEnabled: false,
       whatsappEnabled: false,
       shiftsEnabled: true,
-      aliasEnabled: false
+      aliasEnabled: false,
+      transferSurchargeEnabled: false,
+      transferSurchargePercent: 0,
+      mercadoPagoSurchargeEnabled: false,
+      mercadoPagoSurchargePercent: 0
     };
     let Categories = [];
     let Items = [];
@@ -595,7 +600,10 @@
     let descExpanded = {};
 
     const SLUG_KEY = "menuonline_companySlug";
+    //   PROD
     const CONFIG_PATH = "/MenuOnline/config.json";
+    //  DEV
+    //const CONFIG_PATH = "/config.json";
 
     function getCompanySlug(){
       const qs = new URLSearchParams(location.search);
@@ -687,12 +695,53 @@
       }));
     }
 
-    function buildWhatsAppMessage({ nombre, direccion, pago, createdOrderNumber }){
-      let subtotal = 0;
-      Object.values(carrito).forEach(p => subtotal += p.price * p.qty);
+    function getPaymentAdjustmentPercent(paymentMethod){
+      const pago = String(paymentMethod || "").trim();
 
-      const recargo = (pago === "Transferencia" && PublicFeatures.aliasEnabled) ? Math.round(subtotal * 0.10) : 0;
-      const total = subtotal + recargo;
+      if (pago === "Transferencia" && PublicFeatures.transferSurchargeEnabled) {
+        return Number(PublicFeatures.transferSurchargePercent || 0);
+      }
+
+      if (pago === "MercadoPago" && PublicFeatures.mercadoPagoSurchargeEnabled) {
+        return Number(PublicFeatures.mercadoPagoSurchargePercent || 0);
+      }
+
+      return 0;
+    }
+
+    function calculateOrderTotals(paymentMethod){
+      let subtotal = 0;
+
+      Object.values(carrito).forEach(p => {
+        subtotal += (Number(p.price) || 0) * (Number(p.qty) || 0);
+      });
+
+      const percent = getPaymentAdjustmentPercent(paymentMethod);
+      const adjustment = Math.round((subtotal * (percent / 100)) * 100) / 100;
+      const total = Math.round((subtotal + adjustment) * 100) / 100;
+
+      return {
+        subtotal,
+        adjustmentPercent: percent,
+        adjustment,
+        total
+      };
+    }
+
+    function getPaymentAdjustmentLabel(paymentMethod, percent){
+      if (paymentMethod === "Transferencia") {
+        return percent >= 0 ? "Ajuste transferencia / QR" : "Descuento transferencia / QR";
+      }
+
+      if (paymentMethod === "MercadoPago") {
+        return percent >= 0 ? "Ajuste Mercado Pago" : "Descuento Mercado Pago";
+      }
+
+      return "Ajuste por pago";
+    }
+
+    function buildWhatsAppMessage({ nombre, direccion, pago, createdOrderNumber }){
+      const totals = calculateOrderTotals(pago);
 
       let msg = `*✅ PEDIDO RECIBIDO*`;
       if(createdOrderNumber) msg += ` *#${createdOrderNumber}*`;
@@ -705,10 +754,17 @@
         if(p.note) msg += `  _Nota: ${p.note}_\n`;
       });
 
-      msg += `--------------------------\n*TOTAL: $${formatMoney(total)}*`;
+      if (totals.adjustmentPercent !== 0) {
+        const adjustmentLabel = getPaymentAdjustmentLabel(pago, totals.adjustmentPercent);
+        msg += `--------------------------\n`;
+        msg += `*Subtotal:* $${formatMoney(totals.subtotal)}\n`;
+        msg += `*${adjustmentLabel}:* $${formatMoney(totals.adjustment)}\n`;
+      }
+
+      msg += `--------------------------\n*TOTAL: $${formatMoney(totals.total)}*`;
 
       const alias = String(Company.alias || "").trim();
-      if(pago === "Transferencia" && alias && PublicFeatures.aliasEnabled){
+      if(pago === "Transferencia" && alias && PublicFeatures.transferEnabled){
         msg += `\n*Alias:* ${alias}`;
       }
 
@@ -896,6 +952,9 @@
         menuOnlyEnabled: rawMenuOnly,
         ordersEnabled: rawMenuOnly ? false : rawOrdersEnabled,
         mercadoPagoEnabled: toBool(c.mercadoPagoEnabled ?? c.MercadoPagoEnabled ?? false),
+        transferEnabled: rawMenuOnly
+          ? false
+          : toBool(c.transferEnabled ?? c.TransferEnabled ?? false),
         whatsappEnabled: rawMenuOnly
           ? false
           : toBool(
@@ -916,7 +975,29 @@
               c.aliasEnabled ??
               c.AliasEnabled ??
               !!String(c.alias ?? c.Alias ?? "").trim()
-            )
+            ),
+
+        transferSurchargeEnabled: toBool(
+          c.transferSurchargeEnabled ??
+          c.TransferSurchargeEnabled ??
+          false
+        ),
+        transferSurchargePercent: Number(
+          c.transferSurchargePercent ??
+          c.TransferSurchargePercent ??
+          0
+        ),
+
+        mercadoPagoSurchargeEnabled: toBool(
+          c.mercadoPagoSurchargeEnabled ??
+          c.MercadoPagoSurchargeEnabled ??
+          false
+        ),
+        mercadoPagoSurchargePercent: Number(
+          c.mercadoPagoSurchargePercent ??
+          c.MercadoPagoSurchargePercent ??
+          0
+        )
       };
 
       const cats = dto?.categories ?? dto?.Categories ?? dto?.categorias ?? dto?.Categorias ?? [];
@@ -1025,15 +1106,28 @@
       const isVisualOnly = PublicFeatures.menuOnlyEnabled || !PublicFeatures.ordersEnabled;
       const options = [];
 
+      const fmtPct = (n) => {
+        const num = Number(n || 0);
+        return num > 0 ? `+${num}%` : `${num}%`;
+      };
+
       if(!isVisualOnly){
         options.push(`<option value="Efectivo">💵 Efectivo</option>`);
 
-        if(PublicFeatures.aliasEnabled){
-          options.push(`<option value="Transferencia">💳 Transferencia (+10%)</option>`);
+        if(PublicFeatures.transferEnabled){
+          const tPct = Number(PublicFeatures.transferSurchargePercent || 0);
+          const tLabel = PublicFeatures.transferSurchargeEnabled && tPct !== 0
+            ? `💳 Transferencia / QR (${fmtPct(tPct)})`
+            : "💳 Transferencia / QR";
+          options.push(`<option value="Transferencia">${tLabel}</option>`);
         }
 
         if(PublicFeatures.mercadoPagoEnabled){
-          options.push(`<option value="MercadoPago">🟦 Mercado Pago</option>`);
+          const mpPct = Number(PublicFeatures.mercadoPagoSurchargePercent || 0);
+          const mpLabel = PublicFeatures.mercadoPagoSurchargeEnabled && mpPct !== 0
+            ? `🟦 Mercado Pago (${fmtPct(mpPct)})`
+            : "🟦 Mercado Pago";
+          options.push(`<option value="MercadoPago">${mpLabel}</option>`);
         }
       }
 
@@ -1529,32 +1623,33 @@
         return;
       }
 
-      let total = 0;
+      const totals = calculateOrderTotals(getPagoSeleccionado());
       let items = 0;
 
       Object.values(carrito).forEach(p => {
-        total += (p.price * p.qty);
         items += p.qty;
       });
 
-      document.getElementById("total-monto").innerText = formatMoney(total);
+      document.getElementById("total-monto").innerText = formatMoney(totals.total);
       barra.style.transform = items > 0 ? "translateY(0)" : "translateY(200px)";
     }
 
     function calcularTotalFinal(){
-      let subtotal = 0;
-      Object.values(carrito).forEach(p => { subtotal += p.price * p.qty; });
-
       const pagoEl = document.getElementById("pago-cliente");
       const pago = pagoEl ? pagoEl.value : "Efectivo";
 
-      const recargo = (pago === "Transferencia" && PublicFeatures.aliasEnabled) ? Math.round(subtotal * 0.10) : 0;
+      const totals = calculateOrderTotals(pago);
 
       const rowRec = document.getElementById("row-recargo");
-      if(rowRec) rowRec.classList.toggle("hidden", pago !== "Transferencia");
+      const detSub = document.getElementById("det-subtotal");
+      const detRec = document.getElementById("det-recargo");
+      const detTot = document.getElementById("monto-final-checkout");
+      const detLabel = document.getElementById("det-ajuste-label");
+
+      if(rowRec) rowRec.classList.toggle("hidden", totals.adjustmentPercent === 0);
 
       const alias = String(Company?.alias || "").trim();
-      const showAlias = (pago === "Transferencia" && alias.length > 0 && PublicFeatures.aliasEnabled);
+      const showAlias = (pago === "Transferencia" && alias.length > 0 && PublicFeatures.transferEnabled);
 
       const aliasCard = document.getElementById("alias-card");
       const aliasTxt = document.getElementById("txt-alias");
@@ -1562,15 +1657,13 @@
       if(aliasCard) aliasCard.classList.toggle("hidden", !showAlias);
       if(showAlias && aliasTxt) aliasTxt.textContent = alias;
 
-      const detSub = document.getElementById("det-subtotal");
-      const detRec = document.getElementById("det-recargo");
-      const detTot = document.getElementById("monto-final-checkout");
-
-      if(detSub) detSub.innerText = "$" + formatMoney(subtotal);
-      if(detRec) detRec.innerText = "$" + formatMoney(recargo);
-      if(detTot) detTot.innerText = "$" + formatMoney(subtotal + recargo);
+      if(detSub) detSub.innerText = "$" + formatMoney(totals.subtotal);
+      if(detRec) detRec.innerText = "$" + formatMoney(totals.adjustment);
+      if(detTot) detTot.innerText = "$" + formatMoney(totals.total);
+      if(detLabel) detLabel.textContent = getPaymentAdjustmentLabel(pago, totals.adjustmentPercent);
 
       updateCheckoutButton();
+      actualizarBarra();
     }
 
     function abrirCheckout(){
@@ -1867,6 +1960,7 @@
 
         updateCheckoutButton();
         await handleMercadoPagoReturn();
+        actualizarBarra();
       }catch(e){
         console.error(e);
       }

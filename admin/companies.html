@@ -8,10 +8,10 @@
 </head>
 
 <body class="bg-slate-100 text-slate-800 min-h-screen">
-  <div class="max-w-7xl mx-auto p-6">
+  <div class="max-w-7xl mx-auto p-4 sm:p-6">
 
     <!-- HEADER -->
-    <div class="bg-white rounded-3xl shadow-sm p-6 mb-6 border border-slate-200">
+    <div class="bg-white rounded-3xl shadow-sm p-5 sm:p-6 mb-6 border border-slate-200">
       <div class="flex items-start md:items-center justify-between gap-4 flex-wrap">
         <div class="flex items-center gap-3">
           <button id="btnLogout"
@@ -20,16 +20,16 @@
           </button>
 
           <div>
-            <h1 class="text-3xl font-extrabold tracking-tight">Empresas</h1>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Empresas</h1>
             <p class="text-sm text-slate-500 mt-1">Gestión completa de empresas (solo SuperAdmin).</p>
           </div>
         </div>
 
-        <div class="flex items-center gap-3 flex-wrap">
-          <div class="relative">
+        <div class="flex items-center gap-3 flex-wrap w-full md:w-auto">
+          <div class="relative w-full sm:w-auto">
             <input id="search"
               placeholder="Buscar por nombre o slug..."
-              class="w-72 bg-slate-50 border border-slate-200 rounded-2xl pl-4 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
+              class="w-full sm:w-72 bg-slate-50 border border-slate-200 rounded-2xl pl-4 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
           </div>
 
           <button id="btnNewCompany"
@@ -56,243 +56,347 @@
 
   <!-- MODAL CREATE / EDIT -->
   <div id="modal" class="hidden fixed inset-0 z-50">
-  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
 
-  <div class="relative z-10 h-screen overflow-y-auto">
-    <div class="min-h-screen flex items-start justify-center p-4 md:p-8">
-      <div class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-slate-200 my-6 flex flex-col max-h-[calc(100vh-3rem)]">
-        
-        <div class="p-6 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white z-10 rounded-t-3xl">
-          <div>
-            <div id="m_title" class="text-xl font-extrabold">Empresa</div>
-            <div id="m_sub" class="text-sm text-slate-500 mt-1">—</div>
+    <div class="relative z-10 h-screen overflow-y-auto">
+      <div class="min-h-screen flex items-start justify-center p-3 sm:p-4 md:p-8">
+        <div class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-slate-200 my-3 sm:my-6 flex flex-col max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-3rem)]">
+
+          <div class="p-5 sm:p-6 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white z-10 rounded-t-3xl">
+            <div>
+              <div id="m_title" class="text-lg sm:text-xl font-extrabold">Empresa</div>
+              <div id="m_sub" class="text-sm text-slate-500 mt-1">—</div>
+            </div>
+
+            <button id="m_close" class="px-3 py-2 rounded-xl hover:bg-slate-100">✕</button>
           </div>
 
-          <button id="m_close" class="px-3 py-2 rounded-xl hover:bg-slate-100">✕</button>
-        </div>
-
-        <div class="p-6 space-y-6 overflow-y-auto">
-          <!-- INFO -->
-          <div id="m_info_cards" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-              <div class="text-xs text-slate-400 font-semibold">Id</div>
-              <div id="m_id" class="font-extrabold mt-1">—</div>
-            </div>
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-              <div class="text-xs text-slate-400 font-semibold">Creada</div>
-              <div id="m_created" class="font-extrabold mt-1">—</div>
-            </div>
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-              <div class="text-xs text-slate-400 font-semibold">Slug</div>
-              <div id="m_slug_readonly" class="font-extrabold mt-1">—</div>
-            </div>
-          </div>
-
-          <input id="m_id_hidden" type="hidden" />
-          <input id="m_logoUrl_hidden" type="hidden" />
-          <input id="m_mode" type="hidden" value="create" />
-          <input id="m_mpClearToken_hidden" type="hidden" value="false" />
-          <!-- DATOS EMPRESA -->
-          <div class="bg-slate-50 border border-slate-200 rounded-3xl p-5">
-            <div class="text-lg font-extrabold">Datos de la empresa</div>
-            <div class="text-sm text-slate-500 mt-1">Información general y visual del negocio.</div>
-
-            <div class="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
-              <div class="md:col-span-3 flex flex-col">
-                <label class="text-xs text-slate-400 mb-1 block">Slug (único)</label>
-                <input id="m_slug" placeholder="ej: como-en-casa"
-                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
-                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Solo letras, números y guiones.</div>
+          <div class="p-4 sm:p-6 space-y-6 overflow-y-auto">
+            <!-- INFO -->
+            <div id="m_info_cards" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                <div class="text-xs text-slate-400 font-semibold">Id</div>
+                <div id="m_id" class="font-extrabold mt-1">—</div>
               </div>
-
-              <div class="md:col-span-4 flex flex-col">
-                <label class="text-xs text-slate-400 mb-1 block">Nombre</label>
-                <input id="m_name"
-                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
-                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
+              <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                <div class="text-xs text-slate-400 font-semibold">Creada</div>
+                <div id="m_created" class="font-extrabold mt-1">—</div>
               </div>
-
-              <div class="md:col-span-3 flex flex-col">
-                <label class="text-xs text-slate-400 mb-1 block">WhatsApp</label>
-                <input id="m_whatsapp" placeholder="54911..."
-                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
-                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
-              </div>
-
-              <div class="md:col-span-2 flex flex-col">
-                <label class="text-xs text-slate-400 mb-1 block">Estado</label>
-                <select id="m_enabled"
-                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm">
-                  <option value="true">Habilitada</option>
-                  <option value="false">Deshabilitada</option>
-                </select>
-                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
-              </div>
-
-              <div class="md:col-span-4 flex flex-col">
-                <label class="text-xs text-slate-400 mb-1 block">Alias MP</label>
-                <input id="m_alias" placeholder="ALIAS.MP"
-                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
-                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Alias para transferencias manuales.</div>
-              </div>
-
-              <div class="md:col-span-5 flex flex-col">
-                <label class="text-xs text-slate-400 mb-1 block">Logo (archivo)</label>
-                <input id="m_logoFile" type="file" accept="image/*"
-                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
-                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Se sube al guardar y se guarda la URL.</div>
-              </div>
-
-              <div class="md:col-span-3 flex items-end gap-3">
-                <img id="m_logoPreview" class="w-20 h-20 object-cover rounded-2xl border border-slate-200 hidden" />
-                <button id="m_clearLogo"
-                  class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-800 font-semibold hover:bg-slate-100 transition">
-                  Quitar logo
-                </button>
+              <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                <div class="text-xs text-slate-400 font-semibold">Slug</div>
+                <div id="m_slug_readonly" class="font-extrabold mt-1">—</div>
               </div>
             </div>
-          </div>
 
-          <!-- MERCADO PAGO -->
-          <div class="bg-slate-50 border border-slate-200 rounded-3xl p-5">
-            <div class="text-lg font-extrabold">Mercado Pago</div>
-            <div class="text-sm text-slate-500 mt-1">Configuración de cobro por empresa. Solo SuperAdmin.</div>
+            <input id="m_id_hidden" type="hidden" />
+            <input id="m_logoUrl_hidden" type="hidden" />
+            <input id="m_mode" type="hidden" value="create" />
+            <input id="m_mpClearToken_hidden" type="hidden" value="false" />
 
-            <div class="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
-              <div class="md:col-span-3 flex flex-col">
-                <label class="text-xs text-slate-400 mb-1 block">Estado Mercado Pago</label>
-                <select id="m_mpEnabled"
-                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm">
-                  <option value="false">Deshabilitado</option>
-                  <option value="true">Habilitado</option>
-                </select>
-                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Activa pagos online para esta empresa.</div>
-              </div>
+            <!-- DATOS EMPRESA -->
+            <div class="bg-slate-50 border border-slate-200 rounded-3xl p-4 sm:p-5">
+              <div class="text-lg font-extrabold">Datos de la empresa</div>
+              <div class="text-sm text-slate-500 mt-1">Información general y visual del negocio.</div>
 
-              <div class="md:col-span-6 flex flex-col">
-                <label class="text-xs text-slate-400 mb-1 block">Access Token</label>
-                <input id="m_mpAccessToken" placeholder="APP_USR-..."
-                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm"/>
-                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Solo se usa desde el backend. Nunca se expone públicamente.</div>
-              </div>
-
-              <div class="md:col-span-3 flex flex-col">
-                <label class="text-xs text-slate-400 mb-1 block">Token guardado</label>
-                <div id="m_mpMaskedToken"
-                  class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 min-h-[42px] flex items-center">
-                  Sin token
+              <div class="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+                <div class="md:col-span-3 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">Slug (único)</label>
+                  <input id="m_slug" placeholder="ej: como-en-casa"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Solo letras, números y guiones.</div>
                 </div>
-                <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Se muestra enmascarado.</div>
+
+                <div class="md:col-span-5 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">Nombre</label>
+                  <input id="m_name"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition"/>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
+                </div>
+
+                <div class="md:col-span-2 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">Estado</label>
+                  <select id="m_enabled"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm">
+                    <option value="true">Habilitada</option>
+                    <option value="false">Deshabilitada</option>
+                  </select>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
+                </div>
+
+                <div class="md:col-span-2 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">WhatsApp</label>
+                  <input id="m_whatsapp" placeholder="54911..."
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm"/>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
+                </div>
+
+                <div class="md:col-span-6 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">Logo (archivo)</label>
+                  <input id="m_logoFile" type="file" accept="image/*"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm"/>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Se sube al guardar y se guarda la URL.</div>
+                </div>
+
+                <div class="md:col-span-6 flex items-center gap-3 flex-wrap">
+                  <img id="m_logoPreview" class="w-20 h-20 object-cover rounded-2xl border border-slate-200 hidden" />
+                  <button id="m_clearLogo"
+                    class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-800 font-semibold hover:bg-slate-100 transition">
+                    Quitar logo
+                  </button>
+                </div>
               </div>
+            </div>
 
-              <div class="md:col-span-12 flex justify-end">
-                <button id="m_clearMpToken"
-                  class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-800 font-semibold hover:bg-slate-100 transition">
-                  Limpiar token
-                </button>
+            <!-- MERCADO PAGO -->
+            <div class="bg-slate-50 border border-slate-200 rounded-3xl p-4 sm:p-5">
+              <div class="text-lg font-extrabold">Mercado Pago</div>
+              <div class="text-sm text-slate-500 mt-1">Configuración de cobro por empresa. Solo SuperAdmin.</div>
+
+              <div class="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+                <div class="md:col-span-3 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">Estado Mercado Pago</label>
+                  <select id="m_mpEnabled"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm">
+                    <option value="false">Deshabilitado</option>
+                    <option value="true">Habilitado</option>
+                  </select>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Activa pagos online para esta empresa.</div>
+                </div>
+
+                <div class="md:col-span-6 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">Access Token</label>
+                  <input id="m_mpAccessToken" type="password" placeholder="Dejar vacío para conservar el token actual"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm"/>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Solo se usa desde el backend. Nunca se expone públicamente.</div>
+                </div>
+
+                <div class="md:col-span-3 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">Token guardado</label>
+                  <div id="m_mpMaskedToken"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 min-h-[42px] flex items-center">
+                    Sin token
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Se muestra enmascarado.</div>
+                </div>
+
+                <div class="md:col-span-12 flex justify-end">
+                  <button id="m_clearMpToken"
+                    class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-800 font-semibold hover:bg-slate-100 transition">
+                    Limpiar token
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- TRANSFERENCIA -->
+            <div class="bg-slate-50 border border-slate-200 rounded-3xl p-4 sm:p-5">
+              <div class="text-lg font-extrabold">Transferencia</div>
+              <div class="text-sm text-slate-500 mt-1">Configurá el medio de pago por transferencia de forma independiente.</div>
+
+              <div class="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+                <div class="md:col-span-4 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">Estado Transferencia</label>
+                  <select id="m_transferEnabled"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm">
+                    <option value="false">Deshabilitada</option>
+                    <option value="true">Habilitada</option>
+                  </select>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Define si este medio de pago aparece disponible.</div>
+                </div>
+
+                <div class="md:col-span-8 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">Alias</label>
+                  <input id="m_alias" placeholder="ALIAS.MP"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm"/>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Alias para pagos manuales por transferencia.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- QR -->
+            <div class="bg-slate-50 border border-slate-200 rounded-3xl p-4 sm:p-5">
+              <div class="text-lg font-extrabold">QR</div>
+              <div class="text-sm text-slate-500 mt-1">Lo dejamos preparado para la próxima integración.</div>
+
+              <div class="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+                <div class="md:col-span-4 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">Estado QR</label>
+                  <select id="m_qrEnabled"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm">
+                    <option value="false">Deshabilitado</option>
+                    <option value="true">Habilitado</option>
+                  </select>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Lo dejamos anclado para activarlo mañana cuando hagamos la integración real.</div>
+                </div>
+
+                <div class="md:col-span-8 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">Observación</label>
+                  <div class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-600 min-h-[42px] flex items-center">
+                    Próximamente integrado con Mercado Pago QR.
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Por ahora solo queda la opción visual y de configuración.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- AJUSTES POR METODO DE PAGO -->
+            <div class="bg-slate-50 border border-slate-200 rounded-3xl p-4 sm:p-5">
+              <div class="text-lg font-extrabold">Ajustes por método de pago</div>
+              <div class="text-sm text-slate-500 mt-1">Podés sumar o descontar un porcentaje según cómo paguen. Ej: 1.5, -2, 10.</div>
+
+              <div class="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+                <div class="md:col-span-2 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">Transferencia</label>
+                  <select id="m_transferSurchargeEnabled"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm">
+                    <option value="false">Sin ajuste</option>
+                    <option value="true">Aplicar ajuste</option>
+                  </select>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Activá ajuste para transferencia.</div>
+                </div>
+
+                <div class="md:col-span-2 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">% Transferencia</label>
+                  <input id="m_transferSurchargePercent" type="number" step="0.01" placeholder="Ej: 10 o -5"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm"/>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Positivo suma, negativo descuenta.</div>
+                </div>
+
+                <div class="md:col-span-2 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">QR</label>
+                  <select id="m_qrSurchargeEnabled"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm">
+                    <option value="false">Sin ajuste</option>
+                    <option value="true">Aplicar ajuste</option>
+                  </select>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Activá ajuste para QR.</div>
+                </div>
+
+                <div class="md:col-span-2 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">% QR</label>
+                  <input id="m_qrSurchargePercent" type="number" step="0.01" placeholder="Ej: 5 o -2"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm"/>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Positivo suma, negativo descuenta.</div>
+                </div>
+
+                <div class="md:col-span-2 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">Mercado Pago</label>
+                  <select id="m_mpSurchargeEnabled"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm">
+                    <option value="false">Sin ajuste</option>
+                    <option value="true">Aplicar ajuste</option>
+                  </select>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Activá ajuste para cobros con Mercado Pago.</div>
+                </div>
+
+                <div class="md:col-span-2 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">% Mercado Pago</label>
+                  <input id="m_mpSurchargePercent" type="number" step="0.01" placeholder="Ej: 5 o -2"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm"/>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Positivo suma, negativo descuenta.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- MODULOS -->
+            <div class="bg-slate-50 border border-slate-200 rounded-3xl p-4 sm:p-5">
+              <div class="text-lg font-extrabold">Módulos habilitados</div>
+              <div class="text-sm text-slate-500 mt-1">Definen qué se muestra y qué se puede usar en el panel admin.</div>
+
+              <div class="mt-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
+                  <input id="m_featureOrdersEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+                  <span class="text-sm font-semibold">Panel de pedidos</span>
+                </label>
+
+                <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
+                  <input id="m_featureProductsEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+                  <span class="text-sm font-semibold">Productos</span>
+                </label>
+
+                <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
+                  <input id="m_featureCategoriesEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+                  <span class="text-sm font-semibold">Categorías</span>
+                </label>
+
+                <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
+                  <input id="m_featureShiftsEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+                  <span class="text-sm font-semibold">Horarios</span>
+                </label>
+
+                <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
+                  <input id="m_featureDashboardEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+                  <span class="text-sm font-semibold">Resumen diario</span>
+                </label>
+
+                <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
+                  <input id="m_featureMenuOnlyEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+                  <span class="text-sm font-semibold">Solo menú</span>
+                </label>
+
+                <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
+                  <input id="m_featureTableManagementEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+                  <span class="text-sm font-semibold">Gestión de mesas</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- CONFIGURACION MESAS -->
+            <div id="m_tablesConfigSection" class="bg-slate-50 border border-slate-200 rounded-3xl p-4 sm:p-5 hidden">
+              <div class="text-lg font-extrabold">Configuración de mesas</div>
+              <div class="text-sm text-slate-500 mt-1">Configuración operativa del salón para esta empresa.</div>
+
+              <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label class="flex items-start gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-4">
+                  <input id="m_tablesEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300 mt-1">
+                  <div>
+                    <div class="text-sm font-semibold text-slate-900">Activar sistema de mesas</div>
+                    <div class="text-xs text-slate-500 mt-1">Permite abrir mesas y gestionar el salón.</div>
+                  </div>
+                </label>
+
+                <label class="flex items-start gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-4">
+                  <input id="m_enableGuestCount" type="checkbox" class="h-4 w-4 rounded border-slate-300 mt-1">
+                  <div>
+                    <div class="text-sm font-semibold text-slate-900">Registrar cantidad de personas</div>
+                    <div class="text-xs text-slate-500 mt-1">Guarda cuántos clientes hay en cada mesa.</div>
+                  </div>
+                </label>
+
+                <label class="flex items-start gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-4">
+                  <input id="m_enableAdultsChildrenSplit" type="checkbox" class="h-4 w-4 rounded border-slate-300 mt-1">
+                  <div>
+                    <div class="text-sm font-semibold text-slate-900">Separar mayores / menores</div>
+                    <div class="text-xs text-slate-500 mt-1">Permite registrar adultos y niños por separado.</div>
+                  </div>
+                </label>
+
+                <label class="flex items-start gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-4">
+                  <input id="m_requireAdultsChildrenSplit" type="checkbox" class="h-4 w-4 rounded border-slate-300 mt-1">
+                  <div>
+                    <div class="text-sm font-semibold text-slate-900">Requerir mayores / menores</div>
+                    <div class="text-xs text-slate-500 mt-1">Obliga a completar ambos valores.</div>
+                  </div>
+                </label>
               </div>
             </div>
           </div>
 
-          <!-- MODULOS -->
-          <div class="bg-slate-50 border border-slate-200 rounded-3xl p-5">
-            <div class="text-lg font-extrabold">Módulos habilitados</div>
-            <div class="text-sm text-slate-500 mt-1">Definen qué se muestra y qué se puede usar en el panel admin.</div>
+          <div class="p-4 sm:p-6 border-t border-slate-200 flex justify-end gap-2 flex-wrap bg-white sticky bottom-0">
+            <button id="m_cancel"
+              class="px-4 py-2 rounded-xl bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200 transition">
+              Cancelar
+            </button>
 
-            <div class="mt-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
-                <input id="m_featureOrdersEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
-                <span class="text-sm font-semibold">Panel de pedidos</span>
-              </label>
-
-              <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
-                <input id="m_featureProductsEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
-                <span class="text-sm font-semibold">Productos</span>
-              </label>
-
-              <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
-                <input id="m_featureCategoriesEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
-                <span class="text-sm font-semibold">Categorías</span>
-              </label>
-
-              <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
-                <input id="m_featureShiftsEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
-                <span class="text-sm font-semibold">Horarios</span>
-              </label>
-
-              <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
-                <input id="m_featureDashboardEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
-                <span class="text-sm font-semibold">Resumen diario</span>
-              </label>
-
-              <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
-                <input id="m_featureMenuOnlyEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
-                <span class="text-sm font-semibold">Solo menú</span>
-              </label>
-
-              <label class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
-                <input id="m_featureTableManagementEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300">
-                <span class="text-sm font-semibold">Gestión de mesas</span>
-              </label>
-            </div>
+            <button id="m_save"
+              class="px-5 py-3 rounded-2xl bg-emerald-100 text-emerald-800 font-semibold hover:bg-emerald-200 transition">
+              Guardar
+            </button>
           </div>
-
-          <!-- CONFIGURACION MESAS -->
-          <div id="m_tablesConfigSection" class="bg-slate-50 border border-slate-200 rounded-3xl p-5 hidden">
-            <div class="text-lg font-extrabold">Configuración de mesas</div>
-            <div class="text-sm text-slate-500 mt-1">Configuración operativa del salón para esta empresa.</div>
-
-            <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <label class="flex items-start gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-4">
-                <input id="m_tablesEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300 mt-1">
-                <div>
-                  <div class="text-sm font-semibold text-slate-900">Activar sistema de mesas</div>
-                  <div class="text-xs text-slate-500 mt-1">Permite abrir mesas y gestionar el salón.</div>
-                </div>
-              </label>
-
-              <label class="flex items-start gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-4">
-                <input id="m_enableGuestCount" type="checkbox" class="h-4 w-4 rounded border-slate-300 mt-1">
-                <div>
-                  <div class="text-sm font-semibold text-slate-900">Registrar cantidad de personas</div>
-                  <div class="text-xs text-slate-500 mt-1">Guarda cuántos clientes hay en cada mesa.</div>
-                </div>
-              </label>
-
-              <label class="flex items-start gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-4">
-                <input id="m_enableAdultsChildrenSplit" type="checkbox" class="h-4 w-4 rounded border-slate-300 mt-1">
-                <div>
-                  <div class="text-sm font-semibold text-slate-900">Separar mayores / menores</div>
-                  <div class="text-xs text-slate-500 mt-1">Permite registrar adultos y niños por separado.</div>
-                </div>
-              </label>
-
-              <label class="flex items-start gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-4">
-                <input id="m_requireAdultsChildrenSplit" type="checkbox" class="h-4 w-4 rounded border-slate-300 mt-1">
-                <div>
-                  <div class="text-sm font-semibold text-slate-900">Requerir mayores / menores</div>
-                  <div class="text-xs text-slate-500 mt-1">Obliga a completar ambos valores.</div>
-                </div>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-6 border-t border-slate-200 flex justify-end gap-2 flex-wrap bg-white sticky bottom-0">
-          <button id="m_cancel"
-            class="px-4 py-2 rounded-xl bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200 transition">
-            Cancelar
-          </button>
-
-          <button id="m_save"
-            class="px-5 py-3 rounded-2xl bg-emerald-100 text-emerald-800 font-semibold hover:bg-emerald-200 transition">
-            Guardar
-          </button>
         </div>
       </div>
     </div>
   </div>
-</div>
 
   <div id="toastContainer" class="fixed top-6 right-6 z-50"></div>
 
@@ -312,6 +416,13 @@
 
     const EXP_KEY   = "menuonline_token_exp_utc";
     const LEEWAY_MS = 30000;
+
+    function toBool(v){
+      if (typeof v === "boolean") return v;
+      if (typeof v === "number") return v !== 0;
+      if (typeof v === "string") return v.toLowerCase() === "true";
+      return !!v;
+    }
 
     function logoutToLogin(){
       localStorage.removeItem(TOKEN_KEY);
@@ -414,7 +525,19 @@
 
     function mpBadge(enabled){
       return enabled
-        ? "bg-emerald-50 text-emerald-800 border-emerald-100"
+        ? "bg-sky-100 text-sky-900 border-sky-200"
+        : "bg-slate-100 text-slate-700 border-slate-200";
+    }
+
+    function transferBadge(enabled){
+      return enabled
+        ? "bg-sky-100 text-sky-900 border-sky-200"
+        : "bg-slate-100 text-slate-700 border-slate-200";
+    }
+
+    function qrBadge(enabled){
+      return enabled
+        ? "bg-emerald-100 text-emerald-900 border-emerald-200"
         : "bg-slate-100 text-slate-700 border-slate-200";
     }
 
@@ -473,15 +596,22 @@
 
     function getEnabledModulesText(c){
       const modules = [];
-      if(c.featureOrdersEnabled) modules.push("Pedidos");
-      if(c.featureProductsEnabled) modules.push("Productos");
-      if(c.featureCategoriesEnabled) modules.push("Categorías");
-      if(c.featureShiftsEnabled) modules.push("Horarios");
-      if(c.featureDashboardEnabled) modules.push("Resumen");
-      if(c.featureMenuOnlyEnabled) modules.push("Solo menú");
-      if(c.featureTableManagementEnabled) modules.push("Mesas");
+      if(toBool(c.featureOrdersEnabled)) modules.push("Pedidos");
+      if(toBool(c.featureProductsEnabled)) modules.push("Productos");
+      if(toBool(c.featureCategoriesEnabled)) modules.push("Categorías");
+      if(toBool(c.featureShiftsEnabled)) modules.push("Horarios");
+      if(toBool(c.featureDashboardEnabled)) modules.push("Resumen");
+      if(toBool(c.featureMenuOnlyEnabled)) modules.push("Solo menú");
+      if(toBool(c.featureTableManagementEnabled)) modules.push("Mesas");
 
       return modules.length ? modules.join(" · ") : "Sin módulos";
+    }
+
+    function formatAdjustmentLabel(enabled, percent){
+      if(!enabled) return "Sin ajuste";
+      const value = Number(percent || 0);
+      const prefix = value > 0 ? "+" : "";
+      return `${prefix}${value}%`;
     }
 
     function syncTablesConfigVisibility(){
@@ -590,11 +720,17 @@
             <div class="min-w-[320px] flex-1">
               <div class="flex items-center gap-3 flex-wrap">
                 <div class="text-xl font-extrabold">${escapeHtml(c.name)}</div>
-                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${badge(!!c.enabled)}">
-                  ${c.enabled ? "Habilitada" : "Deshabilitada"}
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${badge(toBool(c.enabled))}">
+                  ${toBool(c.enabled) ? "Habilitada" : "Deshabilitada"}
                 </span>
-                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${mpBadge(!!c.mercadoPagoEnabled)}">
-                  MP ${c.mercadoPagoEnabled ? "Activo" : "Inactivo"}
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${mpBadge(toBool(c.mercadoPagoEnabled))}">
+                  MP ${toBool(c.mercadoPagoEnabled) ? "Activo" : "Inactivo"}
+                </span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${transferBadge(toBool(c.transferEnabled))}">
+                  Transferencia ${toBool(c.transferEnabled) ? "Activa" : "Inactiva"}
+                </span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${qrBadge(toBool(c.qrEnabled))}">
+                  QR ${toBool(c.qrEnabled) ? "Activo" : "Inactivo"}
                 </span>
               </div>
 
@@ -612,17 +748,26 @@
               </div>
 
               <div class="text-sm text-slate-500 mt-1">
+                Ajuste Transferencia:
+                <span class="font-semibold text-slate-800">${escapeHtml(formatAdjustmentLabel(toBool(c.transferSurchargeEnabled), c.transferSurchargePercent))}</span>
+                · Ajuste QR:
+                <span class="font-semibold text-slate-800">${escapeHtml(formatAdjustmentLabel(toBool(c.qrSurchargeEnabled), c.qrSurchargePercent))}</span>
+                · Ajuste MP:
+                <span class="font-semibold text-slate-800">${escapeHtml(formatAdjustmentLabel(toBool(c.mercadoPagoSurchargeEnabled), c.mercadoPagoSurchargePercent))}</span>
+              </div>
+
+              <div class="text-sm text-slate-500 mt-1">
                 Módulos: <span class="font-semibold text-slate-800">${escapeHtml(getEnabledModulesText(c))}</span>
               </div>
 
               <div class="mt-3 flex flex-wrap gap-2">
-                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(!!c.featureOrdersEnabled)}">Pedidos</span>
-                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(!!c.featureProductsEnabled)}">Productos</span>
-                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(!!c.featureCategoriesEnabled)}">Categorías</span>
-                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(!!c.featureShiftsEnabled)}">Horarios</span>
-                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(!!c.featureDashboardEnabled)}">Resumen</span>
-                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(!!c.featureMenuOnlyEnabled)}">Solo menú</span>
-                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(!!c.featureTableManagementEnabled)}">Mesas</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(toBool(c.featureOrdersEnabled))}">Pedidos</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(toBool(c.featureProductsEnabled))}">Productos</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(toBool(c.featureCategoriesEnabled))}">Categorías</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(toBool(c.featureShiftsEnabled))}">Horarios</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(toBool(c.featureDashboardEnabled))}">Resumen</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(toBool(c.featureMenuOnlyEnabled))}">Solo menú</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold border ${moduleBadge(toBool(c.featureTableManagementEnabled))}">Mesas</span>
               </div>
 
               <div class="text-xs text-slate-400 mt-2">
@@ -694,13 +839,13 @@
           localStorage.setItem("menuonline_manage_companyId", String(c.id));
           localStorage.setItem("menuonline_manage_companyName", c.name || "");
 
-          localStorage.setItem("menuonline_featureOrdersEnabled", String(!!c.featureOrdersEnabled));
-          localStorage.setItem("menuonline_featureProductsEnabled", String(!!c.featureProductsEnabled));
-          localStorage.setItem("menuonline_featureCategoriesEnabled", String(!!c.featureCategoriesEnabled));
-          localStorage.setItem("menuonline_featureShiftsEnabled", String(!!c.featureShiftsEnabled));
-          localStorage.setItem("menuonline_featureDashboardEnabled", String(!!c.featureDashboardEnabled));
-          localStorage.setItem("menuonline_featureMenuOnlyEnabled", String(!!c.featureMenuOnlyEnabled));
-          localStorage.setItem("menuonline_featureTableManagementEnabled", String(!!c.featureTableManagementEnabled));
+          localStorage.setItem("menuonline_featureOrdersEnabled", String(toBool(c.featureOrdersEnabled)));
+          localStorage.setItem("menuonline_featureProductsEnabled", String(toBool(c.featureProductsEnabled)));
+          localStorage.setItem("menuonline_featureCategoriesEnabled", String(toBool(c.featureCategoriesEnabled)));
+          localStorage.setItem("menuonline_featureShiftsEnabled", String(toBool(c.featureShiftsEnabled)));
+          localStorage.setItem("menuonline_featureDashboardEnabled", String(toBool(c.featureDashboardEnabled)));
+          localStorage.setItem("menuonline_featureMenuOnlyEnabled", String(toBool(c.featureMenuOnlyEnabled)));
+          localStorage.setItem("menuonline_featureTableManagementEnabled", String(toBool(c.featureTableManagementEnabled)));
 
           location.href = "./admin-users.html";
         });
@@ -720,6 +865,19 @@
       document.getElementById("m_mpEnabled").value = "false";
       document.getElementById("m_mpAccessToken").value = "";
       document.getElementById("m_mpMaskedToken").textContent = "Sin token";
+      document.getElementById("m_mpClearToken_hidden").value = "false";
+
+      document.getElementById("m_transferEnabled").value = "false";
+      document.getElementById("m_qrEnabled").value = "false";
+
+      document.getElementById("m_transferSurchargeEnabled").value = "false";
+      document.getElementById("m_transferSurchargePercent").value = "0";
+
+      document.getElementById("m_qrSurchargeEnabled").value = "false";
+      document.getElementById("m_qrSurchargePercent").value = "0";
+
+      document.getElementById("m_mpSurchargeEnabled").value = "false";
+      document.getElementById("m_mpSurchargePercent").value = "0";
 
       document.getElementById("m_featureOrdersEnabled").checked = true;
       document.getElementById("m_featureProductsEnabled").checked = true;
@@ -735,7 +893,6 @@
       document.getElementById("m_requireAdultsChildrenSplit").checked = false;
       document.getElementById("m_requireAdultsChildrenSplit").disabled = true;
       document.getElementById("m_tablesConfigSection").classList.add("hidden");
-      document.getElementById("m_mpClearToken_hidden").value = "false";
 
       const prev = document.getElementById("m_logoPreview");
       prev.classList.add("hidden");
@@ -743,85 +900,92 @@
     }
 
     function openModalCreate(){
-  modalOpen = true;
-  document.body.classList.add("overflow-hidden");
-  resetModalFields();
+      modalOpen = true;
+      document.body.classList.add("overflow-hidden");
+      resetModalFields();
 
-  document.getElementById("m_mode").value = "create";
-  document.getElementById("modal").classList.remove("hidden");
-  document.getElementById("m_title").textContent = "Nueva empresa";
-  document.getElementById("m_sub").textContent = "Completá todos los datos necesarios para crearla.";
-  document.getElementById("m_info_cards").classList.add("hidden");
-  document.getElementById("m_slug").disabled = false;
+      document.getElementById("m_mode").value = "create";
+      document.getElementById("modal").classList.remove("hidden");
+      document.getElementById("m_title").textContent = "Nueva empresa";
+      document.getElementById("m_sub").textContent = "Completá todos los datos necesarios para crearla.";
+      document.getElementById("m_info_cards").classList.add("hidden");
+      document.getElementById("m_slug").disabled = false;
 
-  syncTablesConfigVisibility();
-  syncAdultsChildrenRules();
-}
+      syncTablesConfigVisibility();
+      syncAdultsChildrenRules();
+    }
 
-function openModalEdit(c){
-  modalOpen = true;
-  document.body.classList.add("overflow-hidden");
-  resetModalFields();
+    function openModalEdit(c){
+      modalOpen = true;
+      document.body.classList.add("overflow-hidden");
+      resetModalFields();
 
-  document.getElementById("m_mode").value = "edit";
-  document.getElementById("modal").classList.remove("hidden");
-  document.getElementById("m_title").textContent = "Editar empresa";
-  document.getElementById("m_sub").textContent = `Empresa: ${c.name || "—"}`;
-  document.getElementById("m_info_cards").classList.remove("hidden");
+      document.getElementById("m_mode").value = "edit";
+      document.getElementById("modal").classList.remove("hidden");
+      document.getElementById("m_title").textContent = "Editar empresa";
+      document.getElementById("m_sub").textContent = `Empresa: ${c.name || "—"}`;
+      document.getElementById("m_info_cards").classList.remove("hidden");
 
-  document.getElementById("m_id").textContent = c.id ?? "—";
-  document.getElementById("m_created").textContent = fmtDate(c.createdAtUtc);
-  document.getElementById("m_slug_readonly").textContent = c.slug ?? "—";
+      document.getElementById("m_id").textContent = c.id ?? "—";
+      document.getElementById("m_created").textContent = fmtDate(c.createdAtUtc);
+      document.getElementById("m_slug_readonly").textContent = c.slug ?? "—";
 
-  document.getElementById("m_id_hidden").value = String(c.id || "");
-  document.getElementById("m_slug").value = c.slug ?? "";
-  document.getElementById("m_slug").disabled = true;
-  document.getElementById("m_name").value = c.name ?? "";
-  document.getElementById("m_whatsapp").value = c.whatsapp ?? "";
-  document.getElementById("m_alias").value = c.alias ?? "";
-  document.getElementById("m_enabled").value = String(!!c.enabled);
+      document.getElementById("m_id_hidden").value = String(c.id || "");
+      document.getElementById("m_slug").value = c.slug ?? "";
+      document.getElementById("m_slug").disabled = true;
+      document.getElementById("m_name").value = c.name ?? "";
+      document.getElementById("m_whatsapp").value = c.whatsapp ?? "";
+      document.getElementById("m_alias").value = c.alias ?? "";
+      document.getElementById("m_enabled").value = String(toBool(c.enabled));
 
-  document.getElementById("m_logoUrl_hidden").value = c.logoUrl || "";
+      document.getElementById("m_logoUrl_hidden").value = c.logoUrl || "";
 
-  document.getElementById("m_mpEnabled").value = String(!!c.mercadoPagoEnabled);
-  document.getElementById("m_mpMaskedToken").textContent =
-    c.mercadoPagoMaskedToken || (c.mercadoPagoHasToken ? "Configurado" : "Sin token");
+      document.getElementById("m_mpEnabled").value = String(toBool(c.mercadoPagoEnabled));
+      document.getElementById("m_mpMaskedToken").textContent =
+        c.mercadoPagoMaskedToken || (c.mercadoPagoHasToken ? "Configurado" : "Sin token");
 
-  document.getElementById("m_featureOrdersEnabled").checked = c.featureOrdersEnabled !== false;
-  document.getElementById("m_featureProductsEnabled").checked = c.featureProductsEnabled !== false;
-  document.getElementById("m_featureCategoriesEnabled").checked = c.featureCategoriesEnabled !== false;
-  document.getElementById("m_featureShiftsEnabled").checked = c.featureShiftsEnabled !== false;
-  document.getElementById("m_featureDashboardEnabled").checked = c.featureDashboardEnabled !== false;
-  document.getElementById("m_featureMenuOnlyEnabled").checked = c.featureMenuOnlyEnabled === true;
-  document.getElementById("m_featureTableManagementEnabled").checked = c.featureTableManagementEnabled === true;
+      document.getElementById("m_transferEnabled").value = String(toBool(c.transferEnabled));
+      document.getElementById("m_qrEnabled").value = String(toBool(c.qrEnabled));
 
-  document.getElementById("m_tablesEnabled").checked = c.tablesEnabled === true;
-  document.getElementById("m_enableGuestCount").checked = c.enableGuestCount !== false;
-  document.getElementById("m_enableAdultsChildrenSplit").checked = c.enableAdultsChildrenSplit === true;
-  document.getElementById("m_requireAdultsChildrenSplit").checked = c.requireAdultsChildrenSplit === true;
-  document.getElementById("m_mpClearToken_hidden").value = "false";
-  document.getElementById("m_mpAccessToken").addEventListener("input", () => {
-  if ((document.getElementById("m_mpAccessToken").value || "").trim()) {
-    document.getElementById("m_mpClearToken_hidden").value = "false";
-  }
-});
+      document.getElementById("m_transferSurchargeEnabled").value = String(toBool(c.transferSurchargeEnabled));
+      document.getElementById("m_transferSurchargePercent").value = c.transferSurchargePercent ?? 0;
 
-  syncTablesConfigVisibility();
-  syncAdultsChildrenRules();
+      document.getElementById("m_qrSurchargeEnabled").value = String(toBool(c.qrSurchargeEnabled));
+      document.getElementById("m_qrSurchargePercent").value = c.qrSurchargePercent ?? 0;
 
-  const prev = document.getElementById("m_logoPreview");
-  if(c.logoUrl){
-    prev.src = buildImageUrl(c.logoUrl);
-    prev.classList.remove("hidden");
-  }
-}
+      document.getElementById("m_mpSurchargeEnabled").value = String(toBool(c.mercadoPagoSurchargeEnabled));
+      document.getElementById("m_mpSurchargePercent").value = c.mercadoPagoSurchargePercent ?? 0;
 
-function closeModal(){
-  modalOpen = false;
-  modalLogoFile = null;
-  document.body.classList.remove("overflow-hidden");
-  document.getElementById("modal").classList.add("hidden");
-}
+      document.getElementById("m_featureOrdersEnabled").checked = toBool(c.featureOrdersEnabled);
+      document.getElementById("m_featureProductsEnabled").checked = toBool(c.featureProductsEnabled);
+      document.getElementById("m_featureCategoriesEnabled").checked = toBool(c.featureCategoriesEnabled);
+      document.getElementById("m_featureShiftsEnabled").checked = toBool(c.featureShiftsEnabled);
+      document.getElementById("m_featureDashboardEnabled").checked = toBool(c.featureDashboardEnabled);
+      document.getElementById("m_featureMenuOnlyEnabled").checked = toBool(c.featureMenuOnlyEnabled);
+      document.getElementById("m_featureTableManagementEnabled").checked = toBool(c.featureTableManagementEnabled);
+
+      document.getElementById("m_tablesEnabled").checked = toBool(c.tablesEnabled);
+      document.getElementById("m_enableGuestCount").checked = toBool(c.enableGuestCount);
+      document.getElementById("m_enableAdultsChildrenSplit").checked = toBool(c.enableAdultsChildrenSplit);
+      document.getElementById("m_requireAdultsChildrenSplit").checked = toBool(c.requireAdultsChildrenSplit);
+      document.getElementById("m_mpClearToken_hidden").value = "false";
+
+      syncTablesConfigVisibility();
+      syncAdultsChildrenRules();
+
+      const prev = document.getElementById("m_logoPreview");
+      if(c.logoUrl){
+        prev.src = buildImageUrl(c.logoUrl);
+        prev.classList.remove("hidden");
+      }
+    }
+
+    function closeModal(){
+      modalOpen = false;
+      modalLogoFile = null;
+      document.body.classList.remove("overflow-hidden");
+      document.getElementById("modal").classList.add("hidden");
+    }
 
     async function refresh(){
       if(isRefreshing) return;
@@ -864,6 +1028,12 @@ function closeModal(){
       syncAdultsChildrenRules();
     });
 
+    document.getElementById("m_mpAccessToken").addEventListener("input", () => {
+      if ((document.getElementById("m_mpAccessToken").value || "").trim()) {
+        document.getElementById("m_mpClearToken_hidden").value = "false";
+      }
+    });
+
     document.addEventListener("keydown", (e) => {
       if(e.key === "Escape" && !document.getElementById("modal").classList.contains("hidden")){
         closeModal();
@@ -892,11 +1062,11 @@ function closeModal(){
       prev.removeAttribute("src");
     });
 
-document.getElementById("m_clearMpToken").addEventListener("click", () => {
-  document.getElementById("m_mpAccessToken").value = "";
-  document.getElementById("m_mpMaskedToken").textContent = "Sin token";
-  document.getElementById("m_mpClearToken_hidden").value = "true";
-});
+    document.getElementById("m_clearMpToken").addEventListener("click", () => {
+      document.getElementById("m_mpAccessToken").value = "";
+      document.getElementById("m_mpMaskedToken").textContent = "Sin token";
+      document.getElementById("m_mpClearToken_hidden").value = "true";
+    });
 
     document.getElementById("m_save").addEventListener("click", async () => {
       const mode = document.getElementById("m_mode").value;
@@ -908,10 +1078,31 @@ document.getElementById("m_clearMpToken").addEventListener("click", () => {
       const alias = (document.getElementById("m_alias").value || "").trim();
       const enabled = document.getElementById("m_enabled").value === "true";
 
-const mercadoPagoEnabled = document.getElementById("m_mpEnabled").value === "true";
-const mercadoPagoAccessToken = (document.getElementById("m_mpAccessToken").value || "").trim();
-const clearMercadoPagoAccessToken =
-  document.getElementById("m_mpClearToken_hidden").value === "true";
+      const mercadoPagoEnabled = document.getElementById("m_mpEnabled").value === "true";
+      const mercadoPagoAccessToken = (document.getElementById("m_mpAccessToken").value || "").trim();
+      const clearMercadoPagoAccessToken =
+        document.getElementById("m_mpClearToken_hidden").value === "true";
+
+      const transferEnabled = document.getElementById("m_transferEnabled").value === "true";
+      const qrEnabled = document.getElementById("m_qrEnabled").value === "true";
+
+      const transferSurchargeEnabled =
+        document.getElementById("m_transferSurchargeEnabled").value === "true";
+      const transferSurchargePercent = Number(
+        document.getElementById("m_transferSurchargePercent").value || 0
+      );
+
+      const qrSurchargeEnabled =
+        document.getElementById("m_qrSurchargeEnabled").value === "true";
+      const qrSurchargePercent = Number(
+        document.getElementById("m_qrSurchargePercent").value || 0
+      );
+
+      const mercadoPagoSurchargeEnabled =
+        document.getElementById("m_mpSurchargeEnabled").value === "true";
+      const mercadoPagoSurchargePercent = Number(
+        document.getElementById("m_mpSurchargePercent").value || 0
+      );
 
       const featureOrdersEnabled = document.getElementById("m_featureOrdersEnabled").checked;
       const featureProductsEnabled = document.getElementById("m_featureProductsEnabled").checked;
@@ -932,6 +1123,24 @@ const clearMercadoPagoAccessToken =
 
       if(mode === "create" && !slug){
         toastShow("Slug requerido", "error"); toastAutoClose(1800); return;
+      }
+
+      if (Number.isNaN(transferSurchargePercent) || transferSurchargePercent < -100 || transferSurchargePercent > 100) {
+        toastShow("El ajuste de transferencia debe estar entre -100 y 100", "error");
+        toastAutoClose(2200);
+        return;
+      }
+
+      if (Number.isNaN(qrSurchargePercent) || qrSurchargePercent < -100 || qrSurchargePercent > 100) {
+        toastShow("El ajuste de QR debe estar entre -100 y 100", "error");
+        toastAutoClose(2200);
+        return;
+      }
+
+      if (Number.isNaN(mercadoPagoSurchargePercent) || mercadoPagoSurchargePercent < -100 || mercadoPagoSurchargePercent > 100) {
+        toastShow("El ajuste de Mercado Pago debe estar entre -100 y 100", "error");
+        toastAutoClose(2200);
+        return;
       }
 
       try{
@@ -957,6 +1166,14 @@ const clearMercadoPagoAccessToken =
           enabled,
           mercadoPagoEnabled,
           clearMercadoPagoAccessToken,
+          transferEnabled,
+          qrEnabled,
+          transferSurchargeEnabled,
+          transferSurchargePercent,
+          qrSurchargeEnabled,
+          qrSurchargePercent,
+          mercadoPagoSurchargeEnabled,
+          mercadoPagoSurchargePercent,
           featureOrdersEnabled,
           featureProductsEnabled,
           featureCategoriesEnabled,
