@@ -444,7 +444,7 @@
                 Panel de gestión
               </h2>
               <p style="color:rgba(255,255,255,0.72);font-size:14px;line-height:1.65;margin:0 0 24px;max-width:480px;">
-                Pedidos, productos, categorías, horarios, reportes y operación del salón desde un solo lugar.
+                Pedidos, productos, categorías, configuración, reportes y operación del salón desde un solo lugar.
               </p>
 
               <div style="display:flex;flex-wrap:wrap;gap:10px;">
@@ -548,19 +548,22 @@
           </div>
         </a>
 
-        <a id="cardShifts" href="./admin-shifts.html" class="module-card">
+        <a id="cardConfig" href="./config-companie.html" class="module-card">
           <div class="card-accent" style="background:linear-gradient(90deg,#10b981,#6ee7b7);"></div>
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
             <div style="width:44px;height:44px;background:#f0fdf4;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#166534" stroke-width="1.8"/><path d="M10 6v4l2.5 2.5" stroke="#166534" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="2.5" stroke="#166534" stroke-width="1.7"/>
+                <path d="M10 3v2M10 15v2M3 10h2M15 10h2M5.05 5.05l1.41 1.41M13.54 13.54l1.41 1.41M5.05 14.95l1.41-1.41M13.54 6.46l1.41-1.41" stroke="#166534" stroke-width="1.7" stroke-linecap="round"/>
+              </svg>
             </div>
             <span class="badge badge-menu" style="background:#eff6ff;color:#1e40af;">Config</span>
           </div>
-          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Horarios</div>
-          <div style="font-size:13px;color:var(--muted);line-height:1.5;">Apertura, cierre y excepciones operativas.</div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Configuración</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.5;">Datos de la empresa, pagos habilitados y ajustes por método de pago.</div>
           <div class="card-hint">
-            <div class="section-label" style="margin-bottom:4px;">Objetivo</div>
-            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">Evitar cierres incorrectos y mostrar el estado real del local.</div>
+            <div class="section-label" style="margin-bottom:4px;">Empresa</div>
+            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">Administrá la configuración visible y operativa del local.</div>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
             <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Abrir módulo</span>
@@ -720,7 +723,6 @@
     print-color-adjust:exact;
     position:relative;
   ">
-    <!-- glow suave -->
     <div style="
       position:absolute;
       top:-30mm;
@@ -741,7 +743,6 @@
       pointer-events:none;
     "></div>
 
-    <!-- encabezado -->
     <div style="
       width:100%;
       padding:22mm 16mm 14mm 16mm;
@@ -791,7 +792,6 @@
       </div>
     </div>
 
-    <!-- zona qr -->
     <div style="
       flex:1;
       display:flex;
@@ -833,12 +833,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <script>
-    
     //PROD
-    const CONFIG_PATH = "/MenuOnline/config.json";
+    //const CONFIG_PATH = "/MenuOnline/config.json";
     // DEV
-    //const CONFIG_PATH = "/config.json";
-    //const publicUrl = `/index.html?companySlug=${encodeURIComponent(slug)}`;
+    const CONFIG_PATH = "/config.json";
 
     const TOKEN_KEY = "menuonline_token";
     const AUTH_KEY  = "menuonline_authorization";
@@ -988,7 +986,6 @@
         return;
       }
 
-
       const publicUrl = `/MenuOnline/index.html?companySlug=${encodeURIComponent(slug)}`;
 
       currentPublicMenuUrl = publicUrl;
@@ -1029,6 +1026,7 @@
       localStorage.setItem("menuonline_canAccessTablesWaiter", String(!!me?.canAccessTablesWaiter));
       localStorage.setItem("menuonline_canAccessTableConfig", String(!!me?.canAccessTableConfig));
       localStorage.setItem("menuonline_canAccessTableDashboard", String(!!me?.canAccessTableDashboard));
+      localStorage.setItem("menuonline_canAccessCompanySettings", String(!!me?.canAccessCompanySettings));
     }
 
     function readFeaturesFromLocalStorage(){
@@ -1059,7 +1057,8 @@
         canAccessDashboard: localStorage.getItem("menuonline_canAccessDashboard") === "true",
         canAccessTablesWaiter: localStorage.getItem("menuonline_canAccessTablesWaiter") === "true",
         canAccessTableConfig: localStorage.getItem("menuonline_canAccessTableConfig") === "true",
-        canAccessTableDashboard: localStorage.getItem("menuonline_canAccessTableDashboard") === "true"
+        canAccessTableDashboard: localStorage.getItem("menuonline_canAccessTableDashboard") === "true",
+        canAccessCompanySettings: localStorage.getItem("menuonline_canAccessCompanySettings") === "true"
       };
     }
 
@@ -1103,6 +1102,7 @@
         featureDashboardEnabled: features?.featureDashboardEnabled !== false,
         featureTableManagementEnabled: features?.featureTableManagementEnabled === true
       };
+
       const safePermissions = {
         canAccessOrders: !!permissions?.canAccessOrders,
         canAccessProducts: !!permissions?.canAccessProducts,
@@ -1111,12 +1111,14 @@
         canAccessDashboard: !!permissions?.canAccessDashboard,
         canAccessTablesWaiter: !!permissions?.canAccessTablesWaiter,
         canAccessTableConfig: !!permissions?.canAccessTableConfig,
-        canAccessTableDashboard: !!permissions?.canAccessTableDashboard
+        canAccessTableDashboard: !!permissions?.canAccessTableDashboard,
+        canAccessCompanySettings: !!permissions?.canAccessCompanySettings
       };
+
       setCardVisible("cardOrders", safeFeatures.featureOrdersEnabled && safePermissions.canAccessOrders);
       setCardVisible("cardProducts", safeFeatures.featureProductsEnabled && safePermissions.canAccessProducts);
       setCardVisible("cardCategories", safeFeatures.featureCategoriesEnabled && safePermissions.canAccessCategories);
-      setCardVisible("cardShifts", safeFeatures.featureShiftsEnabled && safePermissions.canAccessShifts);
+      setCardVisible("cardConfig", safePermissions.canAccessCompanySettings);
       setCardVisible("cardDashboard", safeFeatures.featureDashboardEnabled && safePermissions.canAccessDashboard);
       setTablesCards(safeFeatures, safePermissions);
       setQrCardVisibility(safePermissions);
@@ -1223,6 +1225,7 @@
             featureDashboardEnabled: me.featureDashboardEnabled,
             featureTableManagementEnabled: me.featureTableManagementEnabled
           };
+
           const permissions = {
             canAccessOrders: me.canAccessOrders,
             canAccessProducts: me.canAccessProducts,
@@ -1231,8 +1234,10 @@
             canAccessDashboard: me.canAccessDashboard,
             canAccessTablesWaiter: me.canAccessTablesWaiter,
             canAccessTableConfig: me.canAccessTableConfig,
-            canAccessTableDashboard: me.canAccessTableDashboard
+            canAccessTableDashboard: me.canAccessTableDashboard,
+            canAccessCompanySettings: me.canAccessCompanySettings
           };
+
           saveFeaturesInLocalStorage(features);
           saveUserPermissionsInLocalStorage(me);
           setHomeModules(features, permissions);
@@ -1265,12 +1270,30 @@
         } else {
           const localFeatures = readFeaturesFromLocalStorage();
           const localPermissions = readPermissionsFromLocalStorage();
+
           if(localFeatures){
             setHomeModules(localFeatures, localPermissions);
           } else {
             setHomeModules(
-              { featureOrdersEnabled:true, featureProductsEnabled:true, featureCategoriesEnabled:true, featureShiftsEnabled:true, featureDashboardEnabled:true, featureTableManagementEnabled:false },
-              { canAccessOrders:true, canAccessProducts:true, canAccessCategories:true, canAccessShifts:true, canAccessDashboard:true, canAccessTablesWaiter:false, canAccessTableConfig:false, canAccessTableDashboard:false }
+              {
+                featureOrdersEnabled:true,
+                featureProductsEnabled:true,
+                featureCategoriesEnabled:true,
+                featureShiftsEnabled:true,
+                featureDashboardEnabled:true,
+                featureTableManagementEnabled:false
+              },
+              {
+                canAccessOrders:true,
+                canAccessProducts:true,
+                canAccessCategories:true,
+                canAccessShifts:false,
+                canAccessDashboard:true,
+                canAccessTablesWaiter:false,
+                canAccessTableConfig:false,
+                canAccessTableDashboard:false,
+                canAccessCompanySettings:false
+              }
             );
           }
         }
@@ -1279,8 +1302,25 @@
         toast("No pude cargar config.json", "error", 2000);
         setPublicMenuLink("");
         setHomeModules(
-          { featureOrdersEnabled:true, featureProductsEnabled:true, featureCategoriesEnabled:true, featureShiftsEnabled:true, featureDashboardEnabled:true, featureTableManagementEnabled:false },
-          { canAccessOrders:true, canAccessProducts:true, canAccessCategories:true, canAccessShifts:true, canAccessDashboard:true, canAccessTablesWaiter:false, canAccessTableConfig:false, canAccessTableDashboard:false }
+          {
+            featureOrdersEnabled:true,
+            featureProductsEnabled:true,
+            featureCategoriesEnabled:true,
+            featureShiftsEnabled:true,
+            featureDashboardEnabled:true,
+            featureTableManagementEnabled:false
+          },
+          {
+            canAccessOrders:true,
+            canAccessProducts:true,
+            canAccessCategories:true,
+            canAccessShifts:false,
+            canAccessDashboard:true,
+            canAccessTablesWaiter:false,
+            canAccessTableConfig:false,
+            canAccessTableDashboard:false,
+            canAccessCompanySettings:false
+          }
         );
       }
     })();

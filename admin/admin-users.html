@@ -132,6 +132,11 @@
               <span class="text-sm font-semibold">Resumen diario</span>
             </label>
 
+            <label id="boxCreateCompanySettings" class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
+              <input id="createCanAccessCompanySettings" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+              <span class="text-sm font-semibold">Configuración de empresa</span>
+            </label>
+
             <label id="boxCreateTablesWaiter" class="hidden flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
               <input id="createCanAccessTablesWaiter" type="checkbox" class="h-4 w-4 rounded border-slate-300">
               <span class="text-sm font-semibold">Mesas · Mozo</span>
@@ -209,6 +214,11 @@
             <label id="boxEditDashboard" class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
               <input id="editCanAccessDashboard" type="checkbox" class="h-4 w-4 rounded border-slate-300">
               <span class="text-sm font-semibold">Resumen diario</span>
+            </label>
+
+            <label id="boxEditCompanySettings" class="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
+              <input id="editCanAccessCompanySettings" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+              <span class="text-sm font-semibold">Configuración de empresa</span>
             </label>
 
             <label id="boxEditTablesWaiter" class="hidden flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3">
@@ -438,6 +448,7 @@
       if(u.canAccessCategories) arr.push("Categorías");
       if(u.canAccessShifts) arr.push("Horarios");
       if(u.canAccessDashboard) arr.push("Resumen");
+      if(u.canAccessCompanySettings) arr.push("Configuración");
       if(u.canAccessTablesWaiter) arr.push("Mesas Mozo");
       if(u.canAccessTableConfig) arr.push("Mesas Config");
       if(u.canAccessTableDashboard) arr.push("Mesas Config+Dashboard");
@@ -454,6 +465,7 @@
         <span class="px-2 py-1 rounded-xl text-xs font-semibold border ${u.canAccessCategories ? on : off}">Categorías</span>
         <span class="px-2 py-1 rounded-xl text-xs font-semibold border ${u.canAccessShifts ? on : off}">Horarios</span>
         <span class="px-2 py-1 rounded-xl text-xs font-semibold border ${u.canAccessDashboard ? on : off}">Resumen</span>
+        <span class="px-2 py-1 rounded-xl text-xs font-semibold border ${u.canAccessCompanySettings ? on : off}">Configuración</span>
         ${companyFeatures.featureTableManagementEnabled ? `
           <span class="px-2 py-1 rounded-xl text-xs font-semibold border ${u.canAccessTablesWaiter ? on : off}">Mesas · Mozo</span>
           <span class="px-2 py-1 rounded-xl text-xs font-semibold border ${u.canAccessTableConfig ? on : off}">Mesas · Config</span>
@@ -471,6 +483,7 @@
       document.getElementById("createCanAccessCategories").checked = true;
       document.getElementById("createCanAccessShifts").checked = true;
       document.getElementById("createCanAccessDashboard").checked = true;
+      document.getElementById("createCanAccessCompanySettings").checked = false;
       document.getElementById("createCanAccessTablesWaiter").checked = false;
       document.getElementById("createCanAccessTableConfig").checked = false;
       document.getElementById("createCanAccessTableDashboard").checked = false;
@@ -494,6 +507,7 @@
       document.getElementById("editCanAccessCategories").checked = !!u.canAccessCategories;
       document.getElementById("editCanAccessShifts").checked = !!u.canAccessShifts;
       document.getElementById("editCanAccessDashboard").checked = !!u.canAccessDashboard;
+      document.getElementById("editCanAccessCompanySettings").checked = !!u.canAccessCompanySettings;
       document.getElementById("editCanAccessTablesWaiter").checked = !!u.canAccessTablesWaiter;
       document.getElementById("editCanAccessTableConfig").checked = !!u.canAccessTableConfig;
       document.getElementById("editCanAccessTableDashboard").checked = !!u.canAccessTableDashboard;
@@ -767,6 +781,7 @@
       const canAccessCategories = companyFeatures.featureCategoriesEnabled && document.getElementById("createCanAccessCategories").checked;
       const canAccessShifts = companyFeatures.featureShiftsEnabled && document.getElementById("createCanAccessShifts").checked;
       const canAccessDashboard = companyFeatures.featureDashboardEnabled && document.getElementById("createCanAccessDashboard").checked;
+      const canAccessCompanySettings = document.getElementById("createCanAccessCompanySettings").checked;
 
       const canAccessTablesWaiter = companyFeatures.featureTableManagementEnabled && document.getElementById("createCanAccessTablesWaiter").checked;
       const canAccessTableConfig = companyFeatures.featureTableManagementEnabled && document.getElementById("createCanAccessTableConfig").checked;
@@ -788,6 +803,7 @@
           canAccessCategories,
           canAccessShifts,
           canAccessDashboard,
+          canAccessCompanySettings,
           canAccessTablesWaiter,
           canAccessTableConfig,
           canAccessTableDashboard
@@ -829,6 +845,7 @@
           canAccessCategories: companyFeatures.featureCategoriesEnabled && document.getElementById("editCanAccessCategories").checked,
           canAccessShifts: companyFeatures.featureShiftsEnabled && document.getElementById("editCanAccessShifts").checked,
           canAccessDashboard: companyFeatures.featureDashboardEnabled && document.getElementById("editCanAccessDashboard").checked,
+          canAccessCompanySettings: document.getElementById("editCanAccessCompanySettings").checked,
           canAccessTablesWaiter: companyFeatures.featureTableManagementEnabled && document.getElementById("editCanAccessTablesWaiter").checked,
           canAccessTableConfig: companyFeatures.featureTableManagementEnabled && document.getElementById("editCanAccessTableConfig").checked,
           canAccessTableDashboard: companyFeatures.featureTableManagementEnabled && document.getElementById("editCanAccessTableDashboard").checked

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>System Dev Solutions | Turnos</title>
+  <title>System Dev Solutions | Configuración de empresa</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 
@@ -25,7 +25,6 @@
       --hero-a: #24324a;
       --hero-b: #2c3d59;
       --hero-c: #1f2b40;
-      --shadow-soft: 0 20px 60px rgba(10,10,15,0.08), 0 4px 16px rgba(10,10,15,0.04);
       --shadow-card: 0 22px 60px rgba(15,23,42,.08);
     }
 
@@ -198,6 +197,45 @@
       border-radius: 30px;
     }
 
+    .section-top-label {
+      font-size: 13px;
+      color: #8da0bb;
+      font-weight: 800;
+      letter-spacing: .20em;
+      text-transform: uppercase;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .pay-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink-2);
+    }
+
+    .pay-chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #10b981;
+      flex-shrink: 0;
+    }
+
+    .pay-subcard {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      border-radius: 24px;
+      padding: 20px;
+    }
+
+    .hidden { display: none !important; }
+
     @media (max-width: 860px) {
       .brand-strip-inner {
         height: auto !important;
@@ -246,7 +284,7 @@
 
     <div style="max-width:1200px;margin:0 auto;padding:32px 24px 48px;">
       <!-- Header -->
-      <div class="hero-card hero-glow relative p-6 md:p-8 mb-6">
+      <div class="hero-card hero-glow relative p-6 md:p-8 mb-8">
         <div class="relative z-[1] flex items-start justify-between gap-8 flex-wrap">
           <div class="min-w-[280px]">
             <div class="flex items-center gap-4">
@@ -262,12 +300,12 @@
                     Admin Panel
                   </div>
                   <div class="chip" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);">
-                    Turnos
+                    Configuración
                   </div>
                 </div>
 
-                <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight text-white font-display">Turnos</h1>
-                <p class="text-sm md:text-base text-white/70 mt-2">Administrá horarios de apertura y cierre.</p>
+                <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight text-white font-display">Configuración de empresa</h1>
+                <p class="text-sm md:text-base text-white/70 mt-2">Administrá empresa, pagos y horarios del local.</p>
               </div>
             </div>
           </div>
@@ -281,12 +319,155 @@
         </div>
       </div>
 
-      <!-- Form -->
+      <!-- EMPRESA -->
+      <div class="glass-card rounded-[2rem] p-6 md:p-8 mb-8">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <div class="text-2xl font-extrabold tracking-tight text-slate-900 font-display">Datos de la empresa</div>
+            <div class="text-sm text-slate-500 mt-1">Información visible y principal del negocio.</div>
+          </div>
+
+          <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-indigo-50 text-indigo-800 border-indigo-100">
+            Empresa
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+          <div class="md:col-span-6">
+            <label class="field-label">Nombre</label>
+            <input id="name" class="field-input" placeholder="Ej: Sabores de Casa" />
+          </div>
+
+          <div class="md:col-span-6">
+            <label class="field-label">WhatsApp</label>
+            <input id="whatsapp" class="field-input" placeholder="Ej: 54911..." />
+          </div>
+
+          <div class="md:col-span-6">
+            <label class="field-label">Logo (archivo)</label>
+            <input id="logoFile" type="file" accept="image/*" class="field-input" />
+            <div class="text-[11px] text-slate-400 mt-2">Se sube al guardar y se guarda la URL.</div>
+          </div>
+
+          <div class="md:col-span-6">
+            <label class="field-label">Vista previa</label>
+            <div class="flex items-center gap-3 flex-wrap min-h-[58px]">
+              <img id="logoPreview" class="w-20 h-20 object-cover rounded-2xl border border-slate-200 hidden" />
+              <button id="clearLogo" type="button"
+                class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-800 font-semibold hover:bg-slate-100 transition">
+                Quitar logo
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-end">
+          <button id="saveCompanyInfo"
+            class="soft-btn px-5 py-3 rounded-2xl bg-emerald-600 text-white shadow-lg hover:bg-emerald-700">
+            Guardar datos
+          </button>
+        </div>
+      </div>
+
+      <!-- CABECERA PAGOS -->
+      <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
+        <div class="section-top-label">Pagos y ajustes</div>
+        <div class="text-sm text-slate-500 font-semibold" id="paymentSummary">Sin métodos habilitados</div>
+      </div>
+
+      <!-- PAGOS -->
+      <div id="paymentSettingsCard" class="glass-card rounded-[2rem] p-6 md:p-8 mb-10">
+        <div class="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <div class="text-2xl font-extrabold tracking-tight text-slate-900 font-display">Configuración de pagos</div>
+            <div class="text-sm text-slate-500 mt-1">Administrá alias y recargos en los métodos habilitados para esta empresa.</div>
+          </div>
+
+          <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-amber-50 text-amber-800 border-amber-100">
+            Pagos
+          </div>
+        </div>
+
+        <div id="paymentMethodsChips" class="mt-6 flex flex-wrap gap-3">
+          <div id="chipTransfer" class="pay-chip hidden">
+            <span class="pay-chip-dot"></span>
+            Transferencia activa
+          </div>
+
+          <div id="chipMp" class="pay-chip hidden">
+            <span class="pay-chip-dot"></span>
+            Mercado Pago activo
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 xl:grid-cols-2 gap-5">
+          <div id="transferBox" class="pay-subcard hidden">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <div class="text-lg font-extrabold tracking-tight text-slate-900 font-display">Transferencia</div>
+                <div class="text-sm text-slate-500 mt-1">Alias visible para cobros por transferencia.</div>
+              </div>
+
+              <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-sky-50 text-sky-800 border-sky-100">
+                Alias
+              </div>
+            </div>
+
+            <div class="mt-5">
+              <label class="field-label">Alias</label>
+              <input id="alias" class="field-input" placeholder="Ej: MI.ALIAS.PAGO" />
+            </div>
+          </div>
+
+          <div class="pay-subcard">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <div class="text-lg font-extrabold tracking-tight text-slate-900 font-display">Recargos</div>
+                <div class="text-sm text-slate-500 mt-1">Aplicá porcentajes solo en los métodos disponibles.</div>
+              </div>
+
+              <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-indigo-50 text-indigo-800 border-indigo-100">
+                Ajustes
+              </div>
+            </div>
+
+            <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+              <div id="transferAdjustmentSection" class="hidden">
+                <label class="field-label">% Transferencia</label>
+                <input id="transferSurchargePercent" type="number" step="0.01" class="field-input" placeholder="Ej: 10" />
+                <div class="text-[11px] text-slate-400 mt-2">Debe estar entre 0 y 100.</div>
+              </div>
+
+              <div id="mpAdjustmentSection" class="hidden">
+                <label class="field-label">% Mercado Pago</label>
+                <input id="mercadoPagoSurchargePercent" type="number" step="0.01" class="field-input" placeholder="Ej: 6" />
+                <div class="text-[11px] text-slate-400 mt-2">Debe estar entre 0 y 100.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-end">
+          <button id="savePaymentSettings"
+            class="soft-btn px-5 py-3 rounded-2xl bg-indigo-600 text-white shadow-lg hover:bg-indigo-700">
+            Guardar ajustes
+          </button>
+        </div>
+      </div>
+
+      <!-- INFO SI NO HAY METODOS -->
+      <div id="emptyMethodsInfo" class="glass-card rounded-[2rem] p-8 text-center mb-10 hidden">
+        <div class="text-5xl mb-3">⚙️</div>
+        <div class="text-xl font-extrabold text-slate-900 font-display">No hay métodos habilitados</div>
+        <div class="text-sm text-slate-500 mt-2">Cuando el superadmin habilite métodos de pago para esta empresa, van a aparecer acá.</div>
+      </div>
+
+      <!-- HORARIOS -->
       <div class="glass-card rounded-[2rem] p-6 md:p-8 mb-6">
         <div class="flex items-center justify-between gap-3 flex-wrap">
           <div>
-            <div class="text-2xl font-extrabold tracking-tight text-slate-900 font-display">Nuevo turno</div>
-            <div class="text-sm text-slate-500 mt-1">Definí horarios generales o por día.</div>
+            <div class="text-2xl font-extrabold tracking-tight text-slate-900 font-display">Horarios</div>
+            <div class="text-sm text-slate-500 mt-1">Definí horarios generales o por día para apertura y cierre.</div>
           </div>
 
           <div class="px-3 py-1 rounded-full text-xs font-semibold border bg-emerald-50 text-emerald-800 border-emerald-100">
@@ -337,18 +518,18 @@
         </div>
       </div>
 
-      <!-- Summary -->
+      <!-- SUMMARY -->
       <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
-        <div class="text-sm text-slate-400 font-bold uppercase tracking-[0.2em] font-display">Horarios configurados</div>
+        <div class="section-top-label">Horarios configurados</div>
         <div class="text-sm text-slate-500 font-semibold" id="summary"></div>
       </div>
 
-      <!-- List -->
+      <!-- LIST -->
       <div id="list" class="space-y-4"></div>
     </div>
   </div>
 
-  <!-- Modal editar -->
+  <!-- Modal editar turno -->
   <div id="editModal" class="hidden fixed inset-0 z-50 px-4 py-8 overflow-y-auto">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
 
@@ -407,7 +588,7 @@
     </div>
   </div>
 
-  <!-- Modal eliminar -->
+  <!-- Modal eliminar turno -->
   <div id="deleteModal" class="hidden fixed inset-0 z-50 px-4 py-8 overflow-y-auto">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
 
@@ -439,26 +620,25 @@
     </div>
   </div>
 
-  <!-- Toast container -->
+  <!-- Toast -->
   <div id="toastContainer" class="fixed top-6 right-6 z-50"></div>
 
   <script>
     let CONFIG = null;
     let isRefreshing = false;
+    let currentData = null;
+    let logoFileSelected = null;
     let shiftsCache = [];
     let deletingShiftId = null;
 
-    // =========================
-    // AUTH GUARD (SIN DUPLICADOS)
-    // =========================
     const TOKEN_KEY = "menuonline_token";
     const SLUG_KEY  = "menuonline_companySlug";
     const LOGIN_PAGE = "./login.html";
-    //   PROD
-    const CONFIG_PATH = "/MenuOnline/config.json";
-    //  DEV
-    //const CONFIG_PATH = "/config.json";
-    
+    //PROD
+    //const CONFIG_PATH = "/MenuOnline/config.json";
+    // DEV
+    const CONFIG_PATH = "/config.json";
+
     function logoutToLogin(){
       localStorage.removeItem(TOKEN_KEY);
       location.replace(LOGIN_PAGE);
@@ -509,6 +689,7 @@
         logoutToLogin();
         return null;
       }
+
       return res;
     }
 
@@ -516,9 +697,6 @@
       return localStorage.getItem(SLUG_KEY) || CONFIG.companySlug;
     }
 
-    // =========================
-    // TOAST
-    // =========================
     let activeToastEl = null;
 
     function toastShow(message, type = "info") {
@@ -601,15 +779,203 @@
       }, ms);
     }
 
-    // =========================
-    // API (con auth + slug)
-    // =========================
     async function loadConfig() {
       const res = await fetch(CONFIG_PATH, { cache: "no-store" });
       if (!res.ok) throw new Error("No pude leer config.json");
       return await res.json();
     }
 
+    // =========================
+    // EMPRESA
+    // =========================
+    async function apiGetCompanySettings() {
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/company-settings`;
+      const res = await fetchAuth(url);
+      if(!res) return null;
+      if (!res.ok) throw new Error("Error cargando configuración");
+      return await res.json();
+    }
+
+    async function apiUpdateCompanySettings(body) {
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/company-settings`;
+      const res = await fetchAuth(url, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      if(!res) return null;
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(text || "Error guardando configuración");
+      }
+      return await res.json().catch(() => null);
+    }
+
+    async function apiUploadLogo(file) {
+      if (!(file instanceof File)) throw new Error("Archivo inválido");
+
+      const fd = new FormData();
+      fd.append("file", file);
+
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/company-settings/logo`;
+      const res = await fetchAuth(url, { method: "POST", body: fd });
+
+      if(!res) return null;
+      if(!res.ok){
+        const text = await res.text().catch(() => "");
+        throw new Error(text || "No pude subir el logo");
+      }
+
+      const data = await res.json().catch(() => null);
+      return data?.logoUrl || data?.LogoUrl || null;
+    }
+
+    function buildImageUrl(path){
+      if(!path) return "";
+      if(String(path).startsWith("http")) return path;
+      if(!CONFIG?.apiBaseUrl) return path;
+      return CONFIG.apiBaseUrl + path;
+    }
+
+    function setLogoPreview(url){
+      const preview = document.getElementById("logoPreview");
+      if(url){
+        preview.src = buildImageUrl(url);
+        preview.classList.remove("hidden");
+      }else{
+        preview.classList.add("hidden");
+        preview.removeAttribute("src");
+      }
+    }
+
+    function applyVisibility(data){
+      const transferEnabled = !!data?.transferEnabled;
+      const mercadoPagoEnabled = !!data?.mercadoPagoEnabled;
+      const hasAnyMethod = transferEnabled || mercadoPagoEnabled;
+
+      document.getElementById("transferBox").classList.toggle("hidden", !transferEnabled);
+      document.getElementById("transferAdjustmentSection").classList.toggle("hidden", !transferEnabled);
+      document.getElementById("mpAdjustmentSection").classList.toggle("hidden", !mercadoPagoEnabled);
+
+      document.getElementById("chipTransfer").classList.toggle("hidden", !transferEnabled);
+      document.getElementById("chipMp").classList.toggle("hidden", !mercadoPagoEnabled);
+
+      document.getElementById("paymentSettingsCard").classList.toggle("hidden", !hasAnyMethod);
+      document.getElementById("emptyMethodsInfo").classList.toggle("hidden", hasAnyMethod);
+      document.getElementById("paymentSummary").textContent = hasAnyMethod ? "Métodos activos" : "Sin métodos habilitados";
+    }
+
+    function fillCompanyForm(data){
+      currentData = data || {};
+
+      document.getElementById("name").value = data?.name ?? "";
+      document.getElementById("whatsapp").value = data?.whatsapp ?? "";
+      document.getElementById("alias").value = data?.alias ?? "";
+
+      document.getElementById("transferSurchargePercent").value = data?.transferSurchargePercent ?? 0;
+      document.getElementById("mercadoPagoSurchargePercent").value = data?.mercadoPagoSurchargePercent ?? 0;
+
+      setLogoPreview(data?.logoUrl || "");
+      applyVisibility(data);
+    }
+
+    async function refreshCompanySettings(){
+      const data = await apiGetCompanySettings();
+      fillCompanyForm(data);
+    }
+
+    function readCompanyForm(){
+      const name = (document.getElementById("name").value || "").trim();
+      const whatsapp = (document.getElementById("whatsapp").value || "").trim();
+      const alias = (document.getElementById("alias").value || "").trim();
+
+      const transferSurchargePercent = Number(document.getElementById("transferSurchargePercent").value || 0);
+      const mercadoPagoSurchargePercent = Number(document.getElementById("mercadoPagoSurchargePercent").value || 0);
+
+      return {
+        name,
+        whatsapp,
+        alias,
+        transferSurchargePercent,
+        mercadoPagoSurchargePercent
+      };
+    }
+
+    function validateCompanyInfo(values){
+      if(!values.name){
+        throw new Error("El nombre es obligatorio");
+      }
+    }
+
+    function validatePaymentSettings(values){
+      if (Number.isNaN(values.transferSurchargePercent) || values.transferSurchargePercent < 0 || values.transferSurchargePercent > 100) {
+        throw new Error("El ajuste de transferencia debe estar entre 0 y 100");
+      }
+
+      if (Number.isNaN(values.mercadoPagoSurchargePercent) || values.mercadoPagoSurchargePercent < 0 || values.mercadoPagoSurchargePercent > 100) {
+        throw new Error("El ajuste de Mercado Pago debe estar entre 0 y 100");
+      }
+    }
+
+    async function uploadLogoIfNeeded(){
+      let logoUrl = currentData?.logoUrl || null;
+
+      if(logoFileSelected){
+        toastShow("Subiendo logo...", "info");
+        logoUrl = await apiUploadLogo(logoFileSelected);
+        if(!logoUrl) throw new Error("No pude subir el logo");
+      }
+
+      return logoUrl;
+    }
+
+    async function saveCompanyInfo(){
+      const values = readCompanyForm();
+      validateCompanyInfo(values);
+
+      const logoUrl = await uploadLogoIfNeeded();
+
+      toastShow("Guardando datos...", "info");
+
+      await apiUpdateCompanySettings({
+        name: values.name,
+        whatsapp: values.whatsapp || null,
+        logoUrl: logoUrl || null,
+        alias: values.alias || null,
+        transferSurchargePercent: values.transferSurchargePercent,
+        mercadoPagoSurchargePercent: values.mercadoPagoSurchargePercent
+      });
+
+      logoFileSelected = null;
+      document.getElementById("logoFile").value = "";
+
+      await refreshCompanySettings();
+      toastUpdate("Datos guardados", "success", 1800);
+    }
+
+    async function savePaymentSettings(){
+      const values = readCompanyForm();
+      validateCompanyInfo(values);
+      validatePaymentSettings(values);
+
+      toastShow("Guardando ajustes...", "info");
+
+      await apiUpdateCompanySettings({
+        name: values.name,
+        whatsapp: values.whatsapp || null,
+        logoUrl: currentData?.logoUrl || null,
+        alias: values.alias || null,
+        transferSurchargePercent: values.transferSurchargePercent,
+        mercadoPagoSurchargePercent: values.mercadoPagoSurchargePercent
+      });
+
+      await refreshCompanySettings();
+      toastUpdate("Ajustes guardados", "success", 1800);
+    }
+
+    // =========================
+    // HORARIOS
+    // =========================
     async function apiGetShifts() {
       const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/shifts`;
       const res = await fetchAuth(url);
@@ -648,7 +1014,6 @@
       if (!res.ok) throw new Error("Error eliminando turno");
     }
 
-    // ===== UI Helpers =====
     function dayLabel(d) {
       if (d === null || d === undefined || d === "") return "Todos";
       const map = ["Domingos", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábados"];
@@ -695,8 +1060,7 @@
       document.getElementById("summary").textContent = `${items.length} turno(s)`;
     }
 
-    // ===== Render =====
-    function render(items) {
+    function renderShifts(items) {
       const el = document.getElementById("list");
       setSummary(items);
 
@@ -766,7 +1130,16 @@
       });
     }
 
-    async function refresh() {
+    async function refreshShifts() {
+      const items = await apiGetShifts();
+      shiftsCache = Array.isArray(items) ? items : [];
+      renderShifts(shiftsCache);
+    }
+
+    // =========================
+    // REFRESH GENERAL
+    // =========================
+    async function refreshAll() {
       if (isRefreshing) return;
       isRefreshing = true;
 
@@ -776,9 +1149,10 @@
       btn.disabled = true;
 
       try {
-        const items = await apiGetShifts();
-        shiftsCache = Array.isArray(items) ? items : [];
-        render(shiftsCache);
+        await Promise.all([
+          refreshCompanySettings(),
+          refreshShifts()
+        ]);
       } finally {
         btn.textContent = old;
         btn.disabled = false;
@@ -786,14 +1160,55 @@
       }
     }
 
-    // ===== Init =====
+    // =========================
+    // EVENTS
+    // =========================
+    document.getElementById("logoFile").addEventListener("change", (e) => {
+      logoFileSelected = e.target.files?.[0] ?? null;
+      if(logoFileSelected){
+        const preview = document.getElementById("logoPreview");
+        preview.src = URL.createObjectURL(logoFileSelected);
+        preview.classList.remove("hidden");
+      }
+    });
+
+    document.getElementById("clearLogo").addEventListener("click", () => {
+      logoFileSelected = null;
+      document.getElementById("logoFile").value = "";
+      setLogoPreview("");
+      if(currentData){
+        currentData.logoUrl = null;
+      }
+    });
+
+    // =========================
+    // INIT
+    // =========================
     (async function init() {
       try {
         if(!requireAuth()) return;
 
         CONFIG = await loadConfig();
 
-        document.getElementById("refresh").addEventListener("click", refresh);
+        document.getElementById("refresh").addEventListener("click", refreshAll);
+
+        document.getElementById("saveCompanyInfo").addEventListener("click", async () => {
+          try {
+            await saveCompanyInfo();
+          } catch (e) {
+            console.error(e);
+            toastUpdate(e?.message || "Error guardando datos", "error", 2500);
+          }
+        });
+
+        document.getElementById("savePaymentSettings").addEventListener("click", async () => {
+          try {
+            await savePaymentSettings();
+          } catch (e) {
+            console.error(e);
+            toastUpdate(e?.message || "Error guardando ajustes", "error", 2500);
+          }
+        });
 
         document.getElementById("create").addEventListener("click", async () => {
           const dayVal = document.getElementById("dayOfWeek").value;
@@ -815,7 +1230,7 @@
               closeHour,
               enabled
             });
-            await refresh();
+            await refreshShifts();
             toastUpdate("Turno creado correctamente", "success", 1800);
           } catch (e) {
             console.error(e);
@@ -850,7 +1265,7 @@
               enabled
             });
             closeEditModal();
-            await refresh();
+            await refreshShifts();
             toastUpdate("Turno actualizado", "success", 1800);
           } catch (e) {
             console.error(e);
@@ -872,7 +1287,7 @@
             toastShow("Eliminando turno...", "info");
             await apiDeleteShift(deletingShiftId);
             closeDeleteModal();
-            await refresh();
+            await refreshShifts();
             toastUpdate("Turno eliminado", "success", 1800);
           } catch (e) {
             console.error(e);
@@ -880,7 +1295,7 @@
           }
         });
 
-        await refresh();
+        await refreshAll();
       } catch (e) {
         console.error(e);
         toastShow("Error ❌ " + (e.message || e), "error");
