@@ -1,161 +1,360 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <script>
-(function(){
-  const host = window.location.hostname.toLowerCase();
+  <script>
+    (function () {
+      const host = window.location.hostname.toLowerCase();
 
-  // ignorar localhost puro
-  if(host === "localhost" || host === "127.0.0.1") return;
+      // Configuración real de producción
+      const ROOT_DOMAIN = "pedidoclick.com.ar";
+      const RESERVED = ["www", "app", "admin"];
 
-  // config básica
-  const ROOT_DOMAIN = "clickmenu.local";
-  const RESERVED = ["www", "app", "admin"];
+      // Ruta del menú público
+      // Si tu menú real está en otro archivo, cambiá SOLO esta constante
+      const PUBLIC_MENU_PATH = "/menu.html";
 
-  if(host.endsWith("." + ROOT_DOMAIN)){
-    const sub = host.replace("." + ROOT_DOMAIN, "");
+      // Ignorar local puro
+      if (host === "localhost" || host === "127.0.0.1") return;
 
-    if(sub && !sub.includes(".") && !RESERVED.includes(sub)){
-      // redirigir al menú real
-      window.location.replace("/Admin/index.html");
-    }
-  }
-})();
-</script>
+      // Ignorar entornos tipo clickmenu.local o similares de desarrollo
+      if (host.endsWith(".local")) return;
+
+      // Ej: como-en-casa.pedidoclick.com.ar
+      if (host.endsWith("." + ROOT_DOMAIN)) {
+        const sub = host.slice(0, -("." + ROOT_DOMAIN).length).trim();
+
+        // Solo aceptar subdominio simple
+        if (sub && !sub.includes(".") && !RESERVED.includes(sub)) {
+          const target = `${PUBLIC_MENU_PATH}?companySlug=${encodeURIComponent(sub)}`;
+          window.location.replace(target);
+        }
+      }
+    })();
+  </script>
+
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ClickMenu | Tu negocio, tus pedidos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClickMenu | Vendé sin comisiones</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .hero-bg {
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,.10), transparent 28%),
+        radial-gradient(circle at top right, rgba(15,23,42,.08), transparent 24%),
+        linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+    }
+
+    .glass {
+      background: rgba(255,255,255,.72);
+      backdrop-filter: blur(10px);
     }
   </style>
 </head>
 
 <body class="bg-white text-slate-800">
 
-<!-- NAVBAR -->
-<header class="w-full fixed top-0 left-0 z-50 bg-white/80 backdrop-blur border-b border-slate-200">
-  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-    <h1 class="text-xl font-extrabold text-slate-900">ClickMenu</h1>
+  <!-- NAVBAR -->
+  <header class="fixed top-0 left-0 right-0 z-50 border-b border-slate-200/80 bg-white/85 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-extrabold shadow-lg">
+          C
+        </div>
+        <div>
+          <div class="text-xl font-extrabold text-slate-900 tracking-tight">ClickMenu</div>
+          <div class="text-xs text-slate-500 -mt-1">Menú online para tu negocio</div>
+        </div>
+      </div>
 
-    <div class="flex items-center gap-4">
-      <a href="/Admin/login.html" class="text-sm font-semibold text-slate-600 hover:text-slate-900">
-        Ingresar
-      </a>
-      <a href="https://wa.me/" target="_blank" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-slate-700">
-        Solicitar demo
-      </a>
+      <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
+        <a href="#beneficios" class="hover:text-slate-900 transition">Beneficios</a>
+        <a href="#funciones" class="hover:text-slate-900 transition">Funciones</a>
+        <a href="#cta" class="hover:text-slate-900 transition">Empezar</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <a href="/Admin/login.html"
+           class="hidden sm:inline-flex px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition">
+          Ingresar
+        </a>
+
+        <a href="https://wa.me/"
+           target="_blank"
+           class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold shadow-lg shadow-slate-900/15 hover:bg-slate-800 transition">
+          Solicitar demo
+        </a>
+      </div>
     </div>
-  </div>
-</header>
+  </header>
 
-<!-- HERO -->
-<section class="pt-32 pb-20 bg-gradient-to-br from-slate-50 to-slate-100">
-  <div class="max-w-7xl mx-auto px-6 text-center">
+  <!-- HERO -->
+  <section class="hero-bg pt-36 pb-24">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-14 items-center">
 
-    <h2 class="text-4xl md:text-6xl font-extrabold leading-tight text-slate-900">
-      Vendé sin comisiones.<br/>
-      <span class="text-slate-600">Controlá todo tu negocio.</span>
-    </h2>
+        <div>
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-700 shadow-sm">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            Más ventas, menos comisiones
+          </div>
 
-    <p class="mt-6 text-lg text-slate-600 max-w-2xl mx-auto">
-      Menú digital, pedidos por WhatsApp, control total y más ganancias.
-      Sin intermediarios. Sin comisiones.
-    </p>
+          <h1 class="mt-6 text-5xl md:text-6xl xl:text-7xl font-extrabold leading-[1.05] tracking-tight text-slate-900">
+            Vendé directo.
+            <span class="block text-slate-500">Controlá todo tu negocio.</span>
+          </h1>
 
-    <div class="mt-10 flex flex-col md:flex-row justify-center gap-4">
-      <a href="https://wa.me/" target="_blank" class="bg-slate-900 text-white px-6 py-3 rounded-xl font-semibold hover:bg-slate-700">
-        Empezar ahora
-      </a>
+          <p class="mt-6 text-lg md:text-xl leading-8 text-slate-600 max-w-2xl">
+            Menú digital con QR, pedidos por WhatsApp, control de productos, horarios,
+            extras y variantes. Todo desde tu propio sistema, sin depender de apps de terceros.
+          </p>
 
-      <a href="/Admin/login.html" class="border border-slate-300 px-6 py-3 rounded-xl font-semibold hover:bg-slate-200">
-        Ver sistema
-      </a>
+          <div class="mt-10 flex flex-col sm:flex-row gap-4">
+            <a href="https://wa.me/"
+               target="_blank"
+               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl bg-slate-900 text-white font-semibold shadow-xl shadow-slate-900/15 hover:bg-slate-800 transition">
+              Empezar ahora
+            </a>
+
+            <a href="/Admin/login.html"
+               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl border border-slate-300 bg-white font-semibold text-slate-800 hover:bg-slate-50 transition">
+              Ver sistema
+            </a>
+          </div>
+
+          <div class="mt-10 grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div class="text-2xl font-extrabold text-slate-900">0%</div>
+              <div class="text-sm text-slate-500 mt-1">Comisión por pedido</div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div class="text-2xl font-extrabold text-slate-900">24/7</div>
+              <div class="text-sm text-slate-500 mt-1">Tu menú disponible</div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm col-span-2 sm:col-span-1">
+              <div class="text-2xl font-extrabold text-slate-900">+Control</div>
+              <div class="text-sm text-slate-500 mt-1">Pedidos, precios y ventas</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div class="absolute -top-6 -left-6 w-24 h-24 rounded-full bg-blue-200/40 blur-2xl"></div>
+          <div class="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-slate-300/30 blur-3xl"></div>
+
+          <div class="relative glass border border-white/70 shadow-2xl shadow-slate-900/10 rounded-[32px] p-5 md:p-6">
+            <div class="rounded-[26px] overflow-hidden border border-slate-200 bg-white">
+              <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <div class="text-sm text-slate-500">Vista rápida</div>
+                  <div class="text-lg font-extrabold text-slate-900">Tu sistema en acción</div>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
+                  Online
+                </span>
+              </div>
+
+              <div class="p-5 space-y-4">
+                <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <div class="font-bold text-slate-900">Menú con QR</div>
+                      <div class="text-sm text-slate-500">Acceso rápido desde el celular</div>
+                    </div>
+                    <div class="text-2xl">📱</div>
+                  </div>
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-4">
+                  <div class="rounded-2xl border border-slate-200 p-4">
+                    <div class="text-sm text-slate-500">Pedidos</div>
+                    <div class="mt-1 text-2xl font-extrabold text-slate-900">En tiempo real</div>
+                  </div>
+                  <div class="rounded-2xl border border-slate-200 p-4">
+                    <div class="text-sm text-slate-500">Cobros</div>
+                    <div class="mt-1 text-2xl font-extrabold text-slate-900">Con recargos</div>
+                  </div>
+                </div>
+
+                <div class="rounded-2xl border border-slate-200 p-4">
+                  <div class="flex items-start justify-between gap-4">
+                    <div>
+                      <div class="font-bold text-slate-900">Productos configurables</div>
+                      <div class="text-sm text-slate-500 mt-1">
+                        Extras, variantes, promociones y categorías.
+                      </div>
+                    </div>
+                    <span class="text-xl">⚙️</span>
+                  </div>
+
+                  <div class="mt-4 flex flex-wrap gap-2">
+                    <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">Extras</span>
+                    <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">Variantes</span>
+                    <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">Promos</span>
+                    <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">WhatsApp</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
     </div>
+  </section>
 
-  </div>
-</section>
-
-<!-- BENEFICIOS -->
-<section class="py-20">
-  <div class="max-w-6xl mx-auto px-6 text-center">
-
-    <h3 class="text-3xl font-bold">¿Por qué elegir ClickMenu?</h3>
-
-    <div class="grid md:grid-cols-3 gap-8 mt-12">
-
-      <div class="p-6 border rounded-2xl">
-        <h4 class="font-bold text-lg">🚀 Más ganancias</h4>
-        <p class="text-slate-600 mt-2">
-          Sin comisiones. Todo lo que vendés es tuyo.
+  <!-- BENEFICIOS -->
+  <section id="beneficios" class="py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+      <div class="max-w-2xl mx-auto text-center">
+        <div class="inline-flex px-4 py-2 rounded-full bg-slate-100 text-slate-700 text-sm font-bold">
+          Beneficios
+        </div>
+        <h2 class="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
+          ¿Por qué elegir ClickMenu?
+        </h2>
+        <p class="mt-4 text-lg text-slate-600">
+          Una solución pensada para restaurantes, pizzerías, panaderías y comercios
+          que quieren vender más y depender menos de terceros.
         </p>
       </div>
 
-      <div class="p-6 border rounded-2xl">
-        <h4 class="font-bold text-lg">📲 Pedidos directos</h4>
-        <p class="text-slate-600 mt-2">
-          WhatsApp integrado. Sin apps intermediarias.
-        </p>
+      <div class="mt-14 grid md:grid-cols-3 gap-6">
+        <div class="rounded-3xl border border-slate-200 p-7 shadow-sm hover:shadow-lg transition bg-white">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-2xl border border-emerald-100">
+            🚀
+          </div>
+          <h3 class="mt-5 text-xl font-extrabold text-slate-900">Más ganancias</h3>
+          <p class="mt-3 text-slate-600 leading-7">
+            Sin comisiones por pedido. Todo lo que vendés queda para vos.
+          </p>
+        </div>
+
+        <div class="rounded-3xl border border-slate-200 p-7 shadow-sm hover:shadow-lg transition bg-white">
+          <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-2xl border border-blue-100">
+            📲
+          </div>
+          <h3 class="mt-5 text-xl font-extrabold text-slate-900">Pedidos directos</h3>
+          <p class="mt-3 text-slate-600 leading-7">
+            Integración con WhatsApp y flujo simple para que el cliente compre rápido.
+          </p>
+        </div>
+
+        <div class="rounded-3xl border border-slate-200 p-7 shadow-sm hover:shadow-lg transition bg-white">
+          <div class="w-14 h-14 rounded-2xl bg-violet-50 flex items-center justify-center text-2xl border border-violet-100">
+            ⚙️
+          </div>
+          <h3 class="mt-5 text-xl font-extrabold text-slate-900">Fácil de administrar</h3>
+          <p class="mt-3 text-slate-600 leading-7">
+            Gestioná productos, precios, horarios, pedidos y reportes desde un solo lugar.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUNCIONES -->
+  <section id="funciones" class="py-24 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-10 items-start">
+        <div>
+          <div class="inline-flex px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-700 text-sm font-bold">
+            Funciones
+          </div>
+          <h2 class="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
+            Todo lo que necesitás para vender online
+          </h2>
+          <p class="mt-5 text-lg text-slate-600 leading-8">
+            Desde la carta digital hasta la recepción del pedido y el control del negocio.
+          </p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="rounded-2xl border border-slate-200 bg-white p-5">
+            <div class="text-lg font-bold text-slate-900">QR y menú digital</div>
+            <div class="text-sm text-slate-500 mt-2">Acceso rápido desde mesa, flyer o redes.</div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-5">
+            <div class="text-lg font-bold text-slate-900">Extras y variantes</div>
+            <div class="text-sm text-slate-500 mt-2">Configuraciones por producto sin desordenar el menú.</div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-5">
+            <div class="text-lg font-bold text-slate-900">Horarios de atención</div>
+            <div class="text-sm text-slate-500 mt-2">Mostrá si el negocio está abierto o cerrado.</div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-5">
+            <div class="text-lg font-bold text-slate-900">Reporte diario</div>
+            <div class="text-sm text-slate-500 mt-2">Controlá ventas y pedidos del día.</div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-5">
+            <div class="text-lg font-bold text-slate-900">Recargos por pago</div>
+            <div class="text-sm text-slate-500 mt-2">Aplicá reglas según efectivo, transferencia o tarjeta.</div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-5">
+            <div class="text-lg font-bold text-slate-900">Panel admin</div>
+            <div class="text-sm text-slate-500 mt-2">Todo centralizado y simple de usar.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="cta" class="py-24 bg-white">
+    <div class="max-w-5xl mx-auto px-6 lg:px-8">
+      <div class="rounded-[32px] bg-slate-900 text-white p-10 md:p-14 shadow-2xl shadow-slate-900/20">
+        <div class="max-w-3xl">
+          <div class="inline-flex px-4 py-2 rounded-full bg-white/10 text-white text-sm font-bold border border-white/10">
+            Empezá hoy
+          </div>
+
+          <h2 class="mt-5 text-4xl md:text-5xl font-extrabold leading-tight">
+            Tené tu sistema online y empezá a vender sin intermediarios.
+          </h2>
+
+          <p class="mt-5 text-slate-300 text-lg leading-8">
+            Menú digital, pedidos directos y administración completa en una sola solución.
+          </p>
+
+          <div class="mt-8 flex flex-col sm:flex-row gap-4">
+            <a href="https://wa.me/"
+               target="_blank"
+               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl bg-white text-slate-900 font-bold hover:bg-slate-100 transition">
+              Solicitar demo
+            </a>
+
+            <a href="/Admin/login.html"
+               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl border border-white/20 text-white font-bold hover:bg-white/10 transition">
+              Ingresar al sistema
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-200 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div>
+        <div class="font-extrabold text-slate-900">ClickMenu</div>
+        <div class="text-sm text-slate-500">© 2026 Todos los derechos reservados</div>
       </div>
 
-      <div class="p-6 border rounded-2xl">
-        <h4 class="font-bold text-lg">⚙️ Fácil de usar</h4>
-        <p class="text-slate-600 mt-2">
-          Administrá productos, precios y pedidos en segundos.
-        </p>
+      <div class="flex items-center gap-5 text-sm font-semibold text-slate-500">
+        <a href="#beneficios" class="hover:text-slate-800">Beneficios</a>
+        <a href="#funciones" class="hover:text-slate-800">Funciones</a>
+        <a href="/Admin/login.html" class="hover:text-slate-800">Ingresar</a>
       </div>
-
     </div>
-  </div>
-</section>
-
-<!-- FEATURES -->
-<section class="py-20 bg-slate-50">
-  <div class="max-w-6xl mx-auto px-6">
-
-    <h3 class="text-3xl font-bold text-center">Todo lo que necesitás</h3>
-
-    <div class="grid md:grid-cols-2 gap-10 mt-12">
-
-      <ul class="space-y-4 text-slate-700">
-        <li>✔ Menú digital con QR</li>
-        <li>✔ Productos configurables (extras, variantes)</li>
-        <li>✔ Pedidos en tiempo real</li>
-        <li>✔ Control de horarios</li>
-      </ul>
-
-      <ul class="space-y-4 text-slate-700">
-        <li>✔ Reporte diario de ventas</li>
-        <li>✔ Recargo por medio de pago</li>
-        <li>✔ Integración con WhatsApp</li>
-        <li>✔ Panel de administración completo</li>
-      </ul>
-
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="py-20 text-center">
-  <h3 class="text-3xl font-bold">Empezá a vender hoy</h3>
-  <p class="text-slate-600 mt-4">En minutos podés tener tu menú online funcionando</p>
-
-  <a href="https://wa.me/" target="_blank" class="inline-block mt-8 bg-slate-900 text-white px-8 py-4 rounded-xl font-semibold hover:bg-slate-700">
-    Solicitar demo
-  </a>
-</section>
-
-<!-- FOOTER -->
-<footer class="py-10 border-t text-center text-sm text-slate-500">
-  © 2026 ClickMenu — Todos los derechos reservados
-</footer>
+  </footer>
 
 </body>
-
 </html>
