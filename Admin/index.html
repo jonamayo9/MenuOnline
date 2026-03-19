@@ -768,6 +768,25 @@ function getSlugFromHostname(){
   return "";
 }
 
+function cleanSlugQueryParams(){
+  const url = new URL(window.location.href);
+  const hadSlug =
+    url.searchParams.has("companySlug") ||
+    url.searchParams.has("c");
+
+  if(!hadSlug) return;
+
+  url.searchParams.delete("companySlug");
+  url.searchParams.delete("c");
+
+  const newUrl =
+    url.pathname +
+    (url.searchParams.toString() ? `?${url.searchParams.toString()}` : "") +
+    url.hash;
+
+  window.history.replaceState({}, document.title, newUrl);
+}
+
 function getCompanySlug(){
   const fromHost = getSlugFromHostname();
   if(fromHost){
@@ -779,7 +798,22 @@ function getCompanySlug(){
   const fromQuery = (qs.get("companySlug") || qs.get("c") || "").trim();
   if(fromQuery){
     localStorage.setItem(SLUG_KEY, fromQuery);
+    cleanSlugQueryParams();
     return fromQuery;
+  }
+
+  const host = String(window.location.hostname || "").trim().toLowerCase();
+  const rootDomain = getConfiguredPublicRootDomain();
+
+  const isRootDomain =
+    host === rootDomain ||
+    host === `www.${rootDomain}` ||
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host.endsWith(".local");
+
+  if(isRootDomain){
+    return "";
   }
 
   return (localStorage.getItem(SLUG_KEY) || "").trim();
@@ -2672,10 +2706,6 @@ function modificar(id, delta){
         updateCheckoutButton();
       }
     }
-
-function isUsingSubdomainMode(){
-  return false;
-}
 
 function buildPublicApiPath(path, companySlug){
   const cleanPath = String(path || "").startsWith("/") ? path : `/${path}`;
