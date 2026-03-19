@@ -6,28 +6,6 @@
   <title>ClickMenu | Vendé sin comisiones</title>
   <meta name="description" content="Menú digital con QR, pedidos directos y administración completa para restaurantes, pizzerías y comercios." />
 
-  <script>
-    (function () {
-      const host = window.location.hostname.toLowerCase();
-      const rootDomain = "pedidoclick.com.ar";
-      const reserved = ["www", "app", "admin"];
-
-      if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) {
-        return;
-      }
-
-      if (host.endsWith("." + rootDomain)) {
-        const sub = host.slice(0, -("." + rootDomain).length).trim();
-
-        if (sub && !sub.includes(".") && !reserved.includes(sub)) {
-          // En subdominios tipo: como-en-casa.pedidoclick.com.ar
-          // redirige a la página pública sin querystring
-          window.location.replace("/index.html");
-        }
-      }
-    })();
-  </script>
-
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
@@ -463,57 +441,63 @@
       const links = document.querySelectorAll(".js-go-to-app");
       if (!links.length) return;
 
-      function readJson(key) {
+      const TOKEN_KEY = "menuonline_token";
+      const ROLE_KEY = "menuonline_role";
+
+      function parseJwt(token) {
         try {
-          const raw = localStorage.getItem(key);
-          return raw ? JSON.parse(raw) : null;
+          const base64Url = token.split(".")[1];
+          const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+          const json = decodeURIComponent(
+            atob(base64)
+              .split("")
+              .map(c => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
+              .join("")
+          );
+          return JSON.parse(json);
         } catch {
           return null;
         }
       }
 
-      function getSession() {
-        const token =
-          localStorage.getItem("token") ||
-          localStorage.getItem("authToken") ||
-          localStorage.getItem("accessToken");
-
-        const user =
-          readJson("user") ||
-          readJson("adminUser") ||
-          readJson("sessionUser");
-
-        return { token, user };
+      function isTokenValid(token) {
+        const payload = parseJwt(token);
+        const exp = payload?.exp;
+        if (!exp) return false;
+        const now = Math.floor(Date.now() / 1000);
+        return exp > now;
       }
 
-      function getRole(user) {
-        if (!user) return "";
+      function getRole() {
+        const savedRole = String(localStorage.getItem(ROLE_KEY) || "").toLowerCase();
+        if (savedRole) return savedRole;
 
-        if (typeof user.role === "string") return user.role.toLowerCase();
-        if (typeof user.userRole === "string") return user.userRole.toLowerCase();
-        if (typeof user.type === "string") return user.type.toLowerCase();
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (!token) return "";
 
-        if (Array.isArray(user.roles) && user.roles.length) {
-          return String(user.roles[0]).toLowerCase();
-        }
-
-        return "";
+        const payload = parseJwt(token);
+        return String(
+          payload?.role ||
+          payload?.Role ||
+          payload?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ||
+          ""
+        ).toLowerCase();
       }
 
       function resolveAppUrl() {
-        const { token, user } = getSession();
+        const token = localStorage.getItem(TOKEN_KEY);
 
-        if (!token) {
-          return "/login.html";
+        if (!token || !isTokenValid(token)) {
+          return "/Admin/login.html";
         }
 
-        const role = getRole(user);
+        const role = getRole();
 
         if (role === "superadmin") {
           return "/SuperAdmin/companies.html";
         }
 
-        return "/home.html";
+        return "/Admin/home.html";
       }
 
       links.forEach(link => {
