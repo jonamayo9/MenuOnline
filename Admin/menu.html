@@ -751,13 +751,12 @@ function getReservedSubdomains(){
 function getSlugFromHostname(){
   const host = String(window.location.hostname || "").trim().toLowerCase();
   if(!host) return "";
-
   if(host === "localhost" || host === "127.0.0.1") return "";
 
-  const rootDomain = getConfiguredPublicRootDomain();
-  const reserved = getReservedSubdomains();
+  const rootDomain = "pedidoclick.com.ar";
+  const reserved = ["www", "admin"];
 
-  if(rootDomain && host.endsWith("." + rootDomain)){
+  if(host.endsWith("." + rootDomain)){
     const sub = host.slice(0, host.length - rootDomain.length - 1).trim();
     if(!sub) return "";
     if(sub.includes(".")) return "";
