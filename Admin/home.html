@@ -1022,31 +1022,7 @@
 
 function buildPublicMenuUrl(slug){
   if(!slug) return "";
-
-  const mode = String(appConfig?.publicMenuMode || "path").toLowerCase();
-
-  if(mode === "subdomain"){
-    const protocol = appConfig?.publicMenuProtocol || "https";
-    const rootDomain = String(appConfig?.publicMenuRootDomain || "").trim();
-    const path = String(appConfig?.publicMenuSubdomainPath || "").trim();
-
-    if(!rootDomain){
-      return "";
-    }
-
-    return `${protocol}://${slug}.${rootDomain}${path}`;
-  }
-
-  if(mode === "template"){
-    const template = String(appConfig?.publicMenuUrlTemplate || "").trim();
-    if(!template){
-      return "";
-    }
-    return normalizeTemplateValue(template, slug);
-  }
-
-  const pathTemplate = String(appConfig?.publicMenuPathTemplate || "/Admin/index.html?companySlug={slug}").trim();
-  return normalizeTemplateValue(pathTemplate, slug);
+  return `/menu/${encodeURIComponent(slug)}`;
 }
 
     function setPublicMenuLink(slug){

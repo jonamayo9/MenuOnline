@@ -17,6 +17,7 @@
       --muted: #475569;
       --line: #e2e8f0;
       --primary: #111827;
+      --soft: rgba(255,255,255,.78);
     }
 
     html {
@@ -27,14 +28,14 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       color: var(--ink);
       background:
-        radial-gradient(circle at top left, rgba(59,130,246,.16), transparent 28%),
-        radial-gradient(circle at top right, rgba(99,102,241,.12), transparent 24%),
+        radial-gradient(circle at top left, rgba(59,130,246,.14), transparent 28%),
+        radial-gradient(circle at top right, rgba(99,102,241,.10), transparent 24%),
         linear-gradient(180deg, #f8fafc 0%, #eef2ff 38%, #ffffff 100%);
     }
 
     .glass {
       background: rgba(255,255,255,.74);
-      backdrop-filter: blur(14px);
+      backdrop-filter: blur(16px);
     }
 
     .hero-grid {
@@ -49,7 +50,7 @@
     .spotlight {
       position: absolute;
       border-radius: 9999px;
-      filter: blur(64px);
+      filter: blur(70px);
       opacity: .45;
       pointer-events: none;
     }
@@ -77,12 +78,69 @@
     .ring-soft {
       box-shadow: 0 0 0 1px rgba(226, 232, 240, 0.9) inset;
     }
+
+    .hero-chip {
+      background: rgba(255,255,255,.86);
+      border: 1px solid rgba(226,232,240,.95);
+      box-shadow: 0 10px 30px rgba(15,23,42,.05);
+    }
+
+    .cta-main {
+      background: #111827;
+      color: white;
+      box-shadow: 0 20px 40px rgba(17,24,39,.18);
+      transition: all .2s ease;
+    }
+
+    .cta-main:hover {
+      transform: translateY(-2px);
+      background: #0f172a;
+    }
+
+    .soft-panel {
+      background: linear-gradient(180deg, rgba(255,255,255,.9) 0%, rgba(255,255,255,.75) 100%);
+      border: 1px solid rgba(226,232,240,.9);
+      box-shadow: 0 18px 40px rgba(15,23,42,.06);
+    }
+
+    .gradient-border {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gradient-border::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      padding: 1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(59,130,246,.35), rgba(99,102,241,.2), rgba(255,255,255,.1));
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .mini-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 6px rgba(34,197,94,.12);
+    }
+
+    @media (max-width: 768px) {
+      .mobile-center {
+        text-align: center;
+      }
+    }
   </style>
 </head>
 
 <body class="text-slate-800">
 
-  <!-- NAVBAR -->
   <header class="fixed top-0 left-0 right-0 z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl">
     <div class="max-w-7xl mx-auto px-6 lg:px-8 h-20 flex items-center justify-between">
       <a href="/index.html" class="flex items-center gap-3">
@@ -99,25 +157,16 @@
         <a href="#beneficios" class="hover:text-slate-900 transition">Beneficios</a>
         <a href="#funciones" class="hover:text-slate-900 transition">Funciones</a>
         <a href="#rubros" class="hover:text-slate-900 transition">Rubros</a>
-        <a href="#cta" class="hover:text-slate-900 transition">Empezar</a>
+        <a href="#cta" class="hover:text-slate-900 transition">Contacto</a>
       </nav>
 
-      <div class="flex items-center gap-3">
-        <a href="/Admin/login.html"
-           class="js-go-to-app hidden sm:inline-flex text-sm font-semibold text-slate-600 hover:text-slate-900 transition">
-          Ingresar
-        </a>
-
-        <a href="https://wa.me/"
-           target="_blank"
-           class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold shadow-lg shadow-slate-900/15 hover:bg-slate-800 transition">
-          Solicitar demo
-        </a>
-      </div>
+      <a href="#cta"
+         class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold shadow-lg shadow-slate-900/15 hover:bg-slate-800 transition">
+        Contactar
+      </a>
     </div>
   </header>
 
-  <!-- HERO -->
   <section class="relative overflow-hidden pt-36 pb-24 lg:pt-40 lg:pb-28">
     <div class="spotlight w-72 h-72 bg-blue-300 top-10 left-[-40px]"></div>
     <div class="spotlight w-72 h-72 bg-violet-300 top-24 right-[-30px]"></div>
@@ -126,32 +175,31 @@
     <div class="relative max-w-7xl mx-auto px-6 lg:px-8">
       <div class="grid lg:grid-cols-2 gap-14 items-center">
 
-        <div>
-          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-700 badge-shadow">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+        <div class="mobile-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full hero-chip text-sm font-semibold text-slate-700 badge-shadow">
+            <span class="mini-dot"></span>
             Más ventas, menos comisiones
           </div>
 
           <h1 class="mt-6 text-5xl md:text-6xl xl:text-7xl font-extrabold leading-[1.02] tracking-tight text-slate-900">
             Vendé directo.
-            <span class="block text-slate-500">Controlá todo tu negocio.</span>
+            <span class="block text-slate-500">Mostrá tu negocio mejor.</span>
           </h1>
 
-          <p class="mt-6 text-lg md:text-xl leading-8 text-slate-600 max-w-2xl">
+          <p class="mt-6 text-lg md:text-xl leading-8 text-slate-600 max-w-2xl lg:max-w-xl">
             Menú digital con QR, pedidos por WhatsApp, control de productos, horarios,
-            extras, variantes y reportes. Todo desde tu propio sistema, sin depender de apps de terceros.
+            extras, variantes y reportes. Todo en una sola solución para vender más y trabajar más simple.
           </p>
 
-          <div class="mt-10 flex flex-col sm:flex-row gap-4">
-            <a href="https://wa.me/"
-               target="_blank"
-               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl bg-slate-900 text-white font-semibold shadow-xl shadow-slate-900/15 hover:bg-slate-800 transition">
-              Empezar ahora
+          <div class="mt-10 flex flex-col sm:flex-row gap-4 lg:justify-start justify-center">
+            <a href="#cta"
+               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl border border-slate-300 bg-white font-semibold text-slate-800 hover:bg-slate-50 transition">
+              Ver cómo funciona
             </a>
 
-            <a href="/Admin/login.html"
-               class="js-go-to-app inline-flex items-center justify-center px-7 py-4 rounded-2xl border border-slate-300 bg-white font-semibold text-slate-800 hover:bg-slate-50 transition">
-              Ver sistema
+            <a href="#cta"
+               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl cta-main font-semibold">
+              Hablar por WhatsApp
             </a>
           </div>
 
@@ -175,7 +223,7 @@
           <div class="absolute -top-6 -left-6 w-28 h-28 rounded-full bg-blue-200/40 blur-3xl"></div>
           <div class="absolute -bottom-8 -right-8 w-36 h-36 rounded-full bg-violet-200/40 blur-3xl"></div>
 
-          <div class="relative glass border border-white/70 rounded-[32px] p-5 md:p-6 hero-shadow">
+          <div class="relative glass gradient-border rounded-[32px] p-5 md:p-6 hero-shadow">
             <div class="rounded-[26px] overflow-hidden border border-slate-200 bg-white">
               <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
                 <div>
@@ -247,7 +295,6 @@
     </div>
   </section>
 
-  <!-- BENEFICIOS -->
   <section id="beneficios" class="py-24 bg-white">
     <div class="max-w-7xl mx-auto px-6 lg:px-8">
       <div class="max-w-2xl mx-auto text-center">
@@ -297,7 +344,6 @@
     </div>
   </section>
 
-  <!-- FUNCIONES -->
   <section id="funciones" class="py-24 bg-slate-50">
     <div class="max-w-7xl mx-auto px-6 lg:px-8">
       <div class="grid lg:grid-cols-2 gap-10 items-start">
@@ -343,7 +389,6 @@
     </div>
   </section>
 
-  <!-- RUBROS -->
   <section id="rubros" class="py-24 bg-white">
     <div class="max-w-7xl mx-auto px-6 lg:px-8">
       <div class="max-w-2xl">
@@ -386,41 +431,48 @@
     </div>
   </section>
 
-  <!-- CTA -->
   <section id="cta" class="py-24 bg-white">
     <div class="max-w-5xl mx-auto px-6 lg:px-8">
-      <div class="rounded-[32px] bg-slate-900 text-white p-10 md:p-14 shadow-2xl shadow-slate-900/20">
+      <div class="rounded-[32px] soft-panel p-8 md:p-12">
         <div class="max-w-3xl">
-          <div class="inline-flex px-4 py-2 rounded-full bg-white/10 text-white text-sm font-bold border border-white/10">
-            Empezá hoy
+          <div class="inline-flex px-4 py-2 rounded-full bg-slate-100 text-slate-700 text-sm font-bold border border-slate-200">
+            Contacto directo
           </div>
 
-          <h2 class="mt-5 text-4xl md:text-5xl font-extrabold leading-tight">
-            Tené tu sistema online y empezá a vender sin intermediarios.
+          <h2 class="mt-5 text-4xl md:text-5xl font-extrabold leading-tight text-slate-900">
+            ¿Querés tu menú online para tu negocio?
           </h2>
 
-          <p class="mt-5 text-slate-300 text-lg leading-8">
-            Menú digital, pedidos directos y administración completa en una sola solución.
+          <p class="mt-5 text-slate-600 text-lg leading-8">
+            Escribime por WhatsApp y te muestro cómo quedaría tu sistema, tu menú y la forma de trabajo para tu rubro.
           </p>
 
           <div class="mt-8 flex flex-col sm:flex-row gap-4">
-            <a href="https://wa.me/"
+            <a id="btnWhatsAppMain"
+               href="#"
                target="_blank"
-               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl bg-white text-slate-900 font-bold hover:bg-slate-100 transition">
-              Solicitar demo
+               rel="noopener"
+               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl cta-main font-bold">
+              Hablar por WhatsApp
             </a>
 
-            <a href="/Admin/login.html"
-               class="js-go-to-app inline-flex items-center justify-center px-7 py-4 rounded-2xl border border-white/20 text-white font-bold hover:bg-white/10 transition">
-              Ingresar al sistema
+            <a id="btnWhatsAppAlt"
+               href="#"
+               target="_blank"
+               rel="noopener"
+               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl border border-slate-300 bg-white text-slate-800 font-bold hover:bg-slate-50 transition">
+              Pedir demo
             </a>
+          </div>
+
+          <div class="mt-6 text-sm text-slate-500">
+            Respondemos consultas para restaurantes, pizzerías, panaderías y comercios.
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- FOOTER -->
   <footer class="border-t border-slate-200 bg-slate-50">
     <div class="max-w-7xl mx-auto px-6 lg:px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
       <div>
@@ -431,18 +483,48 @@
       <div class="flex items-center gap-5 text-sm font-semibold text-slate-500">
         <a href="#beneficios" class="hover:text-slate-800">Beneficios</a>
         <a href="#funciones" class="hover:text-slate-800">Funciones</a>
-        <a href="/Admin/login.html" class="js-go-to-app hover:text-slate-800">Ingresar</a>
+        <a href="#cta" class="hover:text-slate-800">Contacto</a>
       </div>
     </div>
   </footer>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      const links = document.querySelectorAll(".js-go-to-app");
-      if (!links.length) return;
-
       const TOKEN_KEY = "menuonline_token";
       const ROLE_KEY = "menuonline_role";
+
+      const LANDING_WHATSAPP = "5491140733436";
+      const WHATSAPP_MESSAGE = "Hola! Quiero información sobre ClickMenu para mi negocio.";
+
+      function sanitizePhone(value) {
+        return String(value || "").replace(/\D/g, "");
+      }
+
+      function buildWhatsAppUrl() {
+        const phone = sanitizePhone(LANDING_WHATSAPP);
+        if (!phone || phone.includes("XXXXXXXX")) return "#";
+        return `https://wa.me/${phone}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+      }
+
+      function wireWhatsAppButtons() {
+        const url = buildWhatsAppUrl();
+        const buttons = [
+          document.getElementById("btnWhatsAppMain"),
+          document.getElementById("btnWhatsAppAlt")
+        ].filter(Boolean);
+
+        buttons.forEach(btn => {
+          if (url === "#") {
+            btn.href = "#";
+            btn.addEventListener("click", function (e) {
+              e.preventDefault();
+              alert("Configurá tu número en LANDING_WHATSAPP dentro del HTML.");
+            });
+          } else {
+            btn.href = url;
+          }
+        });
+      }
 
       function parseJwt(token) {
         try {
@@ -500,12 +582,7 @@
         return "/Admin/home.html";
       }
 
-      links.forEach(link => {
-        link.addEventListener("click", function (e) {
-          e.preventDefault();
-          window.location.assign(resolveAppUrl());
-        });
-      });
+      wireWhatsAppButtons();
     });
   </script>
 
