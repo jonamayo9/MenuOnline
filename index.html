@@ -1,69 +1,26 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
- <script>
-  (function () {
-    const btn = document.getElementById("goToAppBtn");
-    if (!btn) return;
+  <script>
+    (function () {
+      const host = window.location.hostname.toLowerCase();
+      const rootDomain = "pedidoclick.com.ar";
+      const reserved = ["www", "app", "admin"];
 
-    function readJson(key) {
-      try {
-        const raw = localStorage.getItem(key);
-        return raw ? JSON.parse(raw) : null;
-      } catch {
-        return null;
-      }
-    }
-
-    function getSession() {
-      const token =
-        localStorage.getItem("token") ||
-        localStorage.getItem("authToken") ||
-        localStorage.getItem("accessToken");
-
-      const user =
-        readJson("user") ||
-        readJson("adminUser") ||
-        readJson("sessionUser");
-
-      return { token, user };
-    }
-
-    function getRole(user) {
-      if (!user) return "";
-
-      if (typeof user.role === "string") return user.role.toLowerCase();
-      if (typeof user.userRole === "string") return user.userRole.toLowerCase();
-      if (typeof user.type === "string") return user.type.toLowerCase();
-
-      if (Array.isArray(user.roles) && user.roles.length) {
-        return String(user.roles[0]).toLowerCase();
-      }
-
-      return "";
-    }
-
-    btn.addEventListener("click", function (e) {
-      const { token, user } = getSession();
-
-      if (!token) {
-        btn.setAttribute("href", "/Admin/login.html");
+      if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) {
         return;
       }
 
-      e.preventDefault();
+      if (host.endsWith("." + rootDomain)) {
+        const sub = host.slice(0, -("." + rootDomain).length).trim();
 
-      const role = getRole(user);
-
-      if (role === "superadmin") {
-        window.location.href = "/SuperAdmin/companies.html";
-        return;
+        if (sub && !sub.includes(".") && !reserved.includes(sub)) {
+          window.location.replace(`/Admin/index.html?companySlug=${encodeURIComponent(sub)}`);
+        }
       }
+    })();
+  </script>
 
-      window.location.href = "/Admin/home.html";
-    });
-  })();
-</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ClickMenu | Vendé sin comisiones</title>
@@ -112,12 +69,11 @@
       </nav>
 
       <div class="flex items-center gap-3">
-        <a href="/Admin/login.html" id="goToAppBtn" class="text-sm font-semibold text-slate-600 hover:text-slate-900">
-        Ingresar
+        <a href="/Admin/login.html" class="js-go-to-app text-sm font-semibold text-slate-600 hover:text-slate-900">
+          Ingresar
         </a>
 
-        <a href="https://wa.me/"
-           target="_blank"
+        <a href="https://wa.me/" target="_blank"
            class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold shadow-lg shadow-slate-900/15 hover:bg-slate-800 transition">
           Solicitar demo
         </a>
@@ -147,14 +103,13 @@
           </p>
 
           <div class="mt-10 flex flex-col sm:flex-row gap-4">
-            <a href="https://wa.me/"
-               target="_blank"
+            <a href="https://wa.me/" target="_blank"
                class="inline-flex items-center justify-center px-7 py-4 rounded-2xl bg-slate-900 text-white font-semibold shadow-xl shadow-slate-900/15 hover:bg-slate-800 transition">
               Empezar ahora
             </a>
 
             <a href="/Admin/login.html"
-               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl border border-slate-300 bg-white font-semibold text-slate-800 hover:bg-slate-50 transition">
+               class="js-go-to-app inline-flex items-center justify-center px-7 py-4 rounded-2xl border border-slate-300 bg-white font-semibold text-slate-800 hover:bg-slate-50 transition">
               Ver sistema
             </a>
           </div>
@@ -355,14 +310,13 @@
           </p>
 
           <div class="mt-8 flex flex-col sm:flex-row gap-4">
-            <a href="https://wa.me/"
-               target="_blank"
+            <a href="https://wa.me/" target="_blank"
                class="inline-flex items-center justify-center px-7 py-4 rounded-2xl bg-white text-slate-900 font-bold hover:bg-slate-100 transition">
               Solicitar demo
             </a>
 
             <a href="/Admin/login.html"
-               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl border border-white/20 text-white font-bold hover:bg-white/10 transition">
+               class="js-go-to-app inline-flex items-center justify-center px-7 py-4 rounded-2xl border border-white/20 text-white font-bold hover:bg-white/10 transition">
               Ingresar al sistema
             </a>
           </div>
@@ -382,10 +336,77 @@
       <div class="flex items-center gap-5 text-sm font-semibold text-slate-500">
         <a href="#beneficios" class="hover:text-slate-800">Beneficios</a>
         <a href="#funciones" class="hover:text-slate-800">Funciones</a>
-        <a href="/Admin/login.html" class="hover:text-slate-800">Ingresar</a>
+        <a href="/Admin/login.html" class="js-go-to-app hover:text-slate-800">Ingresar</a>
       </div>
     </div>
   </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const links = document.querySelectorAll(".js-go-to-app");
+      if (!links.length) return;
+
+      function readJson(key) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : null;
+        } catch {
+          return null;
+        }
+      }
+
+      function getSession() {
+        const token =
+          localStorage.getItem("token") ||
+          localStorage.getItem("authToken") ||
+          localStorage.getItem("accessToken");
+
+        const user =
+          readJson("user") ||
+          readJson("adminUser") ||
+          readJson("sessionUser");
+
+        return { token, user };
+      }
+
+      function getRole(user) {
+        if (!user) return "";
+
+        if (typeof user.role === "string") return user.role.toLowerCase();
+        if (typeof user.userRole === "string") return user.userRole.toLowerCase();
+        if (typeof user.type === "string") return user.type.toLowerCase();
+
+        if (Array.isArray(user.roles) && user.roles.length) {
+          return String(user.roles[0]).toLowerCase();
+        }
+
+        return "";
+      }
+
+      function resolveAppUrl() {
+        const { token, user } = getSession();
+
+        if (!token) {
+          return "/Admin/login.html";
+        }
+
+        const role = getRole(user);
+
+        if (role === "superadmin") {
+          return "/SuperAdmin/companies.html";
+        }
+
+        return "/Admin/home.html";
+      }
+
+      links.forEach(link => {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          window.location.href = resolveAppUrl();
+        });
+      });
+    });
+  </script>
 
 </body>
 </html>
