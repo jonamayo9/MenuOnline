@@ -145,7 +145,7 @@
     <div class="max-w-7xl mx-auto px-6 lg:px-8 h-20 flex items-center justify-between">
       <a href="/index.html" class="flex items-center gap-3">
         <div class="w-11 h-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-extrabold shadow-lg">
-          C
+          P
         </div>
         <div>
           <div class="text-xl font-extrabold text-slate-900 tracking-tight">PedidoClick</div>
@@ -160,10 +160,17 @@
         <a href="#cta" class="hover:text-slate-900 transition">Contacto</a>
       </nav>
 
-      <a href="#cta"
-         class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold shadow-lg shadow-slate-900/15 hover:bg-slate-800 transition">
-        Contactar
-      </a>
+      <div class="flex items-center gap-3">
+        <a href="/Admin/login.html"
+           class="js-go-to-app hidden sm:inline-flex items-center justify-center px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-slate-800 hover:bg-slate-50 transition">
+          Soy cliente
+        </a>
+
+        <a href="#cta"
+           class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold shadow-lg shadow-slate-900/15 hover:bg-slate-800 transition">
+          Contactar
+        </a>
+      </div>
     </div>
   </header>
 
@@ -581,6 +588,15 @@
 
         return "/Admin/home.html";
       }
+
+      const links = document.querySelectorAll(".js-go-to-app");
+
+      links.forEach(link => {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          window.location.assign(resolveAppUrl());
+        });
+      });
 
       wireWhatsAppButtons();
     });
