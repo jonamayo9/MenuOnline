@@ -31,11 +31,18 @@
 
     *, *::before, *::after { box-sizing: border-box; }
 
+    html, body {
+      min-height: 100vh;
+    }
+
     body {
       font-family: 'DM Sans', sans-serif;
       background: var(--surface-2);
       color: var(--ink);
-      min-height: 100vh;
+    }
+
+    body.modal-open {
+      overflow: hidden;
     }
 
     h1, h2, h3, h4, .font-display {
@@ -198,6 +205,44 @@
       border-radius: 30px;
     }
 
+    .modal-frame{
+      width:100%;
+      max-width:1100px;
+      max-height:calc(100vh - 48px);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+
+    .modal-header-sticky{
+      position:sticky;
+      top:0;
+      z-index:5;
+      background:rgba(255,255,255,.98);
+      border-bottom:1px solid #e2e8f0;
+      border-top-left-radius:30px;
+      border-top-right-radius:30px;
+    }
+
+    .modal-body-scroll{
+      flex:1 1 auto;
+      overflow-y:auto;
+      overflow-x:hidden;
+      padding:24px 32px;
+      min-height:0;
+    }
+
+    .modal-footer-sticky{
+      position:sticky;
+      bottom:0;
+      z-index:5;
+      background:rgba(255,255,255,.98);
+      border-top:1px solid #e2e8f0;
+      border-bottom-left-radius:30px;
+      border-bottom-right-radius:30px;
+      padding:20px 32px;
+    }
+
     .feature-box{
       background:#f8fafc;
       border:1px solid var(--border);
@@ -208,6 +253,42 @@
     .feature-box:hover{
       background:#fff;
       border-color:#dbe4ef;
+    }
+
+    .config-box{
+      background:#fbfcff;
+      border:1px solid #e2e8f0;
+      border-radius:24px;
+    }
+
+    .option-card{
+      background:#ffffff;
+      border:1px solid #e2e8f0;
+      border-radius:24px;
+      box-shadow:0 14px 34px rgba(15,23,42,.06);
+      padding:18px;
+      transition:.2s ease;
+    }
+
+    .option-card:hover{
+      border-color:#cbd5f5;
+      box-shadow:0 20px 50px rgba(15,23,42,.08);
+    }
+
+    .variant-pill{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      border-radius:18px;
+      padding:10px 12px;
+    }
+
+    .option-stack{
+      display:flex;
+      flex-direction:column;
+      gap:16px;
     }
 
     @media (max-width: 860px) {
@@ -226,6 +307,26 @@
         font-size: 9px !important;
         letter-spacing: 0.16em !important;
       }
+
+      .variant-pill{
+        flex-direction:column;
+      }
+
+      .modal-frame{
+        max-height:calc(100vh - 24px);
+      }
+
+      .modal-body-scroll{
+        padding:18px 18px 22px;
+      }
+
+      .modal-footer-sticky{
+        padding:16px 18px 18px;
+      }
+
+      .modal-header-sticky{
+        padding:18px 18px 16px !important;
+      }
     }
   </style>
 </head>
@@ -234,7 +335,7 @@
 <div class="bg-animated"></div>
 
 <div style="position:relative;z-index:1;min-height:100vh;">
-  <div class="brand-strip sticky top-0 z-50">
+  <div class="brand-strip sticky top-0 z-40">
     <div class="brand-strip-inner" style="max-width:1200px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;column-gap:14px;">
       <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 auto;">
         <div style="width:28px;height:28px;background:var(--ink);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -250,7 +351,7 @@
 
       <div class="brand-right" style="flex:0 1 auto;text-align:right;min-width:0;">
         <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted-2);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-          Digital Solutions for Local Commerce
+          Soluciones digitales para comercio local
         </span>
       </div>
     </div>
@@ -258,7 +359,6 @@
 
   <div style="max-width:1200px;margin:0 auto;padding:32px 24px 48px;">
 
-    <!-- Header -->
     <div class="hero-card hero-glow relative p-6 md:p-8 mb-6">
       <div class="relative z-[1] flex justify-between items-center flex-wrap gap-4">
         <div class="flex items-center gap-4 min-w-0">
@@ -271,7 +371,7 @@
           <div class="min-w-0">
             <div class="flex items-center gap-2 flex-wrap mb-3">
               <div class="chip" style="background:rgba(91,78,248,0.18);border:1px solid rgba(91,78,248,0.24);color:#d7d3ff;">
-                Admin Panel
+                Panel de administración
               </div>
               <div class="chip" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);">
                 Productos
@@ -290,7 +390,6 @@
       </div>
     </div>
 
-    <!-- Nuevo producto -->
     <div class="glass-card rounded-[2rem] p-6 md:p-8 mb-6">
       <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
         <div>
@@ -360,7 +459,7 @@
             </div>
           </label>
 
-          <label class="feature-box flex items-center gap-3 px-4 py-4 cursor-pointer">
+          <label id="visibleInTablesBlock" class="feature-box flex items-center gap-3 px-4 py-4 cursor-pointer">
             <input id="visibleInTables" type="checkbox" class="h-4 w-4" checked />
             <div>
               <div class="text-sm font-semibold text-slate-800">Visible para mesas</div>
@@ -368,13 +467,62 @@
             </div>
           </label>
 
-          <label class="feature-box flex items-center gap-3 px-4 py-4 cursor-pointer">
+          <label id="isInternalForTablesBlock" class="feature-box flex items-center gap-3 px-4 py-4 cursor-pointer">
             <input id="isInternalForTables" type="checkbox" class="h-4 w-4" />
             <div>
               <div class="text-sm font-semibold text-slate-800">Interno para mesas</div>
               <div class="text-xs text-slate-500 mt-1">No va a carta pública, solo uso interno.</div>
             </div>
           </label>
+        </div>
+
+        <div class="md:col-span-3 config-box p-5 md:p-6">
+          <div class="flex items-center justify-between flex-wrap gap-3 mb-5">
+            <div>
+              <div class="text-xl font-extrabold tracking-tight text-slate-900 font-display">Configuración del producto</div>
+              <div class="text-sm text-slate-500 mt-1">Usalo para productos como media docena de empanadas o pizza mitad y mitad.</div>
+            </div>
+
+            <label class="feature-box flex items-center gap-3 px-4 py-3 cursor-pointer">
+              <input id="hasConfiguration" type="checkbox" class="h-4 w-4" />
+              <div>
+                <div class="text-sm font-semibold text-slate-800">Producto configurable</div>
+              </div>
+            </label>
+          </div>
+
+          <div id="configSection" class="hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+              <div>
+                <label class="field-label">Unidades requeridas</label>
+                <input id="requiredSelectionUnits" type="number" min="1" placeholder="Ej: 6" class="field-input"/>
+                <p class="text-[11px] text-slate-400 mt-2">Ej: 6 para media docena, 12 para docena, 2 para mitad y mitad.</p>
+              </div>
+
+              <div>
+                <label class="field-label">Modo de configuración</label>
+                <select id="configurationMode" class="field-input">
+                  <option value="0">Sin configuración</option>
+                  <option value="1">Cantidad exacta</option>
+                  <option value="2">Mitad y mitad</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <div>
+                <div class="text-sm font-semibold text-slate-800">Opciones</div>
+                <div class="text-xs text-slate-500 mt-1">Ej: Carne, Pollo, Muzza. A cada opción podés agregar variantes como Frita / Horno.</div>
+              </div>
+
+              <button id="addOptionBtn" type="button"
+                class="soft-btn px-4 py-3 rounded-2xl bg-slate-900 text-white shadow-lg hover:bg-slate-800 text-sm">
+                Agregar opción
+              </button>
+            </div>
+
+            <div id="optionsBuilder" class="option-stack"></div>
+          </div>
         </div>
 
         <div class="flex items-end justify-end md:col-span-3">
@@ -386,7 +534,6 @@
       </div>
     </div>
 
-    <!-- Filtros -->
     <div class="glass-card rounded-[2rem] p-5 md:p-6 mb-5">
       <div class="flex flex-wrap items-end gap-4 justify-between">
         <div>
@@ -410,102 +557,158 @@
       </div>
     </div>
 
-    <!-- Listado -->
     <div id="list" class="space-y-4"></div>
   </div>
 </div>
 
-<!-- Modal editar -->
-<div id="editModal" class="hidden fixed inset-0 z-50 px-4 py-8 overflow-y-auto">
+<div id="editModal" class="hidden fixed inset-0 z-50 p-3 md:p-6">
   <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
 
-  <div class="relative max-w-2xl mx-auto modal-shell p-6 md:p-8">
-    <div class="flex justify-between items-center mb-6 gap-4">
-      <div>
-        <div class="text-2xl font-extrabold tracking-tight text-slate-900 font-display">Editar producto</div>
-        <div class="text-sm text-slate-500 mt-1">Actualizá la información del producto seleccionado.</div>
-      </div>
-
-      <button id="closeModal" class="h-11 w-11 grid place-items-center rounded-2xl bg-slate-100 hover:bg-slate-200 transition text-slate-700 font-bold">✕</button>
-    </div>
-
-    <input type="hidden" id="editId"/>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="md:col-span-2">
-        <label class="field-label">Nombre</label>
-        <input id="editName" class="field-input"/>
-      </div>
-
-      <div>
-        <label class="field-label">Precio</label>
-        <input id="editPrice" type="text" inputmode="decimal" class="field-input"/>
-      </div>
-
-      <div>
-        <label class="field-label">Categoría</label>
-        <select id="editCategory" class="field-input"></select>
-      </div>
-
-      <div class="md:col-span-2">
-        <label class="field-label">Descripción</label>
-        <textarea id="editDescription" rows="3" class="field-input resize-none"></textarea>
-      </div>
-
-      <div>
-        <label class="field-label">Imagen</label>
-        <input id="editImageFile" type="file" accept="image/*" class="field-input"/>
-      </div>
-
-      <div>
-        <label class="field-label">Estado</label>
-        <select id="editEnabled" class="field-input">
-          <option value="true">Activo</option>
-          <option value="false">Inactivo</option>
-        </select>
-      </div>
-
-      <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-3">
-        <label class="feature-box flex items-center gap-3 px-4 py-4 cursor-pointer">
-          <input id="editVisibleInPublicMenu" type="checkbox" class="h-4 w-4" />
-          <div>
-            <div class="text-sm font-semibold text-slate-800">Visible en menú público</div>
+  <div class="relative h-full w-full flex items-center justify-center">
+    <div class="modal-shell modal-frame">
+      <div class="modal-header-sticky px-6 md:px-8 py-5 md:py-6">
+        <div class="flex justify-between items-center gap-4">
+          <div class="min-w-0">
+            <div class="text-2xl font-extrabold tracking-tight text-slate-900 font-display">Editar producto</div>
+            <div class="text-sm text-slate-500 mt-1">Actualizá la información del producto seleccionado.</div>
           </div>
-        </label>
 
-        <label class="feature-box flex items-center gap-3 px-4 py-4 cursor-pointer">
-          <input id="editVisibleInTables" type="checkbox" class="h-4 w-4" />
-          <div>
-            <div class="text-sm font-semibold text-slate-800">Visible para mesas</div>
-          </div>
-        </label>
-
-        <label class="feature-box flex items-center gap-3 px-4 py-4 cursor-pointer">
-          <input id="editIsInternalForTables" type="checkbox" class="h-4 w-4" />
-          <div>
-            <div class="text-sm font-semibold text-slate-800">Interno para mesas</div>
-          </div>
-        </label>
+          <button id="closeModal" class="h-11 w-11 shrink-0 grid place-items-center rounded-2xl bg-slate-100 hover:bg-slate-200 transition text-slate-700 font-bold">✕</button>
+        </div>
       </div>
 
-      <div class="md:col-span-2 flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-[1.4rem] p-4">
-        <img id="editPreview"
-          class="w-24 h-24 object-cover rounded-2xl border border-slate-200 bg-white"
-          src="/img/default-product.png"/>
-        <div class="text-sm text-slate-500">Si cargás una imagen nueva, se reemplaza la actual.</div>
-      </div>
-    </div>
+      <div class="modal-body-scroll">
+        <input type="hidden" id="editId"/>
 
-    <div class="mt-6 text-right">
-      <button id="update"
-        class="soft-btn px-5 py-3 rounded-2xl bg-amber-500 text-white shadow-lg hover:bg-amber-600 text-sm">
-        Guardar cambios
-      </button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="md:col-span-2">
+            <label class="field-label">Nombre</label>
+            <input id="editName" class="field-input"/>
+          </div>
+
+          <div>
+            <label class="field-label">Precio</label>
+            <input id="editPrice" type="text" inputmode="decimal" class="field-input"/>
+          </div>
+
+          <div>
+            <label class="field-label">Categoría</label>
+            <select id="editCategory" class="field-input"></select>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="field-label">Descripción</label>
+            <textarea id="editDescription" rows="3" class="field-input resize-none"></textarea>
+          </div>
+
+          <div>
+            <label class="field-label">Imagen</label>
+            <input id="editImageFile" type="file" accept="image/*" class="field-input"/>
+          </div>
+
+          <div>
+            <label class="field-label">Estado</label>
+            <select id="editEnabled" class="field-input">
+              <option value="true">Activo</option>
+              <option value="false">Inactivo</option>
+            </select>
+          </div>
+
+          <div class="md:col-span-2">
+            <div class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-4">
+              <div class="text-xs uppercase tracking-[0.22em] text-slate-400 font-bold font-display">Vista previa actual</div>
+              <img id="editPreview" class="mt-3 w-24 h-24 object-cover rounded-2xl border border-slate-200 hidden"/>
+              <div id="editEmptyPreviewBox" class="mt-3 w-24 h-24 rounded-2xl border border-slate-200 bg-white flex items-center justify-center text-slate-300 text-xs font-bold">
+                IMG
+              </div>
+            </div>
+          </div>
+
+          <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <label class="feature-box flex items-center gap-3 px-4 py-4 cursor-pointer">
+              <input id="editVisibleInPublicMenu" type="checkbox" class="h-4 w-4" />
+              <div>
+                <div class="text-sm font-semibold text-slate-800">Visible en menú público</div>
+              </div>
+            </label>
+
+            <label id="editVisibleInTablesBlock" class="feature-box flex items-center gap-3 px-4 py-4 cursor-pointer">
+              <input id="editVisibleInTables" type="checkbox" class="h-4 w-4" />
+              <div>
+                <div class="text-sm font-semibold text-slate-800">Visible para mesas</div>
+              </div>
+            </label>
+
+            <label id="editIsInternalForTablesBlock" class="feature-box flex items-center gap-3 px-4 py-4 cursor-pointer">
+              <input id="editIsInternalForTables" type="checkbox" class="h-4 w-4" />
+              <div>
+                <div class="text-sm font-semibold text-slate-800">Interno para mesas</div>
+              </div>
+            </label>
+          </div>
+
+          <div class="md:col-span-2 config-box p-5 md:p-6">
+            <div class="flex items-center justify-between flex-wrap gap-3 mb-5">
+              <div>
+                <div class="text-xl font-extrabold tracking-tight text-slate-900 font-display">Configuración del producto</div>
+                <div class="text-sm text-slate-500 mt-1">Podés editar opciones y variantes del producto.</div>
+              </div>
+
+              <label class="feature-box flex items-center gap-3 px-4 py-3 cursor-pointer">
+                <input id="editHasConfiguration" type="checkbox" class="h-4 w-4" />
+                <div>
+                  <div class="text-sm font-semibold text-slate-800">Producto configurable</div>
+                </div>
+              </label>
+            </div>
+
+            <div id="editConfigSection" class="hidden">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                <div>
+                  <label class="field-label">Unidades requeridas</label>
+                  <input id="editRequiredSelectionUnits" type="number" min="1" placeholder="Ej: 6" class="field-input"/>
+                </div>
+
+                <div>
+                  <label class="field-label">Modo de configuración</label>
+                  <select id="editConfigurationMode" class="field-input">
+                    <option value="0">Sin configuración</option>
+                    <option value="1">Cantidad exacta</option>
+                    <option value="2">Mitad y mitad</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between gap-3 mb-4">
+                <div>
+                  <div class="text-sm font-semibold text-slate-800">Opciones</div>
+                  <div class="text-xs text-slate-500 mt-1">Administrá opciones y variantes.</div>
+                </div>
+
+                <button id="editAddOptionBtn" type="button"
+                  class="soft-btn px-4 py-3 rounded-2xl bg-slate-900 text-white shadow-lg hover:bg-slate-800 text-sm">
+                  Agregar opción
+                </button>
+              </div>
+
+              <div id="editOptionsBuilder" class="option-stack"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer-sticky">
+        <div class="flex justify-end">
+          <button id="update"
+            class="soft-btn px-5 py-3 rounded-2xl bg-amber-500 text-white shadow-lg hover:bg-amber-600 text-sm">
+            Guardar cambios
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Toast -->
 <div id="toastContainer" class="fixed top-6 right-6 z-50"></div>
 
 <script>
@@ -515,14 +718,13 @@
   let itemsCache = [];
   let categoriesCache = [];
   let filterCategoryId = "";
+  let tableManagementEnabled = false;
 
   const TOKEN_KEY = "menuonline_token";
   const SLUG_KEY  = "menuonline_companySlug";
   const LOGIN_PAGE = "./login.html";
-    //   PROD
-    const CONFIG_PATH = "/MenuOnline/config.json";
-    //  DEV
-    //const CONFIG_PATH = "/config.json";
+  //const CONFIG_PATH = "/MenuOnline/config.json";
+  const CONFIG_PATH = "/config.json";
 
   function logoutToLogin(){
     localStorage.removeItem(TOKEN_KEY);
@@ -599,6 +801,15 @@
     return base + "/" + s;
   }
 
+  function escapeHtml(value){
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
   function toast(msg, type="info", ms=1800){
     const c = document.getElementById("toastContainer");
     c.innerHTML = "";
@@ -642,15 +853,30 @@
       ? `<span class="text-xs px-3 py-1 rounded-xl bg-emerald-100 text-emerald-800 font-semibold">Activo</span>`
       : `<span class="text-xs px-3 py-1 rounded-xl bg-slate-100 text-slate-600 font-semibold">Inactivo</span>`;
   }
-  
+
+  function getConfigurationModeLabel(mode) {
+    const value = Number(mode ?? 0);
+    switch (value) {
+      case 1:
+        return "Cantidad exacta";
+      case 2:
+        return "Mitad y mitad";
+      default:
+        return "Sin configuración";
+    }
+  }
+
   function flagBadges(item){
     const on = "text-xs px-3 py-1 rounded-xl bg-violet-100 text-violet-800 font-semibold";
     const off = "text-xs px-3 py-1 rounded-xl bg-slate-100 text-slate-500 font-semibold";
 
     return `
       <span class="${item.visibleInPublicMenu ? on : off}">Menú público</span>
-      <span class="${item.visibleInTables ? on : off}">Mesas</span>
-      <span class="${item.isInternalForTables ? on : off}">Interno</span>
+      ${tableManagementEnabled ? `<span class="${item.visibleInTables ? on : off}">Mesas</span>` : ``}
+      ${tableManagementEnabled ? `<span class="${item.isInternalForTables ? on : off}">Interno</span>` : ``}
+      ${item.hasConfiguration ? `<span class="text-xs px-3 py-1 rounded-xl bg-amber-100 text-amber-800 font-semibold">Configurable</span>` : ``}
+      ${item.hasConfiguration && Number(item.requiredSelectionUnits || 0) > 0 ? `<span class="text-xs px-3 py-1 rounded-xl bg-indigo-100 text-indigo-800 font-semibold">${item.requiredSelectionUnits} u.</span>` : ``}
+      ${item.hasConfiguration ? `<span class="text-xs px-3 py-1 rounded-xl bg-fuchsia-100 text-fuchsia-800 font-semibold">${getConfigurationModeLabel(item.configurationMode)}</span>` : ``}
     `;
   }
 
@@ -673,6 +899,67 @@
           onerror="this.parentElement.outerHTML='<div class=&quot;w-20 h-20 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-400 text-xs font-semibold&quot;>IMG</div>'"/>
       </div>
     `;
+  }
+
+  function resolveTableManagementEnabled(){
+    const slug = getSlug();
+
+    try{
+      const companyRaw = localStorage.getItem("menuonline_company");
+      if(companyRaw){
+        const company = JSON.parse(companyRaw);
+        if(company && typeof company === "object"){
+          if(typeof company.featureTableManagementEnabled === "boolean") return company.featureTableManagementEnabled;
+          if(typeof company.tablesEnabled === "boolean") return company.tablesEnabled;
+        }
+      }
+    }catch{}
+
+    try{
+      const companiesRaw = localStorage.getItem("menuonline_companies");
+      if(companiesRaw){
+        const companies = JSON.parse(companiesRaw);
+        if(Array.isArray(companies)){
+          const company = companies.find(x => x.slug === slug);
+          if(company){
+            if(typeof company.featureTableManagementEnabled === "boolean") return company.featureTableManagementEnabled;
+            if(typeof company.tablesEnabled === "boolean") return company.tablesEnabled;
+          }
+        }
+      }
+    }catch{}
+
+    if(typeof CONFIG?.featureTableManagementEnabled === "boolean") return CONFIG.featureTableManagementEnabled;
+    if(typeof CONFIG?.tablesEnabled === "boolean") return CONFIG.tablesEnabled;
+
+    return false;
+  }
+
+  function applyTableManagementVisibility(){
+    const blocks = [
+      document.getElementById("visibleInTablesBlock"),
+      document.getElementById("isInternalForTablesBlock"),
+      document.getElementById("editVisibleInTablesBlock"),
+      document.getElementById("editIsInternalForTablesBlock")
+    ];
+
+    blocks.forEach(el => {
+      if(el){
+        el.style.display = tableManagementEnabled ? "" : "none";
+      }
+    });
+
+    if(!tableManagementEnabled){
+      const visibleInTables = document.getElementById("visibleInTables");
+      const isInternalForTables = document.getElementById("isInternalForTables");
+      const editVisibleInTables = document.getElementById("editVisibleInTables");
+      const editIsInternalForTables = document.getElementById("editIsInternalForTables");
+
+      if(visibleInTables) visibleInTables.checked = false;
+      if(isInternalForTables) isInternalForTables.checked = false;
+      if(editVisibleInTables) editVisibleInTables.checked = false;
+      if(editIsInternalForTables) editIsInternalForTables.checked = false;
+    }
   }
 
   async function upload(file){
@@ -743,6 +1030,258 @@
     });
   }
 
+  function getNewOptionsState(){
+    if(!window.__newOptionsState) window.__newOptionsState = [];
+    return window.__newOptionsState;
+  }
+
+  function getEditOptionsState(){
+    if(!window.__editOptionsState) window.__editOptionsState = [];
+    return window.__editOptionsState;
+  }
+
+  function normalizeNumberInput(v){
+    const n = parsePriceToNumber(v);
+    return Number.isNaN(n) ? 0 : n;
+  }
+
+  function sanitizeOptionsForPayload(options){
+    return (options || [])
+      .map((option, index) => ({
+        id: option.id ?? 0,
+        name: String(option.name || "").trim(),
+        extraPrice: Number(option.extraPrice || 0),
+        enabled: option.enabled ?? true,
+        order: option.order ?? index,
+        variants: (option.variants || [])
+          .map(variant => ({
+            id: variant.id ?? 0,
+            name: String(variant.name || "").trim(),
+            extraPrice: Number(variant.extraPrice || 0),
+            enabled: variant.enabled ?? true
+          }))
+          .filter(variant => variant.name)
+      }))
+      .filter(option => option.name);
+  }
+
+  function buildOptionCardHtml(prefix, option, index){
+    const variants = Array.isArray(option.variants) ? option.variants : [];
+
+    return `
+      <div class="option-card" data-option-index="${index}">
+        <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+          <div class="text-sm font-extrabold text-slate-900 font-display">Opción ${index + 1}</div>
+          <button type="button"
+            class="soft-btn px-3 py-2 rounded-2xl bg-rose-100 text-rose-800 hover:bg-rose-200 text-xs"
+            onclick="${prefix}RemoveOption(${index})">
+            Eliminar opción
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="field-label">Nombre de la opción</label>
+            <input class="field-input"
+              value="${escapeHtml(option.name || "")}"
+              oninput="${prefix}UpdateOptionField(${index}, 'name', this.value)"
+              placeholder="Ej: Carne" />
+          </div>
+
+          <div>
+            <label class="field-label">Extra de precio</label>
+            <input class="field-input"
+              value="${escapeHtml(String(option.extraPrice ?? ""))}"
+              oninput="${prefix}UpdateOptionField(${index}, 'extraPrice', this.value)"
+              placeholder="0" />
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between flex-wrap gap-3 mb-3">
+          <div>
+            <div class="text-sm font-semibold text-slate-800">Variantes</div>
+            <div class="text-xs text-slate-500 mt-1">Ej: Frita / Horno. Si no agregás variantes, la opción queda sola.</div>
+          </div>
+
+          <button type="button"
+            class="soft-btn px-3 py-2 rounded-2xl bg-slate-900 text-white hover:bg-slate-800 text-xs"
+            onclick="${prefix}AddVariant(${index})">
+            Agregar variante
+          </button>
+        </div>
+
+        <div class="space-y-3">
+          ${variants.length
+            ? variants.map((variant, vIndex) => `
+              <div class="variant-pill">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
+                  <input class="field-input"
+                    value="${escapeHtml(variant.name || "")}"
+                    oninput="${prefix}UpdateVariantField(${index}, ${vIndex}, 'name', this.value)"
+                    placeholder="Ej: Frita" />
+
+                  <input class="field-input"
+                    value="${escapeHtml(String(variant.extraPrice ?? ""))}"
+                    oninput="${prefix}UpdateVariantField(${index}, ${vIndex}, 'extraPrice', this.value)"
+                    placeholder="0" />
+                </div>
+
+                <button type="button"
+                  class="soft-btn px-3 py-2 rounded-2xl bg-rose-100 text-rose-800 hover:bg-rose-200 text-xs shrink-0"
+                  onclick="${prefix}RemoveVariant(${index}, ${vIndex})">
+                  Quitar
+                </button>
+              </div>
+            `).join("")
+            : `<div class="text-sm text-slate-400">Sin variantes.</div>`
+          }
+        </div>
+      </div>
+    `;
+  }
+
+  function renderOptionsBuilder(){
+    const wrapper = document.getElementById("optionsBuilder");
+    const enabled = document.getElementById("hasConfiguration").checked;
+    document.getElementById("configSection").classList.toggle("hidden", !enabled);
+
+    if(!enabled){
+      wrapper.innerHTML = "";
+      return;
+    }
+
+    const optionsState = getNewOptionsState();
+    wrapper.innerHTML = optionsState.length
+      ? optionsState.map((option, index) => buildOptionCardHtml("", option, index)).join("")
+      : `<div class="text-sm text-slate-400">Todavía no agregaste opciones.</div>`;
+  }
+
+  function renderEditOptionsBuilder(){
+    const wrapper = document.getElementById("editOptionsBuilder");
+    const enabled = document.getElementById("editHasConfiguration").checked;
+    document.getElementById("editConfigSection").classList.toggle("hidden", !enabled);
+
+    if(!enabled){
+      wrapper.innerHTML = "";
+      return;
+    }
+
+    const optionsState = getEditOptionsState();
+    wrapper.innerHTML = optionsState.length
+      ? optionsState.map((option, index) => buildOptionCardHtml("edit", option, index)).join("")
+      : `<div class="text-sm text-slate-400">Todavía no agregaste opciones.</div>`;
+  }
+
+  function addOption(){
+    getNewOptionsState().push({
+      name: "",
+      extraPrice: 0,
+      variants: []
+    });
+    renderOptionsBuilder();
+  }
+
+  function removeOption(index){
+    getNewOptionsState().splice(index, 1);
+    renderOptionsBuilder();
+  }
+
+  function updateOptionField(index, field, value){
+    const optionsState = getNewOptionsState();
+    if(!optionsState[index]) return;
+    optionsState[index][field] = field === "extraPrice" ? normalizeNumberInput(value) : value;
+  }
+
+  function addVariant(index){
+    const optionsState = getNewOptionsState();
+    if(!optionsState[index]) return;
+    if(!Array.isArray(optionsState[index].variants)) optionsState[index].variants = [];
+    optionsState[index].variants.push({
+      name: "",
+      extraPrice: 0
+    });
+    renderOptionsBuilder();
+  }
+
+  function removeVariant(index, variantIndex){
+    const optionsState = getNewOptionsState();
+    if(!optionsState[index]?.variants) return;
+    optionsState[index].variants.splice(variantIndex, 1);
+    renderOptionsBuilder();
+  }
+
+  function updateVariantField(index, variantIndex, field, value){
+    const optionsState = getNewOptionsState();
+    if(!optionsState[index]?.variants?.[variantIndex]) return;
+    optionsState[index].variants[variantIndex][field] = field === "extraPrice" ? normalizeNumberInput(value) : value;
+  }
+
+  function editAddOption(){
+    getEditOptionsState().push({
+      name: "",
+      extraPrice: 0,
+      variants: []
+    });
+    renderEditOptionsBuilder();
+  }
+
+  function editRemoveOption(index){
+    getEditOptionsState().splice(index, 1);
+    renderEditOptionsBuilder();
+  }
+
+  function editUpdateOptionField(index, field, value){
+    const optionsState = getEditOptionsState();
+    if(!optionsState[index]) return;
+    optionsState[index][field] = field === "extraPrice" ? normalizeNumberInput(value) : value;
+  }
+
+  function editAddVariant(index){
+    const optionsState = getEditOptionsState();
+    if(!optionsState[index]) return;
+    if(!Array.isArray(optionsState[index].variants)) optionsState[index].variants = [];
+    optionsState[index].variants.push({
+      name: "",
+      extraPrice: 0
+    });
+    renderEditOptionsBuilder();
+  }
+
+  function editRemoveVariant(index, variantIndex){
+    const optionsState = getEditOptionsState();
+    if(!optionsState[index]?.variants) return;
+    optionsState[index].variants.splice(variantIndex, 1);
+    renderEditOptionsBuilder();
+  }
+
+  function editUpdateVariantField(index, variantIndex, field, value){
+    const optionsState = getEditOptionsState();
+    if(!optionsState[index]?.variants?.[variantIndex]) return;
+    optionsState[index].variants[variantIndex][field] = field === "extraPrice" ? normalizeNumberInput(value) : value;
+  }
+
+  window.removeOption = removeOption;
+  window.updateOptionField = updateOptionField;
+  window.addVariant = addVariant;
+  window.removeVariant = removeVariant;
+  window.updateVariantField = updateVariantField;
+
+  window.editRemoveOption = editRemoveOption;
+  window.editUpdateOptionField = editUpdateOptionField;
+  window.editAddVariant = editAddVariant;
+  window.editRemoveVariant = editRemoveVariant;
+  window.editUpdateVariantField = editUpdateVariantField;
+
+  function openEditModal(){
+    document.getElementById("editModal").classList.remove("hidden");
+    document.body.classList.add("modal-open");
+  }
+
+  function closeEditModal(){
+    document.getElementById("editModal").classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  }
+
   function render(){
     const el = document.getElementById("list");
 
@@ -765,6 +1304,7 @@
 
     el.innerHTML = list.map(i => {
       const catName = categoryNameById(i.categoryId);
+      const optionsCount = Array.isArray(i.options) ? i.options.length : 0;
 
       return `
         <div class="module-card glass-card rounded-[2rem] p-5 md:p-6 flex justify-between items-center gap-5 flex-wrap">
@@ -773,14 +1313,15 @@
 
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2 flex-wrap">
-                <div class="text-xl font-extrabold tracking-tight text-slate-900 truncate font-display">${i.name}</div>
+                <div class="text-xl font-extrabold tracking-tight text-slate-900 truncate font-display">${escapeHtml(i.name)}</div>
                 ${badgeEnabled(i.enabled)}
-                <span class="text-xs px-3 py-1 rounded-xl bg-slate-100 text-slate-700 font-semibold">${catName}</span>
+                <span class="text-xs px-3 py-1 rounded-xl bg-slate-100 text-slate-700 font-semibold">${escapeHtml(catName)}</span>
                 ${flagBadges(i)}
+                ${i.hasConfiguration ? `<span class="text-xs px-3 py-1 rounded-xl bg-fuchsia-100 text-fuchsia-800 font-semibold">${optionsCount} opciones</span>` : ``}
               </div>
 
               ${i.description
-                ? `<div class="text-sm text-slate-500 mt-3 line-clamp-2">${i.description}</div>`
+                ? `<div class="text-sm text-slate-500 mt-3 line-clamp-2">${escapeHtml(i.description)}</div>`
                 : `<div class="text-sm text-slate-300 mt-3">(Sin descripción)</div>`
               }
             </div>
@@ -854,8 +1395,12 @@
         enabled: !item.enabled,
         imageUrl: item.imageUrl || null,
         visibleInPublicMenu: !!item.visibleInPublicMenu,
-        visibleInTables: !!item.visibleInTables,
-        isInternalForTables: !!item.isInternalForTables
+        visibleInTables: tableManagementEnabled ? !!item.visibleInTables : false,
+        isInternalForTables: tableManagementEnabled ? !!item.isInternalForTables : false,
+        hasConfiguration: !!item.hasConfiguration,
+        requiredSelectionUnits: item.hasConfiguration ? Number(item.requiredSelectionUnits || 0) : null,
+        configurationMode: item.hasConfiguration ? Number(item.configurationMode || 0) : 0,
+        options: item.hasConfiguration ? sanitizeOptionsForPayload(item.options || []) : []
       };
 
       const r = await updateItem(id, payload);
@@ -884,22 +1429,67 @@
     document.getElementById("editCategory").value = String(i.categoryId ?? "");
     document.getElementById("editEnabled").value = String(!!i.enabled);
     document.getElementById("editVisibleInPublicMenu").checked = !!i.visibleInPublicMenu;
-    document.getElementById("editVisibleInTables").checked = !!i.visibleInTables;
-    document.getElementById("editIsInternalForTables").checked = !!i.isInternalForTables;
-    document.getElementById("editPreview").src = resolveImgUrl(i.imageUrl) || "/img/default-product.png";
+    document.getElementById("editVisibleInTables").checked = tableManagementEnabled ? !!i.visibleInTables : false;
+    document.getElementById("editIsInternalForTables").checked = tableManagementEnabled ? !!i.isInternalForTables : false;
+
+    document.getElementById("editHasConfiguration").checked = !!i.hasConfiguration;
+    document.getElementById("editRequiredSelectionUnits").value = i.requiredSelectionUnits ?? "";
+    document.getElementById("editConfigurationMode").value = String(i.configurationMode ?? 0);
+
+    window.__editOptionsState = sanitizeOptionsForPayload(i.options || []).map((option, index) => ({
+      id: option.id ?? 0,
+      name: option.name || "",
+      extraPrice: option.extraPrice || 0,
+      enabled: option.enabled ?? true,
+      order: option.order ?? index,
+      variants: (option.variants || []).map(variant => ({
+        id: variant.id ?? 0,
+        name: variant.name || "",
+        extraPrice: variant.extraPrice || 0,
+        enabled: variant.enabled ?? true
+      }))
+    }));
 
     selectedEditImage = null;
     document.getElementById("editImageFile").value = "";
 
-    document.getElementById("editModal").classList.remove("hidden");
+    const editPreview = document.getElementById("editPreview");
+    const editEmptyPreviewBox = document.getElementById("editEmptyPreviewBox");
+    const previewUrl = resolveImgUrl(i.imageUrl);
+
+    if(previewUrl){
+      editPreview.src = previewUrl;
+      editPreview.classList.remove("hidden");
+      editEmptyPreviewBox.classList.add("hidden");
+    } else {
+      editPreview.src = "";
+      editPreview.classList.add("hidden");
+      editEmptyPreviewBox.classList.remove("hidden");
+    }
+
+    applyTableManagementVisibility();
+    renderEditOptionsBuilder();
+    openEditModal();
   }
 
-  document.getElementById("closeModal").onclick = () => {
-    document.getElementById("editModal").classList.add("hidden");
-  };
+  document.getElementById("closeModal").onclick = closeEditModal;
+
+  document.getElementById("editModal").addEventListener("click", (e) => {
+    if(e.target.id === "editModal"){
+      closeEditModal();
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if(e.key === "Escape" && !document.getElementById("editModal").classList.contains("hidden")){
+      closeEditModal();
+    }
+  });
 
   document.getElementById("refresh").addEventListener("click", async () => {
     try{
+      tableManagementEnabled = resolveTableManagementEnabled();
+      applyTableManagementVisibility();
       await loadCategories();
       await refresh();
       toast("Actualizado", "success");
@@ -936,10 +1526,40 @@
 
   document.getElementById("editImageFile").addEventListener("change", (e) => {
     selectedEditImage = e.target.files?.[0] ?? null;
+    const preview = document.getElementById("editPreview");
+    const emptyBox = document.getElementById("editEmptyPreviewBox");
+
     if(selectedEditImage){
-      document.getElementById("editPreview").src = URL.createObjectURL(selectedEditImage);
+      preview.src = URL.createObjectURL(selectedEditImage);
+      preview.classList.remove("hidden");
+      emptyBox.classList.add("hidden");
+    } else {
+      preview.src = "";
+      preview.classList.add("hidden");
+      emptyBox.classList.remove("hidden");
     }
   });
+
+  document.getElementById("hasConfiguration").addEventListener("change", () => {
+    const isChecked = document.getElementById("hasConfiguration").checked;
+    if (isChecked && getNewOptionsState().length === 0) {
+      addOption();
+      return;
+    }
+    renderOptionsBuilder();
+  });
+
+  document.getElementById("editHasConfiguration").addEventListener("change", () => {
+    const isChecked = document.getElementById("editHasConfiguration").checked;
+    if (isChecked && getEditOptionsState().length === 0) {
+      editAddOption();
+      return;
+    }
+    renderEditOptionsBuilder();
+  });
+
+  document.getElementById("addOptionBtn").addEventListener("click", addOption);
+  document.getElementById("editAddOptionBtn").addEventListener("click", editAddOption);
 
   document.getElementById("save").addEventListener("click", async () => {
     try{
@@ -951,13 +1571,34 @@
       const enabled = document.getElementById("enabled").value === "true";
       const price = parsePriceToNumber(document.getElementById("price").value);
       const visibleInPublicMenu = document.getElementById("visibleInPublicMenu").checked;
-      const visibleInTables = document.getElementById("visibleInTables").checked;
-      const isInternalForTables = document.getElementById("isInternalForTables").checked;
+      const visibleInTables = tableManagementEnabled ? document.getElementById("visibleInTables").checked : false;
+      const isInternalForTables = tableManagementEnabled ? document.getElementById("isInternalForTables").checked : false;
+
+      const hasConfiguration = document.getElementById("hasConfiguration").checked;
+      const requiredSelectionUnitsRaw = document.getElementById("requiredSelectionUnits").value;
+      const requiredSelectionUnits = requiredSelectionUnitsRaw ? Number(requiredSelectionUnitsRaw) : null;
+      const configurationMode = Number(document.getElementById("configurationMode").value || 0);
+      const options = hasConfiguration ? sanitizeOptionsForPayload(getNewOptionsState()) : [];
 
       if(!name){ toast("Escribí un nombre", "error"); return; }
       if(!cat){ toast("Seleccioná categoría", "error"); return; }
       if(!desc){ toast("La descripción es obligatoria", "error"); return; }
       if(Number.isNaN(price) || price <= 0){ toast("Precio inválido", "error"); return; }
+
+      if(hasConfiguration){
+        if(!requiredSelectionUnits || requiredSelectionUnits <= 0){
+          toast("Completá las unidades requeridas", "error");
+          return;
+        }
+        if(configurationMode === 0){
+          toast("Seleccioná un modo de configuración", "error");
+          return;
+        }
+        if(!options.length){
+          toast("Agregá al menos una opción", "error");
+          return;
+        }
+      }
 
       toast("Creando producto...");
 
@@ -973,7 +1614,11 @@
         imageUrl,
         visibleInPublicMenu,
         visibleInTables,
-        isInternalForTables
+        isInternalForTables,
+        hasConfiguration,
+        requiredSelectionUnits: hasConfiguration ? requiredSelectionUnits : null,
+        configurationMode: hasConfiguration ? configurationMode : 0,
+        options: hasConfiguration ? options : []
       };
 
       const r = await createItem(payload);
@@ -1001,6 +1646,13 @@
       document.getElementById("imagePreview").classList.add("hidden");
       document.getElementById("emptyPreviewBox").classList.remove("hidden");
 
+      document.getElementById("hasConfiguration").checked = false;
+      document.getElementById("requiredSelectionUnits").value = "";
+      document.getElementById("configurationMode").value = "0";
+      window.__newOptionsState = [];
+      renderOptionsBuilder();
+
+      applyTableManagementVisibility();
       await refresh();
     }catch(e){
       console.error(e);
@@ -1019,20 +1671,46 @@
       const enabled = document.getElementById("editEnabled").value === "true";
       const price = parsePriceToNumber(document.getElementById("editPrice").value);
       const visibleInPublicMenu = document.getElementById("editVisibleInPublicMenu").checked;
-      const visibleInTables = document.getElementById("editVisibleInTables").checked;
-      const isInternalForTables = document.getElementById("editIsInternalForTables").checked;
+      const visibleInTables = tableManagementEnabled ? document.getElementById("editVisibleInTables").checked : false;
+      const isInternalForTables = tableManagementEnabled ? document.getElementById("editIsInternalForTables").checked : false;
+
+      const hasConfiguration = document.getElementById("editHasConfiguration").checked;
+      const requiredSelectionUnitsRaw = document.getElementById("editRequiredSelectionUnits").value;
+      const requiredSelectionUnits = requiredSelectionUnitsRaw ? Number(requiredSelectionUnitsRaw) : null;
+      const configurationMode = Number(document.getElementById("editConfigurationMode").value || 0);
+      const options = hasConfiguration ? sanitizeOptionsForPayload(getEditOptionsState()) : [];
 
       if(!name){ toast("Escribí un nombre", "error"); return; }
       if(!cat){ toast("Seleccioná categoría", "error"); return; }
       if(!desc){ toast("La descripción es obligatoria", "error"); return; }
       if(Number.isNaN(price) || price <= 0){ toast("Precio inválido", "error"); return; }
 
+      if(hasConfiguration){
+        if(!requiredSelectionUnits || requiredSelectionUnits <= 0){
+          toast("Completá las unidades requeridas", "error");
+          return;
+        }
+        if(configurationMode === 0){
+          toast("Seleccioná un modo de configuración", "error");
+          return;
+        }
+        if(!options.length){
+          toast("Agregá al menos una opción", "error");
+          return;
+        }
+      }
+
       toast("Guardando...");
 
-      let imageUrl = document.getElementById("editPreview").src || null;
+      let imageUrl = null;
+      const currentPreviewSrc = document.getElementById("editPreview")?.src || "";
+
       if(selectedEditImage){
         imageUrl = await upload(selectedEditImage);
+      } else if(currentPreviewSrc && !currentPreviewSrc.startsWith("blob:")){
+        imageUrl = currentPreviewSrc;
       }
+
       if(imageUrl && imageUrl.includes("/img/default-product.png")) imageUrl = null;
 
       const payload = {
@@ -1044,7 +1722,11 @@
         imageUrl,
         visibleInPublicMenu,
         visibleInTables,
-        isInternalForTables
+        isInternalForTables,
+        hasConfiguration,
+        requiredSelectionUnits: hasConfiguration ? requiredSelectionUnits : null,
+        configurationMode: hasConfiguration ? configurationMode : 0,
+        options: hasConfiguration ? options : []
       };
 
       const r = await updateItem(id, payload);
@@ -1058,7 +1740,7 @@
       }
 
       toast("Actualizado", "success");
-      document.getElementById("editModal").classList.add("hidden");
+      closeEditModal();
       await refresh();
     }catch(e){
       console.error(e);
@@ -1073,6 +1755,12 @@
     try{
       if(!requireAuth()) return;
       CONFIG = await loadConfig();
+      tableManagementEnabled = resolveTableManagementEnabled();
+      applyTableManagementVisibility();
+      window.__newOptionsState = [];
+      window.__editOptionsState = [];
+      renderOptionsBuilder();
+      renderEditOptionsBuilder();
       await loadCategories();
       await refresh();
     }catch(e){

@@ -528,6 +528,29 @@
           </div>
         </a>
 
+        <a id="cardPriceAdjustments" href="./admin-price-adjustments.html" class="module-card">
+          <div class="card-accent" style="background:linear-gradient(90deg,#5b4ef8,#7c6ffc);"></div>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
+            <div style="width:44px;height:44px;background:#eef2ff;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M4 14L8 10L11 13L16 7" stroke="#4338ca" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M13 7h3v3" stroke="#4338ca" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <span class="badge" style="background:#eef2ff;color:#4338ca;">Precios</span>
+          </div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Ajuste de precios</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.5;">Aumentos y bajas masivas por categoría, selección manual o producto individual.</div>
+          <div class="card-hint">
+            <div class="section-label" style="margin-bottom:4px;">Actualización</div>
+            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">Modifica el precio base real antes de trabajar promociones.</div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
+            <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Abrir módulo</span>
+            <div class="arrow-icon">→</div>
+          </div>
+        </a>
+
         <a id="cardCategories" href="./admin-categories.html" class="module-card">
           <div class="card-accent" style="background:linear-gradient(90deg,#3b82f6,#60a5fa);"></div>
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
@@ -651,6 +674,28 @@
           </div>
         </a>
 
+        <a id="cardPromotions" href="./admin-promotions.html" class="module-card">
+          <div class="card-accent" style="background:linear-gradient(90deg,#ec4899,#f472b6);"></div>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
+            <div style="width:44px;height:44px;background:#fdf2f8;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 3l2.1 4.25L17 8l-3.5 3.4.82 4.85L10 14l-4.32 2.25.82-4.85L3 8l4.9-.75L10 3Z" stroke="#be185d" stroke-width="1.6" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <span class="badge" style="background:#fdf2f8;color:#be185d;">Promo</span>
+          </div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Promociones</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.5;">Descuentos visuales por categoría, selección manual o producto individual con fechas y activación.</div>
+          <div class="card-hint">
+            <div class="section-label" style="margin-bottom:4px;">Marketing</div>
+            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">No modifica el precio base real, solo el precio promocional visible y operativo.</div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
+            <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Abrir módulo</span>
+            <div class="arrow-icon">→</div>
+          </div>
+        </a>
+
         <button id="cardMenuQr" type="button" class="hidden module-card" style="text-align:left;width:100%;">
           <div class="card-accent" style="background:linear-gradient(90deg,#0ea5e9,#38bdf8);"></div>
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
@@ -710,133 +755,133 @@
     </div>
   </div>
 
- <div id="printQrSheet">
-  <div style="
-    width:210mm;
-    height:297mm;
-    background: linear-gradient(145deg, #30415d 0%, #3a4f70 50%, #2a3b55 100%);
-    display:flex;
-    flex-direction:column;
-    overflow:hidden;
-    box-sizing:border-box;
-    -webkit-print-color-adjust:exact;
-    print-color-adjust:exact;
-    position:relative;
-  ">
+  <div id="printQrSheet">
     <div style="
-      position:absolute;
-      top:-30mm;
-      right:-25mm;
-      width:90mm;
-      height:90mm;
-      background: radial-gradient(circle, rgba(255,255,255,0.14) 0%, transparent 70%);
-      pointer-events:none;
-    "></div>
-
-    <div style="
-      position:absolute;
-      bottom:-20mm;
-      left:-10mm;
-      width:70mm;
-      height:70mm;
-      background: radial-gradient(circle, rgba(124,111,252,0.10) 0%, transparent 70%);
-      pointer-events:none;
-    "></div>
-
-    <div style="
-      width:100%;
-      padding:22mm 16mm 14mm 16mm;
-      text-align:center;
-      box-sizing:border-box;
-      position:relative;
-      z-index:1;
-    ">
-      <div style="
-        width:34mm;
-        height:34mm;
-        border-radius:9999px;
-        overflow:hidden;
-        background:rgba(255,255,255,.96);
-        margin:0 auto;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        border:0.6mm solid rgba(255,255,255,0.18);
-        box-shadow:0 3mm 10mm rgba(15,23,42,0.20);
-      ">
-        <img id="printCompanyLogo" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;" />
-        <div id="printCompanyLogoFallback" style="font-size:14mm;font-weight:900;color:#0f172a;text-transform:uppercase;">M</div>
-      </div>
-
-      <div id="printCompanyTitle" style="
-        margin-top:7mm;
-        font-size:12mm;
-        line-height:1.05;
-        font-weight:900;
-        letter-spacing:-0.03em;
-        word-break:break-word;
-        color:#ffffff;
-        font-family:'Plus Jakarta Sans',sans-serif;
-      ">
-        Mi Empresa
-      </div>
-
-      <div style="
-        margin-top:4mm;
-        font-size:5.4mm;
-        line-height:1.3;
-        color:rgba(255,255,255,0.78);
-        font-weight:600;
-      ">
-        Escaneá el código para ver el menú
-      </div>
-    </div>
-
-    <div style="
-      flex:1;
+      width:210mm;
+      height:297mm;
+      background: linear-gradient(145deg, #30415d 0%, #3a4f70 50%, #2a3b55 100%);
       display:flex;
-      align-items:flex-start;
-      justify-content:center;
-      padding:4mm 16mm 16mm 16mm;
+      flex-direction:column;
+      overflow:hidden;
       box-sizing:border-box;
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
       position:relative;
-      z-index:1;
     ">
+      <div style="
+        position:absolute;
+        top:-30mm;
+        right:-25mm;
+        width:90mm;
+        height:90mm;
+        background: radial-gradient(circle, rgba(255,255,255,0.14) 0%, transparent 70%);
+        pointer-events:none;
+      "></div>
+
+      <div style="
+        position:absolute;
+        bottom:-20mm;
+        left:-10mm;
+        width:70mm;
+        height:70mm;
+        background: radial-gradient(circle, rgba(124,111,252,0.10) 0%, transparent 70%);
+        pointer-events:none;
+      "></div>
+
       <div style="
         width:100%;
-        max-width:178mm;
-        background:#ffffff;
-        border:0.45mm solid rgba(226,232,240,0.95);
-        border-radius:8mm;
-        padding:7mm;
+        padding:22mm 16mm 14mm 16mm;
+        text-align:center;
         box-sizing:border-box;
-        box-shadow:0 5mm 14mm rgba(15,23,42,0.16);
+        position:relative;
+        z-index:1;
       ">
         <div style="
-          background:#f8fafc;
-          border:0.45mm solid #e2e8f0;
-          border-radius:6mm;
-          min-height:162mm;
+          width:34mm;
+          height:34mm;
+          border-radius:9999px;
+          overflow:hidden;
+          background:rgba(255,255,255,.96);
+          margin:0 auto;
           display:flex;
           align-items:center;
           justify-content:center;
-          padding:6mm;
-          box-sizing:border-box;
+          border:0.6mm solid rgba(255,255,255,0.18);
+          box-shadow:0 3mm 10mm rgba(15,23,42,0.20);
         ">
-          <div id="printQrCode"></div>
+          <img id="printCompanyLogo" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;" />
+          <div id="printCompanyLogoFallback" style="font-size:14mm;font-weight:900;color:#0f172a;text-transform:uppercase;">M</div>
+        </div>
+
+        <div id="printCompanyTitle" style="
+          margin-top:7mm;
+          font-size:12mm;
+          line-height:1.05;
+          font-weight:900;
+          letter-spacing:-0.03em;
+          word-break:break-word;
+          color:#ffffff;
+          font-family:'Plus Jakarta Sans',sans-serif;
+        ">
+          Mi Empresa
+        </div>
+
+        <div style="
+          margin-top:4mm;
+          font-size:5.4mm;
+          line-height:1.3;
+          color:rgba(255,255,255,0.78);
+          font-weight:600;
+        ">
+          Escaneá el código para ver el menú
+        </div>
+      </div>
+
+      <div style="
+        flex:1;
+        display:flex;
+        align-items:flex-start;
+        justify-content:center;
+        padding:4mm 16mm 16mm 16mm;
+        box-sizing:border-box;
+        position:relative;
+        z-index:1;
+      ">
+        <div style="
+          width:100%;
+          max-width:178mm;
+          background:#ffffff;
+          border:0.45mm solid rgba(226,232,240,0.95);
+          border-radius:8mm;
+          padding:7mm;
+          box-sizing:border-box;
+          box-shadow:0 5mm 14mm rgba(15,23,42,0.16);
+        ">
+          <div style="
+            background:#f8fafc;
+            border:0.45mm solid #e2e8f0;
+            border-radius:6mm;
+            min-height:162mm;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:6mm;
+            box-sizing:border-box;
+          ">
+            <div id="printQrCode"></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <script>
-    //PROD
-    const CONFIG_PATH = "/MenuOnline/config.json";
+    // PROD
+    // const CONFIG_PATH = "/MenuOnline/config.json";
     // DEV
-    //const CONFIG_PATH = "/config.json";
+    const CONFIG_PATH = "/config.json";
 
     const TOKEN_KEY = "menuonline_token";
     const AUTH_KEY  = "menuonline_authorization";
@@ -851,6 +896,7 @@
     let currentCompanyLogoUrl = "";
     let qrCodeInstance = null;
     let printQrCodeInstance = null;
+    let appConfig = null;
 
     function toast(message, type="info", ms=1600){
       const container = document.getElementById("toastContainer");
@@ -970,25 +1016,60 @@
       }
     }
 
+    function normalizeTemplateValue(value, slug){
+      return String(value || "").replaceAll("{slug}", encodeURIComponent(slug));
+    }
+
+function buildPublicMenuUrl(slug){
+  if(!slug) return "";
+
+  const mode = String(appConfig?.publicMenuMode || "path").toLowerCase();
+
+  if(mode === "subdomain"){
+    const protocol = appConfig?.publicMenuProtocol || "https";
+    const rootDomain = String(appConfig?.publicMenuRootDomain || "").trim();
+    const path = String(appConfig?.publicMenuSubdomainPath || "").trim();
+
+    if(!rootDomain){
+      return "";
+    }
+
+    return `${protocol}://${slug}.${rootDomain}${path}`;
+  }
+
+  if(mode === "template"){
+    const template = String(appConfig?.publicMenuUrlTemplate || "").trim();
+    if(!template){
+      return "";
+    }
+    return normalizeTemplateValue(template, slug);
+  }
+
+  const pathTemplate = String(appConfig?.publicMenuPathTemplate || "/Admin/index.html?companySlug={slug}").trim();
+  return normalizeTemplateValue(pathTemplate, slug);
+}
+
     function setPublicMenuLink(slug){
       const a = document.getElementById("publicMenuLink");
       const b = document.getElementById("publicMenuButton");
+      const publicUrl = buildPublicMenuUrl(slug);
+
       if(!a) return;
 
-      if(!slug){
+      if(!publicUrl){
         currentPublicMenuUrl = "";
         a.href = "#"; a.target = ""; a.rel = "";
-        a.onclick = (e) => { e.preventDefault(); toast("No hay empresa seleccionada (companySlug).", "error", 2200); };
+        a.onclick = (e) => { e.preventDefault(); toast("No hay URL pública configurada para esta empresa.", "error", 2200); };
+
         if(b){
           b.href = "#"; b.target = ""; b.rel = "";
-          b.onclick = (e) => { e.preventDefault(); toast("No hay empresa seleccionada (companySlug).", "error", 2200); };
+          b.onclick = (e) => { e.preventDefault(); toast("No hay URL pública configurada para esta empresa.", "error", 2200); };
         }
         return;
       }
 
-      const publicUrl = `/MenuOnline/index.html?companySlug=${encodeURIComponent(slug)}`;
-
       currentPublicMenuUrl = publicUrl;
+
       a.href = publicUrl;
       a.target = "_blank";
       a.rel = "noopener";
@@ -1027,6 +1108,8 @@
       localStorage.setItem("menuonline_canAccessTableConfig", String(!!me?.canAccessTableConfig));
       localStorage.setItem("menuonline_canAccessTableDashboard", String(!!me?.canAccessTableDashboard));
       localStorage.setItem("menuonline_canAccessCompanySettings", String(!!me?.canAccessCompanySettings));
+      localStorage.setItem("menuonline_canAccessPriceAdjustments", String(!!me?.canAccessProducts));
+      localStorage.setItem("menuonline_canAccessPromotions", String(!!me?.canAccessProducts));
     }
 
     function readFeaturesFromLocalStorage(){
@@ -1058,7 +1141,9 @@
         canAccessTablesWaiter: localStorage.getItem("menuonline_canAccessTablesWaiter") === "true",
         canAccessTableConfig: localStorage.getItem("menuonline_canAccessTableConfig") === "true",
         canAccessTableDashboard: localStorage.getItem("menuonline_canAccessTableDashboard") === "true",
-        canAccessCompanySettings: localStorage.getItem("menuonline_canAccessCompanySettings") === "true"
+        canAccessCompanySettings: localStorage.getItem("menuonline_canAccessCompanySettings") === "true",
+        canAccessPriceAdjustments: localStorage.getItem("menuonline_canAccessPriceAdjustments") === "true",
+        canAccessPromotions: localStorage.getItem("menuonline_canAccessPromotions") === "true"
       };
     }
 
@@ -1112,14 +1197,18 @@
         canAccessTablesWaiter: !!permissions?.canAccessTablesWaiter,
         canAccessTableConfig: !!permissions?.canAccessTableConfig,
         canAccessTableDashboard: !!permissions?.canAccessTableDashboard,
-        canAccessCompanySettings: !!permissions?.canAccessCompanySettings
+        canAccessCompanySettings: !!permissions?.canAccessCompanySettings,
+        canAccessPriceAdjustments: !!permissions?.canAccessPriceAdjustments || !!permissions?.canAccessProducts,
+        canAccessPromotions: !!permissions?.canAccessPromotions || !!permissions?.canAccessProducts
       };
 
       setCardVisible("cardOrders", safeFeatures.featureOrdersEnabled && safePermissions.canAccessOrders);
       setCardVisible("cardProducts", safeFeatures.featureProductsEnabled && safePermissions.canAccessProducts);
+      setCardVisible("cardPriceAdjustments", safeFeatures.featureProductsEnabled && safePermissions.canAccessPriceAdjustments);
       setCardVisible("cardCategories", safeFeatures.featureCategoriesEnabled && safePermissions.canAccessCategories);
       setCardVisible("cardConfig", safePermissions.canAccessCompanySettings);
       setCardVisible("cardDashboard", safeFeatures.featureDashboardEnabled && safePermissions.canAccessDashboard);
+      setCardVisible("cardPromotions", safeFeatures.featureProductsEnabled && safePermissions.canAccessPromotions);
       setTablesCards(safeFeatures, safePermissions);
       setQrCardVisibility(safePermissions);
     }
@@ -1163,7 +1252,7 @@
     }
 
     function openMenuQrModal(){
-      if(!currentPublicMenuUrl){ toast("No hay empresa seleccionada (companySlug).", "error", 2200); return; }
+      if(!currentPublicMenuUrl){ toast("No hay URL pública configurada para esta empresa.", "error", 2200); return; }
       const modal = document.getElementById("menuQrModal");
       const absoluteMenuUrl = buildAbsoluteMenuUrl();
       const safeName = resolveCompanyDisplayName(getCompanySlug());
@@ -1211,10 +1300,10 @@
       currentCompanyName = slug === "—" ? "" : slug;
 
       try{
-        const config = await loadConfig();
+        appConfig = await loadConfig();
         setPublicMenuLink(slug === "—" ? "" : slug);
 
-        const me = await apiGetAdminMe(config);
+        const me = await apiGetAdminMe(appConfig);
 
         if(me){
           const features = {
@@ -1235,7 +1324,9 @@
             canAccessTablesWaiter: me.canAccessTablesWaiter,
             canAccessTableConfig: me.canAccessTableConfig,
             canAccessTableDashboard: me.canAccessTableDashboard,
-            canAccessCompanySettings: me.canAccessCompanySettings
+            canAccessCompanySettings: me.canAccessCompanySettings,
+            canAccessPriceAdjustments: me.canAccessPriceAdjustments ?? me.canAccessProducts,
+            canAccessPromotions: me.canAccessPromotions ?? me.canAccessProducts
           };
 
           saveFeaturesInLocalStorage(features);
@@ -1255,9 +1346,14 @@
             me.logo ||
             "";
 
+          const effectiveSlug = me.companySlug || (slug === "—" ? "" : slug);
+
+          if(effectiveSlug){
+            setPublicMenuLink(effectiveSlug);
+          }
+
           if(me.companySlug && me.companySlug !== slug && slug === "—"){
             document.getElementById("companyLabel").textContent = me.companySlug;
-            setPublicMenuLink(me.companySlug);
           }
 
           if(me.email && email === "—"){
@@ -1292,7 +1388,9 @@
                 canAccessTablesWaiter:false,
                 canAccessTableConfig:false,
                 canAccessTableDashboard:false,
-                canAccessCompanySettings:false
+                canAccessCompanySettings:false,
+                canAccessPriceAdjustments:true,
+                canAccessPromotions:true
               }
             );
           }
@@ -1319,7 +1417,9 @@
             canAccessTablesWaiter:false,
             canAccessTableConfig:false,
             canAccessTableDashboard:false,
-            canAccessCompanySettings:false
+            canAccessCompanySettings:false,
+            canAccessPriceAdjustments:true,
+            canAccessPromotions:true
           }
         );
       }

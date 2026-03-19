@@ -300,7 +300,7 @@
 
     .order-grid{
       display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap:12px;
       margin-top:16px;
       position: relative;
@@ -1030,9 +1030,9 @@
     const SLUG_KEY  = "menuonline_companySlug";
     const LOGIN_PAGE = "./login.html";
     //   PROD
-    const CONFIG_PATH = "/MenuOnline/config.json";
+    //const CONFIG_PATH = "/MenuOnline/config.json";
     //  DEV
-    //const CONFIG_PATH = "/config.json";
+    const CONFIG_PATH = "/config.json";
 
     function logoutToLogin(){
       localStorage.removeItem(TOKEN_KEY);
@@ -1340,6 +1340,71 @@
         .replaceAll(">","&gt;")
         .replaceAll('"',"&quot;")
         .replaceAll("'","&#039;");
+    }
+
+    function inferProductLabel(itemName, quantity){
+      const normalized = String(itemName || "").toLowerCase();
+
+      if (normalized.includes("empanada")) {
+        return quantity === 1 ? "empanada" : "empanadas";
+      }
+
+      if (normalized.includes("pizza")) {
+        return quantity === 1 ? "mitad" : "mitades";
+      }
+
+      return quantity === 1 ? "unidad" : "unidades";
+    }
+
+    function buildSelectionSummary(itemName, quantity, optionName, variantName){
+      const productLabel = inferProductLabel(itemName, quantity);
+
+      if (!variantName) {
+        return `${quantity} ${productLabel} de ${optionName}`;
+      }
+
+      return `${quantity} ${productLabel} de ${optionName} - ${variantName}`;
+    }
+
+    function getItemConfigurationSummaryLines(item){
+      if (!item) return [];
+
+      if (Array.isArray(item.configurationSummary) && item.configurationSummary.length) {
+        return item.configurationSummary.filter(Boolean);
+      }
+
+      if (Array.isArray(item.selections) && item.selections.length) {
+        return item.selections
+          .map(s => buildSelectionSummary(
+            item.name || "",
+            Number(s.quantity || 0),
+            s.optionName || "",
+            s.variantName || null
+          ))
+          .filter(Boolean);
+      }
+
+      return [];
+    }
+
+    function computeOrderSubtotal(order){
+      if (Number(order?.subtotalBase || 0) > 0) {
+        return Number(order.subtotalBase || 0);
+      }
+
+      const items = Array.isArray(order?.items) ? order.items : [];
+      return items.reduce((acc, it) => {
+        const line = Number(it.lineTotal ?? 0);
+        return acc + (Number.isNaN(line) ? 0 : line);
+      }, 0);
+    }
+
+    function computeOrderSurchargeAmount(order){
+      return Number(order?.paymentSurchargeAmount || 0);
+    }
+
+    function computeOrderSurchargePercent(order){
+      return Number(order?.paymentSurchargePercent || 0);
     }
 
     // =========================
@@ -1686,6 +1751,9 @@
     function buildTicketHtml(detail){
       const created = new Date(detail.createdAt).toLocaleString("es-AR");
       const negocio = (getSlug() || "").toUpperCase();
+      const subtotal = computeOrderSubtotal(detail);
+      const surchargeAmount = computeOrderSurchargeAmount(detail);
+      const surchargePercent = computeOrderSurchargePercent(detail);
       const total = computeOrderTotal(detail);
 
       const lines = (detail.items || []).map(it => {
@@ -1693,6 +1761,7 @@
         const unit = Number(it.unitPrice || 0);
         const line = Number(it.lineTotal ?? (qty * unit)) || 0;
         const note = (it.note || "").trim();
+        const configLines = getItemConfigurationSummaryLines(it);
 
         return `
           <div style="margin-top:6px;">
@@ -1701,6 +1770,11 @@
               <span>@ $${money(unit)}</span>
               <span style="font-weight:bold;">$${money(line)}</span>
             </div>
+            ${configLines.length ? `
+              <div style="margin-top:4px;">
+                ${configLines.map(x => `<div style="padding-left:8px;">- ${escapeHtml(x)}</div>`).join("")}
+              </div>
+            ` : ``}
             ${note ? `<div style="margin-top:2px;">Nota: ${escapeHtml(note)}</div>` : ``}
           </div>
         `;
@@ -1726,9 +1800,9 @@
           </div>
 
           <div style="margin-top:8px;border-top:1px dashed #000;padding-top:8px;">
-            <div style="display:flex;justify-content:space-between;"><span>Subtotal</span><span>$${money(detail.subtotalBase ?? total)}</span></div>
-            ${(Number(detail.paymentSurchargeAmount || 0) > 0)
-              ? `<div style="display:flex;justify-content:space-between;"><span>Recargo (${Number(detail.paymentSurchargePercent || 0)}%)</span><span>$${money(detail.paymentSurchargeAmount || 0)}</span></div>`
+            <div style="display:flex;justify-content:space-between;"><span>Subtotal</span><span>$${money(subtotal)}</span></div>
+            ${(surchargeAmount > 0)
+              ? `<div style="display:flex;justify-content:space-between;"><span>Recargo (${surchargePercent}%)</span><span>$${money(surchargeAmount)}</span></div>`
               : ``}
           </div>
 
@@ -1770,6 +1844,9 @@
 
         orderDetailCache.set(Number(orderId), d);
 
+        const subtotal = computeOrderSubtotal(d);
+        const surchargeAmount = computeOrderSurchargeAmount(d);
+        const surchargePercent = computeOrderSurchargePercent(d);
         const total = computeOrderTotal(d);
 
         document.getElementById("dTitle").textContent = `Pedido #${d.orderNumber}`;
@@ -1789,18 +1866,58 @@
         document.getElementById("dPaymentStatus").textContent = paymentStatusLabel(d.paymentStatus);
 
         const itemsEl = document.getElementById("dItems");
-        itemsEl.innerHTML = (d.items || []).map(it => `
-          <div class="flex items-start justify-between gap-3 rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-50 to-white px-4 py-4">
-            <div class="min-w-0">
-              <div class="font-bold text-slate-900 truncate">${escapeHtml(it.name || "")}</div>
-              <div class="text-xs text-slate-500 mt-1">
-                ${it.qty} x $${money(it.unitPrice || 0)}
-                ${it.note ? ` · Nota: ${escapeHtml(it.note)}` : ``}
+        itemsEl.innerHTML = `
+          ${(d.items || []).map(it => {
+            const qty = Number(it.qty || 0);
+            const unitPrice = Number(it.unitPrice || 0);
+            const lineTotal = Number(it.lineTotal ?? (qty * unitPrice)) || 0;
+            const summaryLines = getItemConfigurationSummaryLines(it);
+
+            return `
+              <div class="rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-50 to-white px-4 py-4">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <div class="font-bold text-slate-900 truncate">${escapeHtml(it.name || "")}</div>
+                    <div class="text-xs text-slate-500 mt-1">
+                      ${qty} x $${money(unitPrice)}
+                      ${it.note ? ` · Nota: ${escapeHtml(it.note)}` : ``}
+                    </div>
+                  </div>
+                  <div class="font-black text-slate-900 whitespace-nowrap">$ ${money(lineTotal)}</div>
+                </div>
+
+                ${summaryLines.length ? `
+                  <div class="mt-3 pt-3 border-t border-slate-200 space-y-1">
+                    ${summaryLines.map(line => `
+                      <div class="text-sm text-slate-600 pl-2">- ${escapeHtml(line)}</div>
+                    `).join("")}
+                  </div>
+                ` : ``}
+              </div>
+            `;
+          }).join("")}
+
+          <div class="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 mt-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-sm text-slate-600">
+                <span>Subtotal</span>
+                <span class="font-bold text-slate-900">$ ${money(subtotal)}</span>
+              </div>
+
+              ${surchargeAmount > 0 ? `
+                <div class="flex items-center justify-between text-sm text-slate-600">
+                  <span>Recargo (${money(surchargePercent)}%)</span>
+                  <span class="font-bold text-slate-900">$ ${money(surchargeAmount)}</span>
+                </div>
+              ` : ``}
+
+              <div class="pt-3 mt-3 border-t border-slate-200 flex items-center justify-between">
+                <span class="text-base font-black text-slate-900 font-display">Total</span>
+                <span class="text-xl font-black text-slate-900 font-display">$ ${money(total)}</span>
               </div>
             </div>
-            <div class="font-black text-slate-900">$ ${money(it.lineTotal ?? ((it.qty||0)*(it.unitPrice||0)))}</div>
           </div>
-        `).join("");
+        `;
 
         const btnPrint = document.getElementById("btnPrintTicket");
         btnPrint.classList.remove("hidden");
@@ -2544,28 +2661,40 @@
               </div>
             </div>
 
-            <div class="order-grid">
-              <div class="order-box">
-                <div class="order-box-label">Total</div>
-                <div class="order-box-value order-box-total">$ ${money(total)}</div>
-              </div>
+<div class="order-grid">
+  <div class="order-box">
+    <div class="order-box-label">Total</div>
+    <div class="order-box-value order-box-total">$ ${money(total)}</div>
+  </div>
 
-              <div class="order-box">
-                <div class="order-box-label">Método de pago</div>
-                <div class="mt-2">
-                  <span class="badge ${paymentStatusBadge(o.paymentStatus)}">
-                    ${paymentText}
-                  </span>
-                </div>
-              </div>
+  <div class="order-box">
+    <div class="order-box-label">Método de pago</div>
+    <div class="mt-2">
+      <span class="badge ${paymentStatusBadge(o.paymentStatus)}">
+        ${paymentText}
+      </span>
+    </div>
+  </div>
 
-              <div class="order-box">
-                <div class="order-box-label">Pedido</div>
-                <div class="order-items-preview mt-1">
-                  ${escapeHtml(itemsPreview)}
-                </div>
-              </div>
-            </div>
+  <div class="order-box">
+    <div class="order-box-label">Pedido</div>
+    <div class="order-items-preview mt-1">
+      ${escapeHtml(itemsPreview)}
+    </div>
+  </div>
+
+  <div class="order-box">
+    <div class="order-box-label">Notas</div>
+    <div class="order-items-preview mt-1">
+      ${escapeHtml(
+        (Array.isArray(o.items) ? o.items : [])
+          .map(x => x.note || x.notes || "")
+          .filter(Boolean)
+          .join(" · ") || "Sin notas"
+      )}
+    </div>
+  </div>
+</div>
 
             ${!canAdvance && isMercadoPagoPaymentMethod(o.paymentMethod) ? `
               <div class="mt-4 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800 relative z-[1]">

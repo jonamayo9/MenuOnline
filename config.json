@@ -1,16 +1,8 @@
 {
-
-  "apiBaseUrl": "https://gourmet-backend-1.onrender.com",
-  "companySlug": "como-en-casa",
-  "negocio": {
-    "nombre": "COMO EN CASA",
-    "logo": "fotos/1.png",
-    "telefono": "5491134229717",
-    "alias": "SABORES.CASA.MP",
-    "turnos": [
-      { "abre": 8, "cierra": 15 },
-      { "abre": 7, "cierra": 23 }
-    ]
-  }
+  "apiBaseUrl": "https://localhost:7222",
+  "publicMenuMode": "subdomain",
+  "publicMenuProtocol": "http",
+  "publicMenuRootDomain": "clickmenu.local:5600",
+  "publicMenuSubdomainPath": "/Admin/index.html",
+  "publicMenuPathTemplate": "/Admin/index.html?companySlug={slug}"
 }
-
