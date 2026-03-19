@@ -504,7 +504,7 @@
         const { token, user } = getSession();
 
         if (!token) {
-          return "/Admin/login.html";
+          return "/login.html";
         }
 
         const role = getRole(user);
