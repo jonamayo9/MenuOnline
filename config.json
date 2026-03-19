@@ -1,5 +1,5 @@
 {
-  "apiBaseUrl": "https://localhost:7222",
+  "apiBaseUrl": "https://gourmet-backend-1.onrender.com",
   "publicMenuMode": "subdomain",
   "publicMenuProtocol": "http",
   "publicMenuRootDomain": "clickmenu.local:5600",
