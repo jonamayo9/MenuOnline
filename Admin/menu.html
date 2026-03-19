@@ -767,7 +767,19 @@ function getSlugFromHostname(){
   return "";
 }
 
+function getSlugFromPath(){
+  const path = String(window.location.pathname || "").trim();
+  const match = path.match(/^\/menu\/([^\/]+)\/?$/i);
+  return match ? decodeURIComponent(match[1]).trim() : "";
+}
+
 function getCompanySlug(){
+  const fromPath = getSlugFromPath();
+  if(fromPath){
+    localStorage.setItem(SLUG_KEY, fromPath);
+    return fromPath;
+  }
+
   const fromHost = getSlugFromHostname();
   if(fromHost){
     localStorage.setItem(SLUG_KEY, fromHost);
