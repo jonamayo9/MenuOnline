@@ -1,37 +1,69 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <script>
-    (function () {
-      const host = window.location.hostname.toLowerCase();
+ <script>
+  (function () {
+    const btn = document.getElementById("goToAppBtn");
+    if (!btn) return;
 
-      // Configuración real de producción
-      const ROOT_DOMAIN = "pedidoclick.com.ar";
-      const RESERVED = ["www", "app", "admin"];
-
-      // Ruta del menú público
-      // Si tu menú real está en otro archivo, cambiá SOLO esta constante
-      const PUBLIC_MENU_PATH = "/menu.html";
-
-      // Ignorar local puro
-      if (host === "localhost" || host === "127.0.0.1") return;
-
-      // Ignorar entornos tipo clickmenu.local o similares de desarrollo
-      if (host.endsWith(".local")) return;
-
-      // Ej: como-en-casa.pedidoclick.com.ar
-      if (host.endsWith("." + ROOT_DOMAIN)) {
-        const sub = host.slice(0, -("." + ROOT_DOMAIN).length).trim();
-
-        // Solo aceptar subdominio simple
-        if (sub && !sub.includes(".") && !RESERVED.includes(sub)) {
-          const target = `${PUBLIC_MENU_PATH}?companySlug=${encodeURIComponent(sub)}`;
-          window.location.replace(target);
-        }
+    function readJson(key) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
       }
-    })();
-  </script>
+    }
 
+    function getSession() {
+      const token =
+        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("accessToken");
+
+      const user =
+        readJson("user") ||
+        readJson("adminUser") ||
+        readJson("sessionUser");
+
+      return { token, user };
+    }
+
+    function getRole(user) {
+      if (!user) return "";
+
+      if (typeof user.role === "string") return user.role.toLowerCase();
+      if (typeof user.userRole === "string") return user.userRole.toLowerCase();
+      if (typeof user.type === "string") return user.type.toLowerCase();
+
+      if (Array.isArray(user.roles) && user.roles.length) {
+        return String(user.roles[0]).toLowerCase();
+      }
+
+      return "";
+    }
+
+    btn.addEventListener("click", function (e) {
+      const { token, user } = getSession();
+
+      if (!token) {
+        btn.setAttribute("href", "/Admin/login.html");
+        return;
+      }
+
+      e.preventDefault();
+
+      const role = getRole(user);
+
+      if (role === "superadmin") {
+        window.location.href = "/SuperAdmin/companies.html";
+        return;
+      }
+
+      window.location.href = "/Admin/home.html";
+    });
+  })();
+</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ClickMenu | Vendé sin comisiones</title>
@@ -80,9 +112,8 @@
       </nav>
 
       <div class="flex items-center gap-3">
-        <a href="/Admin/login.html"
-           class="hidden sm:inline-flex px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition">
-          Ingresar
+        <a href="/Admin/login.html" id="goToAppBtn" class="text-sm font-semibold text-slate-600 hover:text-slate-900">
+        Ingresar
         </a>
 
         <a href="https://wa.me/"

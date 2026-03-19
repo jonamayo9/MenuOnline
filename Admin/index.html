@@ -733,7 +733,7 @@
     //const CONFIG_PATH = "/MenuOnline/config.json";
     //  DEV
     const CONFIG_PATH = "/config.json";
-    const DEFAULT_PUBLIC_ROOT_DOMAIN = "clickmenu.com";
+    const DEFAULT_PUBLIC_ROOT_DOMAIN = "pedidoclick.com.ar";
     const DEFAULT_RESERVED_SUBDOMAINS = ["www", "app", "admin"];
 
 function getConfiguredPublicRootDomain(){
@@ -2674,26 +2674,11 @@ function modificar(id, delta){
     }
 
 function isUsingSubdomainMode(){
-  const apiBase = String(CFG.apiBaseUrl || "").toLowerCase();
-
-  const backendIsLocal =
-    apiBase.includes("localhost") ||
-    apiBase.includes("127.0.0.1");
-
-  if (backendIsLocal) {
-    return false;
-  }
-
-  return !!getSlugFromHostname();
+  return false;
 }
 
 function buildPublicApiPath(path, companySlug){
   const cleanPath = String(path || "").startsWith("/") ? path : `/${path}`;
-
-  if (isUsingSubdomainMode()) {
-    return `/api/public${cleanPath}`;
-  }
-
   return `/api/public/${encodeURIComponent(companySlug)}${cleanPath}`;
 }
 
