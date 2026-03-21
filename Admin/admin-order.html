@@ -639,6 +639,21 @@
       border-radius: 30px;
     }
 
+
+    .config-chip{
+      border:1px solid #e2e8f0;
+      background:#fff;
+      color:#334155;
+      transition:.15s ease;
+    }
+
+    .config-chip.active{
+      border-color:#0f172a;
+      background:#f8fafc;
+      color:#0f172a;
+      box-shadow:0 0 0 3px rgba(15,23,42,.06);
+    }
+
     @media (max-width: 1100px){
       .create-grid{
         grid-template-columns:1fr;
@@ -780,8 +795,23 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="rounded-[26px] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5">
             <div class="text-[11px] text-slate-400 font-bold uppercase tracking-[.14em] font-display">Cliente</div>
-            <div id="dCustomer" class="font-black mt-2 text-lg">—</div>
-            <div id="dAddress" class="text-sm text-slate-600 mt-1">—</div>
+
+            <div class="mt-3 space-y-2 text-sm">
+              <div>
+                <span class="font-bold text-slate-700">Nombre:</span>
+                <span id="dCustomerName" class="text-slate-900">—</span>
+              </div>
+
+              <div>
+                <span class="font-bold text-slate-700">WhatsApp:</span>
+                <span id="dWhatsapp" class="text-slate-900">—</span>
+              </div>
+
+              <div>
+                <span class="font-bold text-slate-700">Dirección:</span>
+                <span id="dAddress" class="text-slate-900">—</span>
+              </div>
+            </div>
           </div>
 
           <div class="rounded-[26px] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5">
@@ -881,6 +911,38 @@
     </div>
   </div>
 
+    <!-- Modal notificar cliente -->
+  <div id="notifyModal" class="hidden fixed inset-0 z-50 px-4 py-6 overflow-y-auto">
+    <div class="absolute inset-0 bg-slate-950/45 backdrop-blur-sm"></div>
+
+    <div class="relative max-w-md mx-auto mt-20 modal-shell overflow-hidden">
+      <div class="p-5 flex items-start justify-between border-b border-slate-200">
+        <div>
+          <div class="text-xl font-black text-slate-900 font-display">Notificar al cliente</div>
+          <div id="notifySub" class="text-sm text-slate-500 mt-1">—</div>
+        </div>
+        <button id="closeNotifyModal" class="h-11 w-11 rounded-2xl hover:bg-slate-100 transition">✕</button>
+      </div>
+
+      <div class="p-5">
+        <div class="bg-emerald-50 border border-emerald-100 text-emerald-900 rounded-2xl p-4 text-sm">
+          ¿Querés notificar por WhatsApp al cliente que el pedido ya está en camino?
+        </div>
+
+        <div class="mt-5 flex justify-end gap-2">
+          <button id="btnNotifyNo"
+            class="px-5 py-3 rounded-2xl bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200 transition btn-press">
+            No
+          </button>
+          <button id="btnNotifyYes"
+            class="px-5 py-3 rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition btn-press">
+            Sí, notificar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal nuevo pedido -->
   <div id="createOrderModal" class="hidden fixed inset-0 z-50 px-4 py-6 overflow-y-auto">
     <div class="absolute inset-0 bg-slate-950/45 backdrop-blur-sm"></div>
@@ -912,11 +974,16 @@
                   </div>
 
                   <div>
+  <label class="field-label">WhatsApp</label>
+  <input id="coCustomerWhatsapp" type="tel" class="field-input" placeholder="WhatsApp del cliente" />
+</div>
+
+                  <div>
                     <label class="field-label">Tipo de pedido</label>
                     <select id="coOrderType" class="field-input">
                       <option value="Delivery">Envío</option>
                       <option value="TakeAway">Retiro</option>
-                      <option value="Salon">Salón</option>
+                      <option value="Salon" hidden>Salón</option>
                     </select>
                   </div>
 
@@ -953,7 +1020,7 @@
                   <div class="flex flex-wrap gap-2">
                     <button type="button" class="payment-chip active" data-payment="Cash">Efectivo</button>
                     <button type="button" class="payment-chip" data-payment="Transfer">Transferencia</button>
-                    <button type="button" class="payment-chip" data-payment="Qr">QR</button>
+                    <button type="button" class="payment-chip" data-payment="Qr" hidden>QR</button>
                   </div>
                 </div>
 
@@ -964,10 +1031,10 @@
                       <div class="text-[11px] uppercase tracking-[.14em] text-slate-400 font-bold font-display">Alias</div>
                       <div id="newOrderTransferAlias" class="mt-2 font-bold text-slate-900 break-all">—</div>
                     </div>
-                    <div class="rounded-2xl border border-sky-100 bg-white px-4 py-3">
+                    <!-- <div class="rounded-2xl border border-sky-100 bg-white px-4 py-3">
                       <div class="text-[11px] uppercase tracking-[.14em] text-slate-400 font-bold font-display">CVU</div>
                       <div id="newOrderTransferCvu" class="mt-2 font-bold text-slate-900 break-all">—</div>
-                    </div>
+                    </div> -->
                   </div>
                 </div>
 
@@ -1033,6 +1100,50 @@
               </button>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal configuración producto nuevo pedido -->
+  <div id="createOrderConfigModal" class="hidden fixed inset-0 z-[60] px-4 py-6 overflow-y-auto">
+    <div class="absolute inset-0 bg-slate-950/45 backdrop-blur-sm"></div>
+
+    <div class="relative max-w-2xl mx-auto mt-10 modal-shell overflow-hidden">
+      <div class="px-6 py-5 flex items-start justify-between gap-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+        <div class="min-w-0">
+          <div class="text-[11px] text-slate-400 font-bold uppercase tracking-[.16em] font-display">Configurar producto</div>
+          <div id="coConfigProductName" class="text-2xl font-black tracking-tight font-display mt-2">Producto</div>
+          <div id="coConfigProductHelp" class="text-sm text-slate-500 mt-1"></div>
+        </div>
+        <button id="closeCreateOrderConfigModal" class="h-11 w-11 rounded-2xl hover:bg-slate-100 transition text-lg shrink-0">✕</button>
+      </div>
+
+      <div class="p-5 md:p-6 space-y-5">
+        <div class="rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-3">
+          <div class="flex items-center justify-between gap-3">
+            <div class="text-[11px] font-bold uppercase tracking-[.16em] text-slate-400 font-display">Seleccionado</div>
+            <div id="coConfigProgressText" class="text-sm font-black text-slate-900">0 / 0</div>
+          </div>
+        </div>
+
+        <div id="coConfigProductOptions" class="space-y-3 max-h-[44vh] overflow-y-auto pr-1"></div>
+
+        <div>
+          <label class="field-label">Nota del item</label>
+          <input id="coConfigProductNote" type="text" class="field-input" placeholder="Aclaración para este producto (opcional)" />
+        </div>
+
+        <div id="coConfigProductSummary" class="rounded-[22px] border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600"></div>
+
+        <div class="flex gap-2 justify-end">
+          <button id="btnCreateOrderConfigCancel" class="px-5 py-3 rounded-2xl bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200 transition btn-press">
+            Volver
+          </button>
+          <button id="btnCreateOrderConfigConfirm" class="px-5 py-3 rounded-2xl bg-slate-900 text-white font-semibold hover:bg-slate-800 transition btn-press">
+            Agregar al pedido
+          </button>
         </div>
       </div>
     </div>
@@ -1153,6 +1264,8 @@
     let CONFIG = null;
     let isRefreshing = false;
     const orderDetailCache = new Map();
+    let companyOrderNotificationMode = 0;
+    let companyOrderNotificationTemplate = "";
 
     // Nuevo pedido
     let paymentOptionsCache = null;
@@ -1163,6 +1276,8 @@
     let createOrderCart = [];
     let createOrderPaymentMethod = "Cash";
     let createOrderLastCreated = null;
+    let createOrderConfigState = null;
+    let createOrderCartSeq = 1;
 
     // =========================
     // AUTH
@@ -1191,6 +1306,17 @@
       }catch{
         return null;
       }
+    }
+
+    async function loadCompanyNotificationConfig(){
+      const slug = getSlug();
+
+      const res = await fetchAuth(`${CONFIG.apiBaseUrl}/api/public/${slug}/menu`);
+      if(!res || !res.ok) return;
+
+      const data = await res.json().catch(() => null);
+      companyOrderNotificationMode = Number(data?.negocio?.orderNotificationMode ?? 0);
+      companyOrderNotificationTemplate = String(data?.negocio?.orderNotificationTemplate || "").trim();
     }
 
     function isTokenValid(token){
@@ -1711,6 +1837,9 @@
       if(!res.ok) throw new Error("No pude cargar el menú.");
 
       const data = await res.json();
+      companyOrderNotificationMode = Number(data?.negocio?.orderNotificationMode ?? 0);
+      companyOrderNotificationTemplate = String(data?.negocio?.orderNotificationTemplate || "").trim();
+
       return normalizeMenuResponse(data);
     }
 
@@ -1785,6 +1914,9 @@
             items: Array.isArray(detail.items) ? detail.items : [],
             customerName: detail.customerName ?? o.customerName,
             address: detail.address ?? o.address,
+            customerWhatsapp: detail.customerWhatsapp ?? o.customerWhatsapp,
+            customerWhatsappRaw: detail.customerWhatsappRaw ?? detail.customerWhatsapp ?? o.customerWhatsappRaw ?? o.customerWhatsapp,
+            customerWhatsappE164: detail.customerWhatsappE164 ?? o.customerWhatsappE164,
             total: Number(o.total || 0) > 0 ? o.total : detail.total,
             paymentMethod: detail.paymentMethod ?? o.paymentMethod,
             paymentStatus: detail.paymentStatus ?? o.paymentStatus,
@@ -1843,7 +1975,7 @@
     function closeDetailModal(){ document.getElementById("detailModal").classList.add("hidden"); }
 
     function openCreateOrderModal(){ document.getElementById("createOrderModal").classList.remove("hidden"); }
-    function closeCreateOrderModal(){ document.getElementById("createOrderModal").classList.add("hidden"); }
+    function closeCreateOrderModal(){ document.getElementById("createOrderModal").classList.add("hidden"); closeCreateOrderConfigModal(); }
 
     const cancelState = { orderId: null, orderNumber: null, after: null };
 
@@ -1864,6 +1996,113 @@
       cancelState.orderNumber = null;
       cancelState.after = null;
     }
+
+        const notifyState = { order: null };
+
+    function openNotifyModal(order){
+      notifyState.order = order || null;
+      document.getElementById("notifySub").textContent =
+        order?.orderNumber ? `Pedido #${order.orderNumber}` : "Pedido seleccionado";
+
+      document.getElementById("notifyModal").classList.remove("hidden");
+    }
+
+    function closeNotifyModal(){
+      document.getElementById("notifyModal").classList.add("hidden");
+      notifyState.order = null;
+    }
+
+    function sanitizeWhatsappNumber(value){
+      return String(value || "").replace(/\D/g, "");
+    }
+
+    function buildOrderDetailText(order){
+      const items = Array.isArray(order?.items) ? order.items : [];
+
+      if(!items.length) return "Sin detalle";
+
+      return items.map(it => {
+        const qty = Number(it.qty || 0);
+        const name = it.name || "";
+        const note = (it.note || "").trim();
+        const configLines = getItemConfigurationSummaryLines(it);
+
+        let line = `${qty}x ${name}`;
+
+        if(configLines.length){
+          line += ` (${configLines.join(", ")})`;
+        }
+
+        if(note){
+          line += ` - Nota: ${note}`;
+        }
+
+        return line;
+      }).join("\n");
+    }
+
+    function applyNotificationTemplate(template, order){
+      const finalTemplate = String(template || "").trim();
+
+      if(!finalTemplate){
+        return "";
+      }
+
+      return finalTemplate
+        .replaceAll("{customerName}", order?.customerName || "Cliente")
+        .replaceAll("{orderNumber}", order?.orderNumber ? `#${order.orderNumber}` : "")
+        .replaceAll("{orderDetail}", buildOrderDetailText(order))
+        .replaceAll("{address}", order?.address || "")
+        .replaceAll("${total}", money(Number(order?.total || 0)))
+        .replaceAll("{total}", money(Number(order?.total || 0)))
+        .replaceAll("{paymentMethod}", getPaymentMethodLabel(order));
+    }
+
+    function buildManualWhatsappMessage(order){
+      return applyNotificationTemplate(companyOrderNotificationTemplate, order);
+    }
+
+    function getPaymentMethodLabel(order){
+  const raw = (order?.paymentMethod || "").toLowerCase();
+
+  if(raw.includes("efectivo"))
+    return "Efectivo";
+
+  if(raw.includes("transfer"))
+    return "Transferencia";
+
+  if(raw.includes("mercado"))
+    return "Mercado Pago";
+
+  return order?.paymentMethod || "";
+}
+
+    function shouldAskManualWhatsappNotification(order){
+    const phone = getOrderWhatsapp(order);
+    return companyOrderNotificationMode === 1 && !!sanitizeWhatsappNumber(phone);
+    }
+
+function notifyCustomerManualWhatsapp(order){
+const rawPhone = getOrderWhatsapp(order);
+const phone = sanitizeWhatsappNumber(rawPhone);
+
+  if(!phone){
+    toastUpdate("El pedido no tiene WhatsApp cargado", "error", 2500);
+    return;
+  }
+
+  const message = buildManualWhatsappMessage(order);
+
+  if(!message){
+    toastUpdate("La empresa no tiene plantilla de notificación configurada", "error", 2500);
+    return;
+  }
+
+  const whatsappUrl =
+    `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+
+  window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+}
 
     async function confirmCancel(){
       if(!cancelState.orderId) return;
@@ -1890,74 +2129,76 @@
     // PRINT
     // =========================
     function buildTicketHtml(detail){
-      const created = new Date(detail.createdAt).toLocaleString("es-AR");
-      const negocio = (getSlug() || "").toUpperCase();
-      const subtotal = computeOrderSubtotal(detail);
-      const surchargeAmount = computeOrderSurchargeAmount(detail);
-      const surchargePercent = computeOrderSurchargePercent(detail);
-      const total = computeOrderTotal(detail);
+  const created = new Date(detail.createdAt).toLocaleString("es-AR");
+  const negocio = (getSlug() || "").toUpperCase();
+  const subtotal = computeOrderSubtotal(detail);
+  const surchargeAmount = computeOrderSurchargeAmount(detail);
+  const surchargePercent = computeOrderSurchargePercent(detail);
+  const total = computeOrderTotal(detail);
+  const whatsapp = detail.customerWhatsappRaw || detail.customerWhatsappE164 || "";
 
-      const lines = (detail.items || []).map(it => {
-        const qty = Number(it.qty || 0);
-        const unit = Number(it.unitPrice || 0);
-        const line = Number(it.lineTotal ?? (qty * unit)) || 0;
-        const note = (it.note || "").trim();
-        const configLines = getItemConfigurationSummaryLines(it);
+  const lines = (detail.items || []).map(it => {
+    const qty = Number(it.qty || 0);
+    const unit = Number(it.unitPrice || 0);
+    const line = Number(it.lineTotal ?? (qty * unit)) || 0;
+    const note = (it.note || "").trim();
+    const configLines = getItemConfigurationSummaryLines(it);
 
-        return `
-          <div style="margin-top:6px;">
-            <div style="font-weight:bold;">${qty}x ${escapeHtml(it.name || "")}</div>
-            <div style="display:flex;justify-content:space-between;">
-              <span>@ $${money(unit)}</span>
-              <span style="font-weight:bold;">$${money(line)}</span>
-            </div>
-            ${configLines.length ? `
-              <div style="margin-top:4px;">
-                ${configLines.map(x => `<div style="padding-left:8px;">- ${escapeHtml(x)}</div>`).join("")}
-              </div>
-            ` : ``}
-            ${note ? `<div style="margin-top:2px;">Nota: ${escapeHtml(note)}</div>` : ``}
-          </div>
-        `;
-      }).join("");
-
-      return `
-        <div style="width:100%;color:#000;">
-          <div style="text-align:center;">
-            <div style="font-size:14px;font-weight:bold;">PEDIDO #${escapeHtml(detail.orderNumber || "")}</div>
-            <div style="margin-top:2px;">${escapeHtml(negocio)}</div>
-            <div style="margin-top:6px;">${escapeHtml(created)}</div>
-          </div>
-
-          <div style="margin-top:8px;border-top:1px dashed #000;padding-top:8px;">
-            <div><b>Cliente:</b> ${escapeHtml(detail.customerName || "")}</div>
-            <div><b>Dirección:</b> ${escapeHtml(detail.address || "")}</div>
-            <div><b>Pago:</b> ${escapeHtml(paymentInfo(detail))}</div>
-            <div><b>Estado:</b> ${escapeHtml(STATUS_LABEL[Number(detail.status)] || "—")}</div>
-          </div>
-
-          <div style="margin-top:8px;border-top:1px dashed #000;padding-top:8px;">
-            ${lines || "<div>(Sin items)</div>"}
-          </div>
-
-          <div style="margin-top:8px;border-top:1px dashed #000;padding-top:8px;">
-            <div style="display:flex;justify-content:space-between;"><span>Subtotal</span><span>$${money(subtotal)}</span></div>
-            ${(surchargeAmount > 0)
-              ? `<div style="display:flex;justify-content:space-between;"><span>Recargo (${surchargePercent}%)</span><span>$${money(surchargeAmount)}</span></div>`
-              : ``}
-          </div>
-
-          <div style="margin-top:8px;border-top:1px dashed #000;padding-top:8px;display:flex;justify-content:space-between;font-size:14px;">
-            <b>TOTAL</b>
-            <b>$${money(total)}</b>
-          </div>
-
-          <div style="margin-top:10px;text-align:center;">
-            Gracias 🙌
-          </div>
+    return `
+      <div style="margin-top:6px;">
+        <div style="font-weight:bold;">${qty}x ${escapeHtml(it.name || "")}</div>
+        <div style="display:flex;justify-content:space-between;">
+          <span>@ $${money(unit)}</span>
+          <span style="font-weight:bold;">$${money(line)}</span>
         </div>
-      `;
-    }
+        ${configLines.length ? `
+          <div style="margin-top:4px;">
+            ${configLines.map(x => `<div style="padding-left:8px;">- ${escapeHtml(x)}</div>`).join("")}
+          </div>
+        ` : ``}
+        ${note ? `<div style="margin-top:2px;">Nota: ${escapeHtml(note)}</div>` : ``}
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div style="width:100%;color:#000;">
+      <div style="text-align:center;">
+        <div style="font-size:14px;font-weight:bold;">PEDIDO #${escapeHtml(detail.orderNumber || "")}</div>
+        <div style="margin-top:2px;">${escapeHtml(negocio)}</div>
+        <div style="margin-top:6px;">${escapeHtml(created)}</div>
+      </div>
+
+      <div style="margin-top:8px;border-top:1px dashed #000;padding-top:8px;">
+        <div><b>Cliente:</b> ${escapeHtml(detail.customerName || "")}</div>
+        <div><b>WhatsApp:</b> ${escapeHtml(whatsapp)}</div>
+        <div><b>Dirección:</b> ${escapeHtml(detail.address || "")}</div>
+        <div><b>Pago:</b> ${escapeHtml(paymentInfo(detail))}</div>
+        <div><b>Estado:</b> ${escapeHtml(STATUS_LABEL[Number(detail.status)] || "—")}</div>
+      </div>
+
+      <div style="margin-top:8px;border-top:1px dashed #000;padding-top:8px;">
+        ${lines || "<div>(Sin items)</div>"}
+      </div>
+
+      <div style="margin-top:8px;border-top:1px dashed #000;padding-top:8px;">
+        <div style="display:flex;justify-content:space-between;"><span>Subtotal</span><span>$${money(subtotal)}</span></div>
+        ${(surchargeAmount > 0)
+          ? `<div style="display:flex;justify-content:space-between;"><span>Recargo (${surchargePercent}%)</span><span>$${money(surchargeAmount)}</span></div>`
+          : ``}
+      </div>
+
+      <div style="margin-top:8px;border-top:1px dashed #000;padding-top:8px;display:flex;justify-content:space-between;font-size:14px;">
+        <b>TOTAL</b>
+        <b>$${money(total)}</b>
+      </div>
+
+      <div style="margin-top:10px;text-align:center;">
+        Gracias 🙌
+      </div>
+    </div>
+  `;
+}
 
     function printTicket(detail){
       const ticket = document.getElementById("ticket-print");
@@ -1992,7 +2233,13 @@
 
         document.getElementById("dTitle").textContent = `Pedido #${d.orderNumber}`;
         document.getElementById("dSub").textContent = fmtDateTime(d.createdAt);
-        document.getElementById("dCustomer").textContent = d.customerName || "—";
+        document.getElementById("dCustomerName").textContent = d.customerName || "—";
+        document.getElementById("dWhatsapp").textContent =
+          d.customerWhatsappRaw ||
+          d.customerWhatsappE164 ||
+          d.customerWhatsapp ||
+          d.customerPhone ||
+          "—";
         document.getElementById("dAddress").textContent = d.address || "—";
         document.getElementById("dPayment").textContent = normalizePaymentMethodLabel(d.paymentMethod);
         document.getElementById("dTotal").textContent = money(total);
@@ -2135,7 +2382,425 @@
     // =========================
     // NUEVO PEDIDO
     // =========================
-    function normalizeMenuResponse(data){
+    function roundCreateOrderMoney(n){
+      return Math.round(Number(n || 0) * 100) / 100;
+    }
+
+    function buildCreateOrderCartKey(itemId, configured = false){
+      if(!configured) return `simple-${itemId}`;
+      const key = `cfg-${itemId}-${Date.now()}-${createOrderCartSeq}`;
+      createOrderCartSeq += 1;
+      return key;
+    }
+
+    function getCreateOrderSelectionsExtraTotal(selections){
+      if(!Array.isArray(selections) || !selections.length) return 0;
+
+      return roundCreateOrderMoney(
+        selections.reduce((acc, s) => acc + (Number(s.extraPrice || 0) * Number(s.quantity || 0)), 0)
+      );
+    }
+
+    function recalculateCreateOrderCartLine(line){
+      if(!line) return line;
+
+      const qty = Number(line.quantity || 0);
+      const basePrice = Number(line.basePrice ?? line.price ?? 0);
+      const extraTotal = Number(line.extraTotal ?? getCreateOrderSelectionsExtraTotal(line.selections) ?? 0);
+
+      line.basePrice = roundCreateOrderMoney(basePrice);
+      line.extraTotal = roundCreateOrderMoney(extraTotal);
+      line.unitPrice = roundCreateOrderMoney(line.basePrice + line.extraTotal);
+      line.price = line.unitPrice;
+      line.lineTotal = roundCreateOrderMoney(line.unitPrice * qty);
+      return line;
+    }
+
+    function buildCreateOrderSelectionSummaryFromSelections(productName, selections){
+      return (selections || []).map(s => {
+        const qty = Number(s.quantity || 0);
+        const optionName = s.optionName || "";
+        const variantName = s.variantName || "";
+        const normalized = String(productName || "").toLowerCase();
+
+        let unitText = qty === 1 ? "unidad" : "unidades";
+        if(normalized.includes("empanada")){
+          unitText = qty === 1 ? "empanada" : "empanadas";
+        }else if(normalized.includes("pizza")){
+          unitText = qty === 1 ? "mitad" : "mitades";
+        }
+
+        return variantName
+          ? `${qty} ${unitText} de ${optionName} - ${variantName}`
+          : `${qty} ${unitText} de ${optionName}`;
+      });
+    }
+
+    function createOrderGroupSelectionsByKey(rows){
+      const map = new Map();
+
+      (rows || []).forEach(r => {
+        const optionId = Number(r.menuItemOptionId || 0);
+        const variantId = Number(r.menuItemOptionVariantId || 0);
+        const key = `${optionId}-${variantId}`;
+
+        if(!map.has(key)){
+          map.set(key, {
+            menuItemOptionId: r.menuItemOptionId,
+            menuItemOptionVariantId: r.menuItemOptionVariantId ?? null,
+            optionName: r.optionName || "",
+            variantName: r.variantName || "",
+            quantity: 0,
+            extraPrice: Number(r.extraPrice || 0)
+          });
+        }
+
+        map.get(key).quantity += Number(r.quantity || 1);
+      });
+
+      return Array.from(map.values());
+    }
+
+    function getCreateOrderSelectedTotal(){
+      if(!createOrderConfigState) return 0;
+      return createOrderConfigState.selectedItems.reduce((acc, row) => acc + Number(row.quantity || 1), 0);
+    }
+
+    function getCreateOrderOptionSelectedQty(optionId){
+      if(!createOrderConfigState) return 0;
+      return createOrderConfigState.selectedItems
+        .filter(x => Number(x.menuItemOptionId) === Number(optionId))
+        .reduce((acc, x) => acc + Number(x.quantity || 1), 0);
+    }
+
+    function getCreateOrderSelectedVariantLabel(optionId){
+      if(!createOrderConfigState) return "";
+
+      const optionState = createOrderConfigState.optionStates.find(x => Number(x.optionId) === Number(optionId));
+      if(!optionState) return "";
+
+      const option = createOrderConfigState.options.find(x => Number(x.id) === Number(optionId));
+      if(!option) return "";
+
+      const variant = (option.variants || []).find(v => Number(v.id) === Number(optionState.selectedVariantId || 0));
+      return variant ? variant.name : "";
+    }
+
+    function openCreateOrderConfigModal(){
+      document.getElementById("createOrderConfigModal").classList.remove("hidden");
+    }
+
+    function closeCreateOrderConfigModal(){
+      document.getElementById("createOrderConfigModal").classList.add("hidden");
+      createOrderConfigState = null;
+      document.getElementById("coConfigProductOptions").innerHTML = "";
+      document.getElementById("coConfigProductSummary").innerHTML = "";
+      document.getElementById("coConfigProductNote").value = "";
+    }
+
+    function toggleCreateOrderOptionExpand(optionId){
+  if(!createOrderConfigState) return;
+
+  createOrderConfigState.optionStates = createOrderConfigState.optionStates.map(x => ({
+    ...x,
+    expanded: Number(x.optionId) === Number(optionId) ? !x.expanded : x.expanded
+  }));
+
+  renderCreateOrderConfigProduct();
+}
+
+function selectCreateOrderConfigVariant(optionId, variantId){
+  if(!createOrderConfigState) return;
+
+  const target = createOrderConfigState.optionStates.find(
+    x => Number(x.optionId) === Number(optionId)
+  );
+  if(!target) return;
+
+  target.selectedVariantId = Number(variantId);
+  target.expanded = true;
+  createOrderConfigState.validationMessage = "";
+  renderCreateOrderConfigProduct();
+}
+
+function addCreateOrderConfigSelection(optionId){
+  if(!createOrderConfigState) return;
+
+  const total = getCreateOrderSelectedTotal();
+  if(total >= Number(createOrderConfigState.required || 0)) return;
+
+  const option = createOrderConfigState.options.find(
+    x => Number(x.id) === Number(optionId)
+  );
+  if(!option) return;
+
+  const variants = Array.isArray(option.variants) ? option.variants : [];
+  const optionState = createOrderConfigState.optionStates.find(
+    x => Number(x.optionId) === Number(optionId)
+  );
+
+  if(variants.length){
+    const selectedVariantId = Number(optionState?.selectedVariantId || 0);
+    const variant = variants.find(v => Number(v.id) === selectedVariantId);
+
+    if(!variant){
+      if(optionState) optionState.expanded = true;
+      createOrderConfigState.validationMessage = `Elegí una variante para ${option.name}.`;
+      renderCreateOrderConfigProduct();
+      return;
+    }
+
+    createOrderConfigState.validationMessage = "";
+    createOrderConfigState.selectedItems.push({
+      menuItemOptionId: option.id,
+      menuItemOptionVariantId: variant.id,
+      optionName: option.name,
+      variantName: variant.name,
+      quantity: 1,
+      extraPrice: Number(option.extraPrice || 0) + Number(variant.extraPrice || 0)
+    });
+  }else{
+    createOrderConfigState.validationMessage = "";
+    createOrderConfigState.selectedItems.push({
+      menuItemOptionId: option.id,
+      menuItemOptionVariantId: null,
+      optionName: option.name,
+      variantName: "",
+      quantity: 1,
+      extraPrice: Number(option.extraPrice || 0)
+    });
+  }
+
+  renderCreateOrderConfigProduct();
+}
+
+function removeCreateOrderConfigSelection(optionId){
+  if(!createOrderConfigState) return;
+
+  const option = createOrderConfigState.options.find(
+    x => Number(x.id) === Number(optionId)
+  );
+  if(!option) return;
+
+  const variants = Array.isArray(option.variants) ? option.variants : [];
+  const optionState = createOrderConfigState.optionStates.find(
+    x => Number(x.optionId) === Number(optionId)
+  );
+
+  let removeIndex = -1;
+
+  if(variants.length && Number(optionState?.selectedVariantId || 0) > 0){
+    for(let i = createOrderConfigState.selectedItems.length - 1; i >= 0; i--){
+      const row = createOrderConfigState.selectedItems[i];
+      if(
+        Number(row.menuItemOptionId) === Number(optionId) &&
+        Number(row.menuItemOptionVariantId || 0) === Number(optionState.selectedVariantId || 0)
+      ){
+        removeIndex = i;
+        break;
+      }
+    }
+  }
+
+  if(removeIndex === -1){
+    for(let i = createOrderConfigState.selectedItems.length - 1; i >= 0; i--){
+      const row = createOrderConfigState.selectedItems[i];
+      if(Number(row.menuItemOptionId) === Number(optionId)){
+        removeIndex = i;
+        break;
+      }
+    }
+  }
+
+  if(removeIndex >= 0){
+    createOrderConfigState.selectedItems.splice(removeIndex, 1);
+    renderCreateOrderConfigProduct();
+  }
+}
+
+function changeCreateOrderConfigQty(index, delta){
+  if(!createOrderConfigState) return;
+
+  const option = createOrderConfigState.options[index];
+  if(!option) return;
+
+  if(delta > 0){
+    addCreateOrderConfigSelection(option.id);
+  }else{
+    removeCreateOrderConfigSelection(option.id);
+  }
+}
+
+    function openCreateOrderConfigProduct(menuItemId){
+      const item = createOrderMenuItems.find(x => x.id === menuItemId);
+      if(!item || !item.hasConfiguration) return;
+
+      createOrderConfigState = {
+        product: item,
+        required: Number(item.requiredSelectionUnits || 0),
+        options: Array.isArray(item.options) ? item.options.map(o => ({
+          id: o.id,
+          name: o.name,
+          extraPrice: Number(o.extraPrice || 0),
+          variants: Array.isArray(o.variants) ? o.variants.map(v => ({
+            id: v.id,
+            name: v.name,
+            extraPrice: Number(v.extraPrice || 0)
+          })) : []
+        })) : [],
+        optionStates: Array.isArray(item.options) ? item.options.map(o => ({
+          optionId: o.id,
+          selectedVariantId: null,
+          expanded: false
+        })) : [],
+        selectedItems: [],
+        note: "",
+        validationMessage: ""
+      };
+
+      document.getElementById("coConfigProductName").textContent = item.name;
+      document.getElementById("coConfigProductHelp").textContent =
+        item.configurationMode === 2
+          ? `Elegí exactamente ${item.requiredSelectionUnits || 0} mitades.`
+          : `Elegí exactamente ${item.requiredSelectionUnits || 0} unidades.`;
+
+      document.getElementById("coConfigProductNote").value = "";
+      renderCreateOrderConfigProduct();
+      openCreateOrderConfigModal();
+    }
+
+    function renderCreateOrderConfigProduct(){
+      if(!createOrderConfigState) return;
+
+      const total = getCreateOrderSelectedTotal();
+      const required = Number(createOrderConfigState.required || 0);
+      const rowsWrap = document.getElementById("coConfigProductOptions");
+      const progress = document.getElementById("coConfigProgressText");
+      const summary = document.getElementById("coConfigProductSummary");
+      const note = document.getElementById("coConfigProductNote");
+
+      progress.textContent = `${total} / ${required}`;
+
+      rowsWrap.innerHTML = createOrderConfigState.options.map((option, idx) => {
+        const optionState = createOrderConfigState.optionStates.find(x => Number(x.optionId) === Number(option.id));
+        const variants = Array.isArray(option.variants) ? option.variants : [];
+        const qty = getCreateOrderOptionSelectedQty(option.id);
+        const selectedVariantLabel = getCreateOrderSelectedVariantLabel(option.id);
+        const hasVariants = variants.length > 0;
+        const showVariants = hasVariants && !!optionState?.expanded;
+
+        return `
+          <div class="border border-slate-200 rounded-2xl p-4 bg-white">
+            <div class="flex items-start justify-between gap-4">
+              <button type="button" class="min-w-0 text-left flex-1" data-co-toggle-option="${option.id}">
+                <div class="text-sm font-black text-slate-900">${escapeHtml(option.name)}</div>
+                ${hasVariants
+                    ? `<div class="mt-1 text-xs font-extrabold uppercase tracking-widest text-slate-500">${escapeHtml(selectedVariantLabel || "Elegí variante")}</div>`
+                    : `<div class="mt-1 text-xs font-extrabold uppercase tracking-widest text-slate-400">Sin variantes</div>`}
+              </button>
+
+              <div class="inline-flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-2 py-2 shrink-0">
+                <button type="button" class="h-11 w-11 rounded-xl bg-white flex items-center justify-center text-slate-700 border border-slate-200 hover:bg-slate-100 transition text-lg" data-co-config-minus="${idx}">−</button>
+                <span class="font-black text-lg min-w-[28px] text-center text-slate-900">${Number(qty || 0)}</span>
+                <button type="button" class="h-11 w-11 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black transition text-lg" data-co-config-plus="${idx}">+</button>
+              </div>
+            </div>
+
+            ${showVariants ? `
+              <div class="mt-4 pt-4 border-t border-slate-100">
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Variantes</div>
+                <div class="flex flex-wrap gap-2">
+                  ${variants.map(variant => `
+                    <button type="button" data-co-select-variant="${option.id}" data-co-variant-id="${variant.id}" class="config-chip ${Number(optionState?.selectedVariantId || 0) === Number(variant.id) ? "active" : ""} px-3 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wider">
+                      ${escapeHtml(variant.name)}
+                    </button>
+                  `).join("")}
+                </div>
+              </div>
+            ` : ``}
+          </div>
+        `;
+      }).join("");
+
+      rowsWrap.querySelectorAll("[data-co-toggle-option]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const optionId = Number(btn.getAttribute("data-co-toggle-option"));
+          const option = createOrderConfigState?.options?.find(x => Number(x.id) === optionId);
+          if(option && Array.isArray(option.variants) && option.variants.length){
+            toggleCreateOrderOptionExpand(optionId);
+          }
+        });
+      });
+
+      rowsWrap.querySelectorAll("[data-co-config-minus]").forEach(btn => {
+        btn.addEventListener("click", () => changeCreateOrderConfigQty(Number(btn.getAttribute("data-co-config-minus")), -1));
+      });
+
+      rowsWrap.querySelectorAll("[data-co-config-plus]").forEach(btn => {
+        btn.addEventListener("click", () => changeCreateOrderConfigQty(Number(btn.getAttribute("data-co-config-plus")), 1));
+      });
+
+      rowsWrap.querySelectorAll("[data-co-select-variant]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          selectCreateOrderConfigVariant(
+            Number(btn.getAttribute("data-co-select-variant")),
+            Number(btn.getAttribute("data-co-variant-id"))
+          );
+        });
+      });
+
+      const groupedRows = createOrderGroupSelectionsByKey(createOrderConfigState.selectedItems);
+      const basePrice = Number(createOrderConfigState.product.price || 0) || 0;
+      const extraTotal = getCreateOrderSelectionsExtraTotal(groupedRows);
+      const finalUnitPrice = roundCreateOrderMoney(basePrice + extraTotal);
+      const selectionSummary = groupedRows.length
+        ? buildCreateOrderSelectionSummaryFromSelections(
+            createOrderConfigState.product.name,
+            groupedRows.map(r => ({
+              quantity: r.quantity,
+              optionName: r.optionName,
+              variantName: r.variantName
+            }))
+          )
+        : [];
+
+      const validationHtml = createOrderConfigState.validationMessage
+        ? `
+          <div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl px-4 py-3 text-sm font-bold">
+            ${escapeHtml(createOrderConfigState.validationMessage)}
+          </div>
+        `
+        : "";
+
+      summary.innerHTML = `
+        ${validationHtml}
+        <div class="text-xs font-black uppercase tracking-widest text-slate-500 ${createOrderConfigState.validationMessage ? 'mt-4' : ''}">Resumen</div>
+        ${selectionSummary.length
+          ? `<div class="mt-3 space-y-2">${selectionSummary.map(line => `<div class="font-bold text-slate-800">${escapeHtml(line)}</div>`).join("")}</div>`
+          : `<div class="mt-3 text-slate-500">Todavía no elegiste combinaciones.</div>`}
+        <div class="mt-4 pt-4 border-t border-slate-200 space-y-2">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-500 font-semibold">Precio base</span>
+            <span class="font-black text-slate-900">$${money(basePrice)}</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-500 font-semibold">Extras</span>
+            <span class="font-black text-slate-900">$${money(extraTotal)}</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-900 font-extrabold">Precio final</span>
+            <span class="font-black text-slate-900">$${money(finalUnitPrice)}</span>
+          </div>
+        </div>
+      `;
+
+      note.oninput = e => {
+        if(createOrderConfigState) createOrderConfigState.note = e.target.value || "";
+      };
+    }
+
+
+   function normalizeMenuResponse(data){
       const items = [];
       const categoriesMap = new Map();
 
@@ -2155,56 +2820,64 @@
         return Number.isNaN(n) ? 0 : n;
       }
 
+function mapOption(option){
+  const rawVariants =
+    option?.variants ??
+    option?.Variants ??
+    option?.Variantes ??
+    option?.menuItemOptionVariants ??
+    option?.MenuItemOptionVariants ??
+    option?.optionVariants ??
+    option?.OptionVariants ??
+    [];
+
+  return {
+    id: Number(option?.id ?? option?.Id ?? option?.menuItemOptionId ?? 0),
+    name: String(option?.name ?? option?.Name ?? option?.nombre ?? option?.Nombre ?? "").trim(),
+    extraPrice: toNumber(option?.extraPrice ?? option?.ExtraPrice ?? option?.extra ?? 0),
+    variants: Array.isArray(rawVariants)
+      ? rawVariants.map(variant => ({
+          id: Number(variant?.id ?? variant?.Id ?? variant?.menuItemOptionVariantId ?? 0),
+          name: String(variant?.name ?? variant?.Name ?? variant?.nombre ?? variant?.Nombre ?? "").trim(),
+          extraPrice: toNumber(variant?.extraPrice ?? variant?.ExtraPrice ?? variant?.extra ?? 0)
+        })).filter(v => v.id && v.name)
+      : []
+  };
+}
+
       function pushItem(raw, fallbackCategoryName = "Sin categoría"){
         if(!raw) return;
 
-        const id = Number(
-          raw.id ??
-          raw.menuItemId ??
-          raw.itemId
-        );
-
+        const id = Number(raw.id ?? raw.menuItemId ?? raw.itemId);
         if(!id) return;
 
-        const name = String(
-          raw.nombre ??
-          raw.name ??
-          raw.title ??
-          ""
-        ).trim();
-
+        const name = String(raw.nombre ?? raw.name ?? raw.title ?? "").trim();
         if(!name) return;
 
-        const categoryName =
-          raw.categoria ??
-          raw.categoryName ??
-          raw.category?.name ??
-          fallbackCategoryName;
-
+        const categoryName = raw.categoria ?? raw.categoryName ?? raw.category?.name ?? fallbackCategoryName;
         const category = ensureCategory(categoryName);
 
         items.push({
           id,
           name,
           description: String(raw.descripcion ?? raw.description ?? "").trim(),
-          price: toNumber(raw.precio ?? raw.price),
+          price: toNumber(raw.finalPrice ?? raw.precioFinal ?? raw.precio ?? raw.price),
+          basePrice: toNumber(raw.precio ?? raw.price ?? raw.finalPrice ?? raw.precioFinal),
           categoryKey: category.key,
-          categoryName: category.name
+          categoryName: category.name,
+          hasConfiguration: !!(raw.hasConfiguration ?? raw.HasConfiguration ?? false),
+          requiredSelectionUnits: Number(raw.requiredSelectionUnits ?? raw.RequiredSelectionUnits ?? 0),
+          configurationMode: Number(raw.configurationMode ?? raw.ConfigurationMode ?? 0),
+          options: Array.isArray(raw.options ?? raw.Options ?? raw.menuItemOptions ?? raw.MenuItemOptions)
+            ? (raw.options ?? raw.Options ?? raw.menuItemOptions ?? raw.MenuItemOptions).map(mapOption).filter(o => o.id && o.name)
+            : []
         });
       }
 
-      if (Array.isArray(data?.menu)) {
-        data.menu.forEach(x => pushItem(x));
-      }
-      else if (Array.isArray(data?.items)) {
-        data.items.forEach(x => pushItem(x));
-      }
-      else if (Array.isArray(data?.menuItems)) {
-        data.menuItems.forEach(x => pushItem(x));
-      }
-      else if (Array.isArray(data)) {
-        data.forEach(x => pushItem(x));
-      }
+      if (Array.isArray(data?.menu)) data.menu.forEach(x => pushItem(x));
+      else if (Array.isArray(data?.items)) data.items.forEach(x => pushItem(x));
+      else if (Array.isArray(data?.menuItems)) data.menuItems.forEach(x => pushItem(x));
+      else if (Array.isArray(data)) data.forEach(x => pushItem(x));
 
       if (Array.isArray(data?.categorias)) {
         data.categorias.forEach(catName => ensureCategory(catName));
@@ -2224,6 +2897,7 @@
       createOrderCart = [];
       createOrderPaymentMethod = "Cash";
       createOrderLastCreated = null;
+      closeCreateOrderConfigModal();
 
       document.getElementById("coCustomerName").value = "";
       document.getElementById("coAddress").value = "";
@@ -2232,6 +2906,7 @@
       document.getElementById("createOrderSuccessWrap").classList.add("hidden");
       document.getElementById("newOrderQrCanvasWrap").innerHTML = "";
       document.getElementById("newOrderQrCanvasBox").classList.add("hidden");
+      document.getElementById("coCustomerWhatsapp").value = "";
 
       renderPaymentMethodSelector();
       renderCreateOrderCategories();
@@ -2251,7 +2926,7 @@
       paymentOptionsCache = paymentOpts;
 
       document.getElementById("newOrderTransferAlias").textContent = paymentOpts.transferAlias || "No configurado";
-      document.getElementById("newOrderTransferCvu").textContent = paymentOpts.transferCvu || "No configurado";
+     // document.getElementById("newOrderTransferCvu").textContent = paymentOpts.transferCvu || "No configurado";
 
       resetCreateOrderState();
     }
@@ -2339,42 +3014,58 @@
       const item = createOrderMenuItems.find(x => x.id === itemId);
       if(!item) return;
 
-      const existing = createOrderCart.find(x => x.productId === itemId);
+      if(item.hasConfiguration){
+        openCreateOrderConfigProduct(itemId);
+        return;
+      }
+
+      const cartKey = buildCreateOrderCartKey(item.id, false);
+      const existing = createOrderCart.find(x => x.cartKey === cartKey);
+
       if(existing){
         existing.quantity += 1;
+        recalculateCreateOrderCartLine(existing);
       } else {
-        createOrderCart.push({
+        createOrderCart.push(recalculateCreateOrderCartLine({
+          cartKey,
           productId: item.id,
           name: item.name,
+          basePrice: Number(item.price || 0),
+          extraTotal: 0,
+          unitPrice: Number(item.price || 0),
           price: Number(item.price || 0),
           quantity: 1,
-          notes: ""
-        });
+          notes: "",
+          isConfigured: false,
+          selections: [],
+          selectionSummary: []
+        }));
       }
 
       renderCreateOrderCart();
     }
 
-    function removeFromCreateOrderCart(productId){
-      createOrderCart = createOrderCart.filter(x => x.productId !== productId);
+    function removeFromCreateOrderCart(cartKey){
+      createOrderCart = createOrderCart.filter(x => x.cartKey !== cartKey);
       renderCreateOrderCart();
     }
 
-    function updateCreateOrderItemQty(productId, delta){
-      const item = createOrderCart.find(x => x.productId === productId);
+    function updateCreateOrderItemQty(cartKey, delta){
+      const item = createOrderCart.find(x => x.cartKey === cartKey);
       if(!item) return;
 
       item.quantity += delta;
       if(item.quantity <= 0){
-        removeFromCreateOrderCart(productId);
+        removeFromCreateOrderCart(cartKey);
         return;
       }
 
+      recalculateCreateOrderCartLine(item);
       renderCreateOrderCart();
     }
 
-    function updateCreateOrderItemNote(productId, note){
-      const item = createOrderCart.find(x => x.productId === productId);
+    function updateCreateOrderItemNote(cartKey, note){
+      const item = createOrderCart.find(x => x.cartKey === cartKey);
       if(!item) return;
       item.notes = note;
     }
@@ -2390,10 +3081,10 @@
     }
 
     function computeCreateOrderTotals(){
-      const subtotal = createOrderCart.reduce((acc, x) => acc + (Number(x.price || 0) * Number(x.quantity || 0)), 0);
+      const subtotal = createOrderCart.reduce((acc, x) => acc + Number(x.lineTotal ?? ((Number(x.price || 0)) * Number(x.quantity || 0))), 0);
       const surchargePercent = getPaymentSurchargePercentByMethod(createOrderPaymentMethod);
-      const surchargeAmount = Math.round((subtotal * surchargePercent / 100) * 100) / 100;
-      const total = subtotal + surchargeAmount;
+      const surchargeAmount = roundCreateOrderMoney(subtotal * surchargePercent / 100);
+      const total = roundCreateOrderMoney(subtotal + surchargeAmount);
 
       return { subtotal, surchargePercent, surchargeAmount, total };
     }
@@ -2413,67 +3104,107 @@
       }
 
       el.innerHTML = createOrderCart.map(item => {
-        const line = Number(item.price || 0) * Number(item.quantity || 0);
+        const line = Number(item.lineTotal ?? (Number(item.price || 0) * Number(item.quantity || 0)));
+        const selectionSummary = Array.isArray(item.selectionSummary) ? item.selectionSummary : [];
+
         return `
           <div class="cart-item">
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
                 <div class="font-black text-slate-900 break-words">${escapeHtml(item.name)}</div>
-                <div class="text-sm text-slate-500 mt-1">$ ${money(item.price)} c/u</div>
+                <div class="text-sm text-slate-500 mt-1">$ ${money(item.unitPrice ?? item.price)} c/u</div>
               </div>
               <div class="text-lg font-black text-slate-900 whitespace-nowrap font-display">$ ${money(line)}</div>
             </div>
 
-            <div class="mt-3 flex items-center gap-2">
-              <button type="button"
-                class="h-10 w-10 rounded-2xl bg-slate-100 hover:bg-slate-200 font-black"
-                data-qty-minus="${item.productId}">
-                −
-              </button>
-              <div class="min-w-[42px] text-center font-black">${item.quantity}</div>
-              <button type="button"
-                class="h-10 w-10 rounded-2xl bg-slate-100 hover:bg-slate-200 font-black"
-                data-qty-plus="${item.productId}">
-                +
-              </button>
+            ${selectionSummary.length ? `
+              <div class="mt-3 pt-3 border-t border-slate-200 space-y-1">
+                ${selectionSummary.map(line => `<div class="text-sm text-slate-600 pl-2">- ${escapeHtml(line)}</div>`).join("")}
+              </div>
+            ` : ``}
 
-              <button type="button"
-                class="ml-auto px-4 py-2 rounded-2xl bg-rose-100 text-rose-800 font-semibold hover:bg-rose-200 transition btn-press"
-                data-remove-product="${item.productId}">
-                Quitar
-              </button>
+            <div class="mt-3 flex items-center gap-2">
+              <button type="button" class="h-10 w-10 rounded-2xl bg-slate-100 hover:bg-slate-200 font-black" data-qty-minus="${escapeHtml(item.cartKey)}">−</button>
+              <div class="min-w-[42px] text-center font-black">${item.quantity}</div>
+              <button type="button" class="h-10 w-10 rounded-2xl bg-slate-100 hover:bg-slate-200 font-black" data-qty-plus="${escapeHtml(item.cartKey)}">+</button>
+              <button type="button" class="ml-auto px-4 py-2 rounded-2xl bg-rose-100 text-rose-800 font-semibold hover:bg-rose-200 transition btn-press" data-remove-product="${escapeHtml(item.cartKey)}">Quitar</button>
             </div>
 
             <div class="mt-3">
-              <input
-                type="text"
-                class="field-input"
-                placeholder="Nota del item (opcional)"
-                value="${escapeHtml(item.notes || "")}"
-                data-item-note="${item.productId}" />
+              <input type="text" class="field-input" placeholder="Nota del item (opcional)" value="${escapeHtml(item.notes || "")}" data-item-note="${escapeHtml(item.cartKey)}" />
             </div>
           </div>
         `;
       }).join("");
 
       el.querySelectorAll("[data-qty-minus]").forEach(btn => {
-        btn.addEventListener("click", () => updateCreateOrderItemQty(Number(btn.getAttribute("data-qty-minus")), -1));
+        btn.addEventListener("click", () => updateCreateOrderItemQty(btn.getAttribute("data-qty-minus"), -1));
       });
 
       el.querySelectorAll("[data-qty-plus]").forEach(btn => {
-        btn.addEventListener("click", () => updateCreateOrderItemQty(Number(btn.getAttribute("data-qty-plus")), 1));
+        btn.addEventListener("click", () => updateCreateOrderItemQty(btn.getAttribute("data-qty-plus"), 1));
       });
 
       el.querySelectorAll("[data-remove-product]").forEach(btn => {
-        btn.addEventListener("click", () => removeFromCreateOrderCart(Number(btn.getAttribute("data-remove-product"))));
+        btn.addEventListener("click", () => removeFromCreateOrderCart(btn.getAttribute("data-remove-product")));
       });
 
       el.querySelectorAll("[data-item-note]").forEach(input => {
         input.addEventListener("input", () => {
-          updateCreateOrderItemNote(Number(input.getAttribute("data-item-note")), input.value);
+          updateCreateOrderItemNote(input.getAttribute("data-item-note"), input.value);
         });
       });
     }
+
+function confirmCreateOrderConfigProduct(){
+  if(!createOrderConfigState) return;
+
+  const total = getCreateOrderSelectedTotal();
+  const required = Number(createOrderConfigState.required || 0);
+
+  if(total !== required){
+    toastUpdate(`Tenés que seleccionar exactamente ${required} unidades.`, "error", 2200);
+    return;
+  }
+
+  const groupedRows = createOrderGroupSelectionsByKey(createOrderConfigState.selectedItems);
+  const note = document.getElementById("coConfigProductNote").value.trim();
+  const basePrice = Number(createOrderConfigState.product.price || 0) || 0;
+  const extraTotal = getCreateOrderSelectionsExtraTotal(groupedRows);
+  const cartKey = buildCreateOrderCartKey(createOrderConfigState.product.id, true);
+
+  createOrderCart.push(recalculateCreateOrderCartLine({
+    cartKey,
+    productId: createOrderConfigState.product.id,
+    name: createOrderConfigState.product.name,
+    basePrice,
+    extraTotal,
+    unitPrice: roundCreateOrderMoney(basePrice + extraTotal),
+    price: roundCreateOrderMoney(basePrice + extraTotal),
+    quantity: 1,
+    notes: note,
+    isConfigured: true,
+    selections: groupedRows.map(r => ({
+      menuItemOptionId: r.menuItemOptionId,
+      menuItemOptionVariantId: r.menuItemOptionVariantId,
+      quantity: Number(r.quantity || 0),
+      optionName: r.optionName,
+      variantName: r.variantName,
+      extraPrice: Number(r.extraPrice || 0)
+    })),
+    selectionSummary: buildCreateOrderSelectionSummaryFromSelections(
+      createOrderConfigState.product.name,
+      groupedRows.map(r => ({
+        quantity: r.quantity,
+        optionName: r.optionName,
+        variantName: r.variantName
+      }))
+    )
+  }));
+
+  closeCreateOrderConfigModal();
+  renderCreateOrderCart();
+}
 
     function syncCreateOrderPaymentBlocks(){
       const transferWrap = document.getElementById("newOrderTransferWrap");
@@ -2531,6 +3262,7 @@
     function buildCreateOrderPayload(){
       return {
         customerName: document.getElementById("coCustomerName").value.trim(),
+        customerWhatsapp: document.getElementById("coCustomerWhatsapp").value.trim(),
         address: document.getElementById("coAddress").value.trim(),
         orderType: document.getElementById("coOrderType").value,
         paymentMethod: ({
@@ -2541,15 +3273,27 @@
         items: createOrderCart.map(x => ({
           productId: x.productId,
           quantity: x.quantity,
-          notes: (x.notes || "").trim() || null
+          notes: (x.notes || "").trim() || null,
+          selections: Array.isArray(x.selections)
+            ? x.selections.map(s => ({
+                menuItemOptionId: s.menuItemOptionId,
+                menuItemOptionVariantId: s.menuItemOptionVariantId ?? null,
+                quantity: s.quantity
+              }))
+            : []
         }))
       };
     }
 
-    async function submitCreateOrder(){
+async function submitCreateOrder(){
       const customerName = document.getElementById("coCustomerName").value.trim();
       if(!customerName){
         throw new Error("Ingresá el nombre del cliente.");
+      }
+      const customerWhatsapp = document.getElementById("coCustomerWhatsapp").value.trim();
+
+      if(!customerWhatsapp){
+        throw new Error("Ingresá el WhatsApp del cliente.");
       }
 
       if(!createOrderCart.length){
@@ -2557,6 +3301,7 @@
       }
 
       const payload = buildCreateOrderPayload();
+      console.log("MANUAL ORDER PAYLOAD", JSON.stringify(payload, null, 2));
       const result = await createManualOrder(payload);
 
       const detail = await getOrderDetailCached(result.id, true);
@@ -2580,6 +3325,16 @@
       if(!createOrderLastCreated) return;
       printTicket(createOrderLastCreated);
     }
+
+    function getOrderWhatsapp(order){
+  return String(
+    order?.customerWhatsappE164 ||
+    order?.customerWhatsappRaw ||
+    order?.customerWhatsapp ||
+    order?.customerPhone ||
+    ""
+  ).trim();
+}
 
     // =========================
     // RENDER MODAL NUEVOS
@@ -2846,7 +3601,7 @@
         `;
       }).join("");
 
-      el.querySelectorAll("button[data-action='set']").forEach(btn => {
+            el.querySelectorAll("button[data-action='set']").forEach(btn => {
         btn.addEventListener("click", async () => {
           const id = btn.getAttribute("data-id");
           const st = parseInt(btn.getAttribute("data-status"), 10);
@@ -2856,12 +3611,18 @@
             await updateStatus(id, st);
             orderDetailCache.delete(Number(id));
 
+            const detail = await getOrderDetailCached(Number(id), true);
+
             await refresh(true);
             await checkNewOrders();
             toastUpdate("Estado actualizado", "success", 1800);
 
             if (st === 1) {
               await openOrderDetail(Number(id));
+            }
+
+            if (st === 3 && detail && shouldAskManualWhatsappNotification(detail)) {
+              openNotifyModal(detail);
             }
           } catch (e) {
             console.error(e);
@@ -2981,6 +3742,7 @@
         if(!requireAuth()) return;
 
         CONFIG = await loadConfig();
+        await loadCompanyNotificationConfig();
 
         const today = new Date();
         const yyyy = today.getUTCFullYear();
@@ -3040,8 +3802,17 @@
         document.getElementById("closeCancelModal").addEventListener("click", closeCancelModal);
         document.getElementById("btnCancelBack").addEventListener("click", closeCancelModal);
         document.getElementById("btnCancelConfirm").addEventListener("click", confirmCancel);
-        document.getElementById("cancelModal").addEventListener("click", (e) => {
-          if (e.target.id === "cancelModal") closeCancelModal();
+        document.getElementById("closeNotifyModal").addEventListener("click", closeNotifyModal);
+        document.getElementById("btnNotifyNo").addEventListener("click", closeNotifyModal);
+        document.getElementById("btnNotifyYes").addEventListener("click", () => {
+          const order = notifyState.order;
+          closeNotifyModal();
+          if(order){
+            notifyCustomerManualWhatsapp(order);
+          }
+        });
+        document.getElementById("notifyModal").addEventListener("click", (e) => {
+          if (e.target.id === "notifyModal") closeNotifyModal();
         });
 
         document.getElementById("btnNewOrder").addEventListener("click", async () => {
@@ -3061,6 +3832,13 @@
         document.getElementById("createOrderModal").addEventListener("click", (e) => {
           if (e.target.id === "createOrderModal") closeCreateOrderModal();
         });
+        document.getElementById("closeCreateOrderConfigModal").addEventListener("click", closeCreateOrderConfigModal);
+        document.getElementById("btnCreateOrderConfigCancel").addEventListener("click", closeCreateOrderConfigModal);
+        document.getElementById("btnCreateOrderConfigConfirm").addEventListener("click", confirmCreateOrderConfigProduct);
+        document.getElementById("createOrderConfigModal").addEventListener("click", (e) => {
+          if (e.target.id === "createOrderConfigModal") closeCreateOrderConfigModal();
+        });
+
 
         document.getElementById("coSearch").addEventListener("input", (e) => {
           createOrderSearch = e.target.value || "";

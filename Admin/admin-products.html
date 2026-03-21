@@ -1261,80 +1261,81 @@
       .filter(option => option.name);
   }
 
-  function buildOptionCardHtml(prefix, option, index){
-    const variants = Array.isArray(option.variants) ? option.variants : [];
+function buildOptionCardHtml(prefix, option, index){
+  const variants = Array.isArray(option.variants) ? option.variants : [];
+  const p = prefix ? `${prefix}` : "";
 
-    return `
-      <div class="option-card" data-option-index="${index}">
-        <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
-          <div class="text-sm font-extrabold text-slate-900 font-display">Opción ${index + 1}</div>
-          <button type="button"
-            class="soft-btn px-3 py-2 rounded-2xl bg-rose-100 text-rose-800 hover:bg-rose-200 text-xs"
-            onclick="${prefix}RemoveOption(${index})">
-            Eliminar opción
-          </button>
+  return `
+    <div class="option-card" data-option-index="${index}">
+      <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+        <div class="text-sm font-extrabold text-slate-900 font-display">Opción ${index + 1}</div>
+        <button type="button"
+          class="soft-btn px-3 py-2 rounded-2xl bg-rose-100 text-rose-800 hover:bg-rose-200 text-xs"
+          onclick="${p}removeOption(${index})">
+          Eliminar opción
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="field-label">Nombre de la opción</label>
+          <input class="field-input"
+            value="${escapeHtml(option.name || "")}"
+            oninput="${p}updateOptionField(${index}, 'name', this.value)"
+            placeholder="Ej: Carne" />
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="field-label">Nombre de la opción</label>
-            <input class="field-input"
-              value="${escapeHtml(option.name || "")}"
-              oninput="${prefix}UpdateOptionField(${index}, 'name', this.value)"
-              placeholder="Ej: Carne" />
-          </div>
-
-          <div>
-            <label class="field-label">Extra de precio</label>
-            <input class="field-input"
-              value="${escapeHtml(String(option.extraPrice ?? ""))}"
-              oninput="${prefix}UpdateOptionField(${index}, 'extraPrice', this.value)"
-              placeholder="0" />
-          </div>
-        </div>
-
-        <div class="flex items-center justify-between flex-wrap gap-3 mb-3">
-          <div>
-            <div class="text-sm font-semibold text-slate-800">Variantes</div>
-            <div class="text-xs text-slate-500 mt-1">Ej: Frita / Horno. Si no agregás variantes, la opción queda sola.</div>
-          </div>
-
-          <button type="button"
-            class="soft-btn px-3 py-2 rounded-2xl bg-slate-900 text-white hover:bg-slate-800 text-xs"
-            onclick="${prefix}AddVariant(${index})">
-            Agregar variante
-          </button>
-        </div>
-
-        <div class="space-y-3">
-          ${variants.length
-            ? variants.map((variant, vIndex) => `
-              <div class="variant-pill">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
-                  <input class="field-input"
-                    value="${escapeHtml(variant.name || "")}"
-                    oninput="${prefix}UpdateVariantField(${index}, ${vIndex}, 'name', this.value)"
-                    placeholder="Ej: Frita" />
-
-                  <input class="field-input"
-                    value="${escapeHtml(String(variant.extraPrice ?? ""))}"
-                    oninput="${prefix}UpdateVariantField(${index}, ${vIndex}, 'extraPrice', this.value)"
-                    placeholder="0" />
-                </div>
-
-                <button type="button"
-                  class="soft-btn px-3 py-2 rounded-2xl bg-rose-100 text-rose-800 hover:bg-rose-200 text-xs shrink-0"
-                  onclick="${prefix}RemoveVariant(${index}, ${vIndex})">
-                  Quitar
-                </button>
-              </div>
-            `).join("")
-            : `<div class="text-sm text-slate-400">Sin variantes.</div>`
-          }
+        <div>
+          <label class="field-label">Extra de precio</label>
+          <input class="field-input"
+            value="${escapeHtml(String(option.extraPrice ?? ""))}"
+            oninput="${p}updateOptionField(${index}, 'extraPrice', this.value)"
+            placeholder="0" />
         </div>
       </div>
-    `;
-  }
+
+      <div class="flex items-center justify-between flex-wrap gap-3 mb-3">
+        <div>
+          <div class="text-sm font-semibold text-slate-800">Variantes</div>
+          <div class="text-xs text-slate-500 mt-1">Ej: Frita / Horno. Si no agregás variantes, la opción queda sola.</div>
+        </div>
+
+        <button type="button"
+          class="soft-btn px-3 py-2 rounded-2xl bg-slate-900 text-white hover:bg-slate-800 text-xs"
+          onclick="${p}addVariant(${index})">
+          Agregar variante
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        ${variants.length
+          ? variants.map((variant, vIndex) => `
+            <div class="variant-pill">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
+                <input class="field-input"
+                  value="${escapeHtml(variant.name || "")}"
+                  oninput="${p}updateVariantField(${index}, ${vIndex}, 'name', this.value)"
+                  placeholder="Ej: Frita" />
+
+                <input class="field-input"
+                  value="${escapeHtml(String(variant.extraPrice ?? ""))}"
+                  oninput="${p}updateVariantField(${index}, ${vIndex}, 'extraPrice', this.value)"
+                  placeholder="0" />
+              </div>
+
+              <button type="button"
+                class="soft-btn px-3 py-2 rounded-2xl bg-rose-100 text-rose-800 hover:bg-rose-200 text-xs shrink-0"
+                onclick="${p}removeVariant(${index}, ${vIndex})">
+                Quitar
+              </button>
+            </div>
+          `).join("")
+          : `<div class="text-sm text-slate-400">Sin variantes.</div>`
+        }
+      </div>
+    </div>
+  `;
+}
 
   function renderOptionsBuilder(){
     const wrapper = document.getElementById("optionsBuilder");

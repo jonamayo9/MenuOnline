@@ -328,6 +328,21 @@
       padding: 20px;
     }
 
+
+    .emoji-btn{
+      border-radius: 12px;
+      padding: 8px 0;
+      transition: .2s;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+
+    .emoji-btn:hover{
+      background: #f1f5f9;
+      transform: scale(1.08);
+    }
+
     .hidden { display: none !important; }
 
     @media (max-width: 860px) {
@@ -567,6 +582,65 @@
                 class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-800 font-semibold hover:bg-slate-100 transition">
                 Quitar logo
               </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+          <div class="md:col-span-4">
+            <label class="field-label">Tipo de notificación</label>
+            <div id="orderNotificationModeView" class="field-input bg-slate-50">—</div>
+            <div class="text-[11px] text-slate-400 mt-2">Lo define el superadmin. Acá solo se visualiza.</div>
+          </div>
+
+          <div class="md:col-span-8">
+            <div class="flex items-center justify-between gap-3 mb-2 flex-wrap">
+              <label class="field-label !mb-0">Plantilla de notificación</label>
+
+              <div class="relative shrink-0">
+                <button type="button" id="btnEmojiPicker"
+                  class="px-3 py-2 rounded-xl bg-slate-100 text-slate-800 text-sm font-semibold hover:bg-slate-200 transition">
+                  😀 Emojis
+                </button>
+
+                <div id="emojiPickerPanel"
+                  class="hidden absolute right-0 top-full mt-2 w-72 bg-white border border-slate-200 rounded-2xl shadow-xl p-3 z-20">
+                  <div class="text-xs font-semibold text-slate-500 mb-2">Elegí un emoji</div>
+                  <div class="grid grid-cols-8 gap-2 text-xl">
+                    <button type="button" class="emoji-btn">🛵</button>
+                    <button type="button" class="emoji-btn">🏍️</button>
+                    <button type="button" class="emoji-btn">🚲</button>
+                    <button type="button" class="emoji-btn">🚗</button>
+                    <button type="button" class="emoji-btn">🚚</button>
+                    <button type="button" class="emoji-btn">📦</button>
+                    <button type="button" class="emoji-btn">📍</button>
+                    <button type="button" class="emoji-btn">✅</button>
+                    <button type="button" class="emoji-btn">⏳</button>
+                    <button type="button" class="emoji-btn">💬</button>
+                    <button type="button" class="emoji-btn">🍕</button>
+                    <button type="button" class="emoji-btn">🍔</button>
+                    <button type="button" class="emoji-btn">🌮</button>
+                    <button type="button" class="emoji-btn">🥟</button>
+                    <button type="button" class="emoji-btn">🔥</button>
+                    <button type="button" class="emoji-btn">🙌</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <textarea id="orderNotificationTemplate"
+              class="field-input min-h-[140px] resize-y"
+              placeholder="Ej: Hola {customerName}, tu pedido {orderNumber} ya está en camino 🛵"></textarea>
+
+            <div class="text-[11px] text-slate-400 mt-2">
+              Podés usar emojis y Variables disponibles:<br>
+
+                {customerName} → nombre del cliente<br>
+                {orderNumber} → número de pedido<br>
+                {orderDetail} → productos del pedido<br>
+                {address} → dirección<br>
+                {total} → total del pedido<br>
+                {paymentMethod} → Método de Pago
             </div>
           </div>
         </div>
@@ -1075,12 +1149,23 @@
       document.getElementById("paymentSummary").textContent = hasAnyMethod ? "Métodos activos" : "Sin métodos habilitados";
     }
 
+    function getOrderNotificationModeLabel(value){
+      const map = {
+        0: "No notifica",
+        1: "WhatsApp manual",
+        2: "WhatsApp automático"
+      };
+      return map[Number(value)] || "No definido";
+    }
+
     function fillCompanyForm(data){
       currentData = data || {};
 
       document.getElementById("name").value = data?.name ?? "";
       document.getElementById("whatsapp").value = data?.whatsapp ?? "";
       document.getElementById("alias").value = data?.alias ?? "";
+      document.getElementById("orderNotificationModeView").textContent = getOrderNotificationModeLabel(data?.orderNotificationMode ?? 0);
+      document.getElementById("orderNotificationTemplate").value = data?.orderNotificationTemplate ?? "";
 
       document.getElementById("transferSurchargePercent").value = data?.transferSurchargePercent ?? 0;
       document.getElementById("mercadoPagoSurchargePercent").value = data?.mercadoPagoSurchargePercent ?? 0;
@@ -1098,6 +1183,7 @@
       const name = (document.getElementById("name").value || "").trim();
       const whatsapp = (document.getElementById("whatsapp").value || "").trim();
       const alias = (document.getElementById("alias").value || "").trim();
+      const orderNotificationTemplate = (document.getElementById("orderNotificationTemplate").value || "").trim();
 
       const transferSurchargePercent = Number(document.getElementById("transferSurchargePercent").value || 0);
       const mercadoPagoSurchargePercent = Number(document.getElementById("mercadoPagoSurchargePercent").value || 0);
@@ -1106,6 +1192,7 @@
         name,
         whatsapp,
         alias,
+        orderNotificationTemplate,
         transferSurchargePercent,
         mercadoPagoSurchargePercent
       };
@@ -1152,6 +1239,7 @@
         whatsapp: values.whatsapp || null,
         logoUrl: logoUrl || null,
         alias: values.alias || null,
+        orderNotificationTemplate: values.orderNotificationTemplate || null,
         transferSurchargePercent: values.transferSurchargePercent,
         mercadoPagoSurchargePercent: values.mercadoPagoSurchargePercent
       });
@@ -1175,6 +1263,7 @@
         whatsapp: values.whatsapp || null,
         logoUrl: currentData?.logoUrl || null,
         alias: values.alias || null,
+        orderNotificationTemplate: values.orderNotificationTemplate || null,
         transferSurchargePercent: values.transferSurchargePercent,
         mercadoPagoSurchargePercent: values.mercadoPagoSurchargePercent
       });
@@ -1401,6 +1490,47 @@
         CONFIG = await loadConfig();
 
         document.getElementById("refresh").addEventListener("click", refreshAll);
+        const btnEmojiPicker = document.getElementById("btnEmojiPicker");
+        const emojiPickerPanel = document.getElementById("emojiPickerPanel");
+        const templateInput = document.getElementById("orderNotificationTemplate");
+
+        btnEmojiPicker?.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          emojiPickerPanel?.classList.toggle("hidden");
+        });
+
+        emojiPickerPanel?.querySelectorAll(".emoji-btn").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const emoji = btn.textContent || "";
+            if (!templateInput) return;
+
+            const start = templateInput.selectionStart ?? templateInput.value.length;
+            const end = templateInput.selectionEnd ?? templateInput.value.length;
+            const value = templateInput.value || "";
+
+            templateInput.value = value.slice(0, start) + emoji + value.slice(end);
+
+            const newPos = start + emoji.length;
+            templateInput.setSelectionRange(newPos, newPos);
+            templateInput.focus();
+            emojiPickerPanel?.classList.add("hidden");
+          });
+        });
+
+        document.addEventListener("click", (e) => {
+          if (!emojiPickerPanel || !btnEmojiPicker) return;
+          const clickedInsidePanel = emojiPickerPanel.contains(e.target);
+          const clickedButton = btnEmojiPicker.contains(e.target);
+
+          if (!clickedInsidePanel && !clickedButton) {
+            emojiPickerPanel.classList.add("hidden");
+          }
+        });
+
 
         document.getElementById("saveCompanyInfo").addEventListener("click", async () => {
           try {

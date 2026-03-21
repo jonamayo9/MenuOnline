@@ -130,6 +130,17 @@
                   <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
                 </div>
 
+                <div class="md:col-span-4 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">Notificación de pedidos</label>
+                  <select id="m_orderNotificationMode"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm">
+                    <option value="0">No notificar</option>
+                    <option value="1">WhatsApp manual</option>
+                    <option value="2">WhatsApp automático</option>
+                  </select>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Define qué pasa al marcar un pedido como enviado.</div>
+                </div>
+
                 <div class="md:col-span-6 flex flex-col">
                   <label class="text-xs text-slate-400 mb-1 block">Logo (archivo)</label>
                   <input id="m_logoFile" type="file" accept="image/*"
@@ -235,6 +246,30 @@
                     Próximamente integrado con Mercado Pago QR.
                   </div>
                   <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Por ahora solo queda la opción visual y de configuración.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- NOTIFICACIONES -->
+            <div class="bg-slate-50 border border-slate-200 rounded-3xl p-4 sm:p-5">
+              <div class="text-lg font-extrabold">Notificaciones al cliente</div>
+              <div class="text-sm text-slate-500 mt-1">Configurá el modo y las plantillas. Podés usar emojis como 🚚 ✅ 🛵 🍕.</div>
+
+              <div class="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+                <div class="md:col-span-6 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">Plantilla manual</label>
+                  <textarea id="m_manualNotificationTemplate" rows="4"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm resize-y"
+                    placeholder="Ej: Hola {cliente}, tu pedido #{pedido} ya está en camino 🚚"></textarea>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Se usa cuando el modo es WhatsApp manual. Variables: {cliente}, {pedido}, {estado}, {total}.</div>
+                </div>
+
+                <div class="md:col-span-6 flex flex-col">
+                  <label class="text-xs text-slate-400 mb-1 block">Plantilla automática</label>
+                  <textarea id="m_automaticNotificationTemplate" rows="4"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm resize-y"
+                    placeholder="Ej: Hola {cliente}, tu pedido #{pedido} fue enviado 🚚"></textarea>
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">Se usa cuando el modo es WhatsApp automático. Variables: {cliente}, {pedido}, {estado}, {total}.</div>
                 </div>
               </div>
             </div>
@@ -614,6 +649,21 @@
       return `${prefix}${value}%`;
     }
 
+    function notificationModeLabel(mode){
+      const value = Number(mode ?? 0);
+      if(value === 1) return "WhatsApp manual";
+      if(value === 2) return "WhatsApp automático";
+      return "No notificar";
+    }
+
+    function getDefaultManualTemplate(){
+      return "Hola {cliente}, tu pedido #{pedido} ya está en camino 🚚";
+    }
+
+    function getDefaultAutomaticTemplate(){
+      return "Hola {cliente}, tu pedido #{pedido} fue enviado 🚚";
+    }
+
     function syncTablesConfigVisibility(){
       const moduleEnabled = document.getElementById("m_featureTableManagementEnabled").checked;
       const section = document.getElementById("m_tablesConfigSection");
@@ -744,6 +794,10 @@
               </div>
 
               <div class="text-sm text-slate-500 mt-1">
+                Notificación pedidos: <span class="font-semibold text-slate-800">${escapeHtml(notificationModeLabel(c.orderNotificationMode))}</span>
+              </div>
+
+              <div class="text-sm text-slate-500 mt-1">
                 Token MP: <span class="font-semibold text-slate-800">${escapeHtml(c.mercadoPagoMaskedToken || (c.mercadoPagoHasToken ? "Configurado" : "Sin token"))}</span>
               </div>
 
@@ -858,6 +912,9 @@
       document.getElementById("m_name").value = "";
       document.getElementById("m_whatsapp").value = "";
       document.getElementById("m_alias").value = "";
+      document.getElementById("m_orderNotificationMode").value = "0";
+      document.getElementById("m_manualNotificationTemplate").value = getDefaultManualTemplate();
+      document.getElementById("m_automaticNotificationTemplate").value = getDefaultAutomaticTemplate();
       document.getElementById("m_enabled").value = "true";
       document.getElementById("m_slug").value = "";
       document.getElementById("m_logoUrl_hidden").value = "";
@@ -936,6 +993,9 @@
       document.getElementById("m_name").value = c.name ?? "";
       document.getElementById("m_whatsapp").value = c.whatsapp ?? "";
       document.getElementById("m_alias").value = c.alias ?? "";
+      document.getElementById("m_orderNotificationMode").value = String(Number(c.orderNotificationMode ?? 0));
+      document.getElementById("m_manualNotificationTemplate").value = c.manualNotificationTemplate ?? getDefaultManualTemplate();
+      document.getElementById("m_automaticNotificationTemplate").value = c.automaticNotificationTemplate ?? getDefaultAutomaticTemplate();
       document.getElementById("m_enabled").value = String(toBool(c.enabled));
 
       document.getElementById("m_logoUrl_hidden").value = c.logoUrl || "";
@@ -1076,6 +1136,9 @@
       const name = (document.getElementById("m_name").value || "").trim();
       const whatsapp = (document.getElementById("m_whatsapp").value || "").trim();
       const alias = (document.getElementById("m_alias").value || "").trim();
+      const orderNotificationMode = Number(document.getElementById("m_orderNotificationMode").value || 0);
+      const manualNotificationTemplate = (document.getElementById("m_manualNotificationTemplate").value || "").trim();
+      const automaticNotificationTemplate = (document.getElementById("m_automaticNotificationTemplate").value || "").trim();
       const enabled = document.getElementById("m_enabled").value === "true";
 
       const mercadoPagoEnabled = document.getElementById("m_mpEnabled").value === "true";
@@ -1162,6 +1225,9 @@
           name,
           whatsapp: whatsapp || null,
           alias: alias || null,
+          orderNotificationMode,
+          manualNotificationTemplate: manualNotificationTemplate || null,
+          automaticNotificationTemplate: automaticNotificationTemplate || null,
           logoUrl: logoUrl || null,
           enabled,
           mercadoPagoEnabled,

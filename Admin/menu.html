@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Menú Online</title>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -599,6 +599,9 @@
         <input type="text" id="nombre-cliente" placeholder="Tu nombre"
           class="checkout-field">
 
+            <input type="tel" id="whatsapp-cliente" placeholder="Tu WhatsApp"
+    class="checkout-field">
+
         <input type="text" id="direccion-cliente" placeholder="Dirección de entrega"
           class="checkout-field">
 
@@ -647,6 +650,29 @@
       <button onclick="cerrarModales()"
         class="w-full text-slate-400 mt-4 text-[10px] font-bold uppercase">
         Volver
+      </button>
+    </div>
+  </div>
+
+
+
+  <!-- MODAL MENSAJES -->
+  <div id="modal-app-message" class="hidden fixed inset-0 z-[140] bg-slate-950/55 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-[2rem] p-6 shadow-2xl border border-slate-100 relative overflow-hidden">
+      <div id="app-message-bar" class="absolute top-0 left-0 w-full h-2 bg-rose-500"></div>
+
+      <div class="text-center">
+        <div id="app-message-icon" class="w-16 h-16 mx-auto rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-2xl">
+          <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+
+        <h3 id="app-message-title" class="mt-4 text-xl font-black text-slate-900">Atención</h3>
+        <p id="app-message-text" class="mt-2 text-sm text-slate-500 leading-relaxed"></p>
+      </div>
+
+      <button type="button" onclick="hideAppModal()"
+        class="mt-6 w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-sm shadow-lg active:scale-95 transition-all">
+        Entendido
       </button>
     </div>
   </div>
@@ -927,6 +953,108 @@ function getCompanySlug(){
       return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
     }
 
+
+
+    function getBackendErrorMessage(raw){
+      const fallback = "Ocurrió un error inesperado.";
+
+      if(raw === null || raw === undefined) return fallback;
+
+      if(typeof raw === "string") {
+        const trimmed = raw.trim();
+        if(!trimmed) return fallback;
+
+        try{
+          return getBackendErrorMessage(JSON.parse(trimmed));
+        }catch{
+          return trimmed;
+        }
+      }
+
+      if(Array.isArray(raw)) {
+        const first = raw.map(getBackendErrorMessage).find(Boolean);
+        return first || fallback;
+      }
+
+      if(typeof raw === "object") {
+        if(typeof raw.message === "string" && raw.message.trim()) return raw.message.trim();
+        if(typeof raw.title === "string" && raw.title.trim()) return raw.title.trim();
+        if(typeof raw.error === "string" && raw.error.trim()) return raw.error.trim();
+        if(typeof raw.detail === "string" && raw.detail.trim()) return raw.detail.trim();
+
+        if(raw.errors && typeof raw.errors === "object") {
+          for(const value of Object.values(raw.errors)) {
+            if(Array.isArray(value) && value.length) {
+              const msg = String(value[0] || "").trim();
+              if(msg) return msg;
+            }
+            if(typeof value === "string" && value.trim()) return value.trim();
+          }
+        }
+      }
+
+      return fallback;
+    }
+
+    async function readErrorResponse(resp, fallback){
+      try{
+        const text = await resp.text();
+        return getBackendErrorMessage(text) || fallback;
+      }catch{
+        return fallback;
+      }
+    }
+
+    function showAppModal(title, message, type = "error"){
+      const modal = document.getElementById("modal-app-message");
+      const titleEl = document.getElementById("app-message-title");
+      const textEl = document.getElementById("app-message-text");
+      const iconEl = document.getElementById("app-message-icon");
+      const barEl = document.getElementById("app-message-bar");
+
+      if(!modal || !titleEl || !textEl || !iconEl || !barEl){
+        window.alert(message || title || "Ocurrió un error.");
+        return;
+      }
+
+      const styles = {
+        error: {
+          bar: "bg-rose-500",
+          iconWrap: "bg-rose-50 text-rose-600",
+          icon: "fa-solid fa-circle-exclamation"
+        },
+        success: {
+          bar: "bg-emerald-500",
+          iconWrap: "bg-emerald-50 text-emerald-600",
+          icon: "fa-solid fa-circle-check"
+        },
+        info: {
+          bar: "bg-amber-500",
+          iconWrap: "bg-amber-50 text-amber-600",
+          icon: "fa-solid fa-circle-info"
+        }
+      };
+
+      const cfg = styles[type] || styles.error;
+
+      titleEl.textContent = title || "Atención";
+      textEl.textContent = message || "Ocurrió un error inesperado.";
+
+      barEl.className = `absolute top-0 left-0 w-full h-2 ${cfg.bar}`;
+      iconEl.className = `w-16 h-16 mx-auto rounded-2xl flex items-center justify-center text-2xl ${cfg.iconWrap}`;
+      iconEl.innerHTML = `<i class="${cfg.icon}"></i>`;
+
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function hideAppModal(){
+      const modal = document.getElementById("modal-app-message");
+      if(!modal) return;
+      modal.classList.remove("flex");
+      modal.classList.add("hidden");
+    }
+
     function getPagoSeleccionado(){
       const pagoEl = document.getElementById("pago-cliente");
       return pagoEl ? pagoEl.value : "Efectivo";
@@ -1128,7 +1256,7 @@ msg += `• ${p.qty} x ${p.name} ($${formatMoney(getLineTotal(p))})\n`;
       if(collectionStatus === "approved"){
         const phone = sanitizePhone(Company.whatsapp || pending.companyWhatsapp);
         if(!phone){
-          alert("El pago fue aprobado, pero no hay WhatsApp configurado en la empresa.");
+          showAppModal("Pago aprobado", "El pago fue aprobado, pero no hay WhatsApp configurado en la empresa.", "info");
           markMercadoPagoReturnHandled(paymentId);
           cleanMercadoPagoQueryParams();
           return;
@@ -1143,14 +1271,14 @@ msg += `• ${p.qty} x ${p.name} ($${formatMoney(getLineTotal(p))})\n`;
       }
 
       if(collectionStatus === "pending" || collectionStatus === "in_process"){
-        alert("Tu pago quedó pendiente. Cuando se confirme, podés volver a intentar o contactar al local.");
+        showAppModal("Pago pendiente", "Tu pago quedó pendiente. Cuando se confirme, podés volver a intentar o contactar al local.", "info");
         markMercadoPagoReturnHandled(paymentId);
         cleanMercadoPagoQueryParams();
         return;
       }
 
       if(collectionStatus === "rejected" || collectionStatus === "cancelled" || collectionStatus === "cancelled_by_user"){
-        alert("El pago no fue aprobado. Podés intentar nuevamente.");
+        showAppModal("Pago rechazado", "El pago no fue aprobado. Podés intentar nuevamente.");
         clearPendingMercadoPagoOrder();
         cleanMercadoPagoQueryParams();
       }
@@ -2190,7 +2318,7 @@ summary.innerHTML = `
   const required = Number(configState.required || 0);
 
   if(total !== required){
-    alert(`Tenés que seleccionar exactamente ${required} unidades.`);
+    showAppModal("Configuración incompleta", `Tenés que seleccionar exactamente ${required} unidades.`);
     return;
   }
 
@@ -2583,7 +2711,7 @@ function modificar(id, delta){
       try{
         if(navigator.clipboard && window.isSecureContext){
           await navigator.clipboard.writeText(a);
-          alert("¡Alias copiado!");
+          showAppModal("Alias copiado", "¡Alias copiado!", "success");
           return;
         }
       }catch{}
@@ -2600,7 +2728,7 @@ function modificar(id, delta){
 
       try{
         document.execCommand("copy");
-        alert("¡Alias copiado!");
+        showAppModal("Alias copiado", "¡Alias copiado!", "success");
       }catch{
         prompt("Copiá el alias:", a);
       }finally{
@@ -2608,81 +2736,111 @@ function modificar(id, delta){
       }
     }
 
-    async function enviarPedidoWhatsApp(){
-      if(!PublicFeatures.ordersEnabled || PublicFeatures.menuOnlyEnabled){
-        alert("Esta empresa no tiene pedidos habilitados.");
-        return;
-      }
+async function enviarPedidoWhatsApp(){
+  const nombre = document.getElementById("nombre-cliente").value.trim();
+  const whatsappCliente = document.getElementById("whatsapp-cliente").value.trim();
+  const direccion = document.getElementById("direccion-cliente").value.trim();
+  const pago = getPagoSeleccionado();
 
-      const nombre = document.getElementById("nombre-cliente").value.trim();
-      const direccion = document.getElementById("direccion-cliente").value.trim();
-      const pago = getPagoSeleccionado();
+  if(!nombre || !direccion || !whatsappCliente){
+    showAppModal("Faltan datos", "Completá tu nombre, WhatsApp y dirección.");
+    return;
+  }
 
-      if(!nombre || !direccion){
-        alert("Completá tu nombre y dirección.");
-        return;
-      }
+  const items = buildCheckoutItems();
 
-      const items = buildCheckoutItems();
+  if(!items.length){
+    showAppModal("Pedido vacío", "Agregá al menos 1 producto.");
+    return;
+  }
 
-      if(!items.length){
-        alert("Agregá al menos 1 producto.");
-        return;
-      }
+  const phone = sanitizePhone(Company.whatsapp);
+  if(!phone || !PublicFeatures.whatsappEnabled){
+    showAppModal("WhatsApp no disponible", "No hay WhatsApp configurado en la empresa.");
+    return;
+  }
 
-      const phone = sanitizePhone(Company.whatsapp);
-      if(!phone || !PublicFeatures.whatsappEnabled){
-        alert("No hay WhatsApp configurado en la empresa.");
-        return;
-      }
+  const btn = document.getElementById("btn-confirmar-final");
+  btn.disabled = true;
+  btn.innerHTML = "ENVIANDO...";
 
-      const btn = document.getElementById("btn-confirmar-final");
-      btn.disabled = true;
-      btn.innerHTML = "ENVIANDO...";
+  try{
+    const msgBase = buildWhatsAppMessage({
+      nombre,
+      direccion,
+      pago,
+      createdOrderNumber: ""
+    });
 
-      try{
-        const slug = getCompanySlug();
+    if(!PublicFeatures.ordersEnabled){
+      carrito = {};
+      cerrarModales();
+      actualizarBarra();
+      renderMenu();
 
-        const resp = await fetch(apiUrl(buildPublicApiPath("/orders", slug)), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            customerName: nombre,
-            address: direccion,
-            paymentMethod: pago,
-            items
-          })
-        });
-
-        if(!resp.ok){
-          const err = await resp.text().catch(()=> "");
-          console.error("API order error:", err);
-          alert("No se pudo registrar el pedido. Probá de nuevo.");
-          return;
-        }
-
-        const created = await resp.json().catch(()=> ({}));
-        const msg = buildWhatsAppMessage({
-          nombre,
-          direccion,
-          pago,
-          createdOrderNumber: created?.orderNumber || ""
-        });
-
-        carrito = {};
-        cerrarModales();
-        actualizarBarra();
-        renderMenu();
-
-        window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-      }catch(e){
-        console.error(e);
-        alert("No hay conexión con el servidor.");
-      }finally{
-        btn.disabled = false;
-        updateCheckoutButton();
-      }
+      window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msgBase)}`;
+      return;
     }
+
+    if(PublicFeatures.menuOnlyEnabled){
+      showAppModal("Pedidos deshabilitados", "Esta empresa no tiene pedidos habilitados.");
+      return;
+    }
+
+    const slug = getCompanySlug();
+
+    const resp = await fetch(apiUrl(buildPublicApiPath("/orders", slug)), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerName: nombre,
+        customerWhatsapp: whatsappCliente,
+        address: direccion,
+        paymentMethod: pago,
+        items
+      })
+    });
+
+    let data = null;
+
+    try{
+      data = await resp.json();
+    }catch{
+      data = null;
+    }
+
+    if(!resp.ok){
+      const errorMessage =
+        data?.message ||
+        data?.error ||
+        "No se pudo registrar el pedido. Probá de nuevo.";
+
+      console.error("API order error:", errorMessage);
+      showAppModal("No se pudo registrar el pedido", errorMessage);
+      return;
+    }
+
+    const msg = buildWhatsAppMessage({
+      nombre,
+      direccion,
+      pago,
+      createdOrderNumber: data?.orderNumber || ""
+    });
+
+    carrito = {};
+    cerrarModales();
+    actualizarBarra();
+    renderMenu();
+
+    window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+  }catch(e){
+    console.error(e);
+    showAppModal("Sin conexión", "No hay conexión con el servidor.");
+  }finally{
+    btn.disabled = false;
+    updateCheckoutButton();
+  }
+}
 
 function isUsingSubdomainMode(){
   return false;
@@ -2695,12 +2853,12 @@ function buildPublicApiPath(path, companySlug){
 
     async function iniciarPagoMercadoPago(){
       if(!PublicFeatures.ordersEnabled || PublicFeatures.menuOnlyEnabled){
-        alert("Esta empresa no tiene pedidos habilitados.");
+        showAppModal("Pedidos deshabilitados", "Esta empresa no tiene pedidos habilitados.");
         return;
       }
 
       if(!PublicFeatures.mercadoPagoEnabled){
-        alert("Mercado Pago no está habilitado en esta empresa.");
+        showAppModal("Mercado Pago no disponible", "Mercado Pago no está habilitado en esta empresa.");
         return;
       }
 
@@ -2709,14 +2867,14 @@ function buildPublicApiPath(path, companySlug){
       const pago = getPagoSeleccionado();
 
       if(!nombre || !direccion){
-        alert("Completá tu nombre y dirección.");
+        showAppModal("Faltan datos", "Completá tu nombre y dirección.");
         return;
       }
 
       const items = buildCheckoutItems();
 
       if(!items.length){
-        alert("Agregá al menos 1 producto.");
+        showAppModal("Pedido vacío", "Agregá al menos 1 producto.");
         return;
       }
 
@@ -2759,14 +2917,14 @@ function buildPublicApiPath(path, companySlug){
         if(!resp.ok){
           const err = await resp.text().catch(() => "");
           console.error("MercadoPago error:", err);
-          alert("No se pudo iniciar el pago con Mercado Pago.");
+          showAppModal("No se pudo iniciar el pago", "No se pudo iniciar el pago con Mercado Pago.");
           return;
         }
 
         const data = await resp.json();
 
         if(!data?.initPoint){
-          alert("No se recibió el link de pago.");
+          showAppModal("Link de pago no disponible", "No se recibió el link de pago.");
           return;
         }
 
@@ -2785,7 +2943,7 @@ function buildPublicApiPath(path, companySlug){
         window.location.href = data.initPoint;
       }catch(e){
         console.error(e);
-        alert("No hay conexión con el servidor.");
+        showAppModal("Sin conexión", "No hay conexión con el servidor.");
       }finally{
         btn.disabled = false;
         updateCheckoutButton();
@@ -2794,7 +2952,7 @@ function buildPublicApiPath(path, companySlug){
 
     async function confirmarCheckout(){
       if(!PublicFeatures.ordersEnabled || PublicFeatures.menuOnlyEnabled){
-        alert("Esta empresa no tiene pedidos habilitados.");
+        showAppModal("Pedidos deshabilitados", "Esta empresa no tiene pedidos habilitados.");
         return;
       }
 
@@ -2813,7 +2971,7 @@ function buildPublicApiPath(path, companySlug){
       const btn = document.getElementById("btnDevWpp");
 
       if(!devPhone || devPhone.includes("XXXXXXXX")){
-        btn.onclick = () => alert("Configurá tu WhatsApp en DEV_WHATSAPP dentro del index.html");
+        btn.onclick = () => showAppModal("Configurar WhatsApp", "Configurá tu WhatsApp en DEV_WHATSAPP dentro del index.html", "info");
         return;
       }
 
