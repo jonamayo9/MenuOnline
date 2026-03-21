@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>System Dev Solutions | Gestión de pedidos</title>
+  <title>PedidoClick | Gestión de pedidos</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
@@ -20,12 +20,12 @@
       --surface: #ffffff;
       --surface-2: #f8fafc;
       --surface-3: #eef2ff;
-      --accent: #5b4ef8;
-      --accent-2: #7c6ffc;
-      --accent-glow: rgba(91,78,248,0.12);
-      --hero-a: #24324a;
-      --hero-b: #2c3d59;
-      --hero-c: #1f2b40;
+      --accent: #6d28d9;
+      --accent-2: #8b5cf6;
+      --accent-glow: rgba(109,40,217,0.14);
+      --hero-a: #22113d;
+      --hero-b: #31165a;
+      --hero-c: #1d1033;
       --shadow-soft: 0 20px 60px rgba(10,10,15,0.08), 0 4px 16px rgba(10,10,15,0.04);
       --shadow-card: 0 22px 60px rgba(15, 23, 42, 0.08);
     }
@@ -59,15 +59,113 @@
       inset: 0;
       z-index: 0;
       background:
-        radial-gradient(ellipse 70% 60% at 10% 0%, rgba(91,78,248,0.05) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 90% 100%, rgba(124,111,252,0.04) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 60% at 10% 0%, rgba(109,40,217,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 100%, rgba(139,92,246,0.05) 0%, transparent 60%),
         radial-gradient(ellipse 80% 50% at 50% 50%, rgba(240,240,248,1) 0%, rgba(247,247,251,1) 100%);
     }
 
     .brand-strip {
-      border-bottom: 1px solid var(--border);
-      background: rgba(255,255,255,0.84);
-      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(22px);
+      box-shadow: 0 10px 30px rgba(15,23,42,0.05);
+    }
+
+    .brand-strip-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+
+    .brand-logo-shell {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #ffffff 0%, #f4f1ff 100%);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .brand-logo-shell img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* 🔥 importante */
+    }
+
+    .brand-logo-fallback {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.04em;
+    }
+
+    .brand-copy {
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .brand-subtitle {
+      margin-top: 4px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-2);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .brand-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(109,40,217,0.08);
+      border: 1px solid rgba(109,40,217,0.10);
+      color: var(--accent);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      white-space: nowrap;
     }
 
     .hero-card {
@@ -167,6 +265,47 @@
       z-index: -1;
       pointer-events: none;
       opacity: 0;
+    }
+
+    @media (max-width: 640px) {
+      .brand-strip {
+        background: transparent;
+        border-bottom: none;
+        backdrop-filter: none;
+        box-shadow: none;
+      }
+
+      .brand-strip-inner {
+        max-width: 430px !important;
+        margin: 0 auto !important;
+        padding: 14px 16px 0 !important;
+        min-height: unset !important;
+        height: auto !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 12px !important;
+        flex-wrap: nowrap !important;
+      }
+
+      .brand-left {
+        min-width: 0 !important;
+        gap: 12px !important;
+      }
+
+      .brand-logo-shell {
+        width: 46px !important;
+        height: 46px !important;
+        border-radius: 14px !important;
+        background: rgba(255,255,255,0.18) !important;
+        border: 1px solid rgba(255,255,255,0.16);
+        backdrop-filter: blur(10px);
+        box-shadow: none;
+      }
+
+      .brand-logo-fallback { color: white !important; }
+      .brand-title { color: white !important; font-size: 17px !important; }
+      .brand-subtitle { color: rgba(255,255,255,0.72) !important; font-size: 9px !important; letter-spacing: 0.14em !important; }
+      .brand-right { display: none !important; }
     }
 
     @media print {
@@ -527,19 +666,20 @@
 
     @media (max-width: 860px) {
       .brand-strip-inner {
-        height: auto !important;
-        min-height: 56px;
+        min-height: 64px;
         padding-top: 10px !important;
         padding-bottom: 10px !important;
-        gap: 8px;
+        gap: 10px;
         flex-wrap: wrap;
       }
 
       .brand-right {
         width: 100%;
-        text-align: left !important;
-        font-size: 9px !important;
-        letter-spacing: 0.16em !important;
+        justify-content: flex-start;
+      }
+
+      .brand-chip {
+        width: fit-content;
       }
     }
 
@@ -900,23 +1040,24 @@
 
   <div style="position:relative;z-index:1;min-height:100vh;">
     <div class="brand-strip sticky top-0 z-50 no-print">
-      <div class="brand-strip-inner" style="max-width:1200px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;column-gap:14px;">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 auto;">
-          <div style="width:28px;height:28px;background:var(--ink);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <rect x="1" y="1" width="5" height="5" rx="1.5" fill="white"/>
-              <rect x="8" y="1" width="5" height="5" rx="1.5" fill="white" opacity=".6"/>
-              <rect x="1" y="8" width="5" height="5" rx="1.5" fill="white" opacity=".6"/>
-              <rect x="8" y="8" width="5" height="5" rx="1.5" fill="white" opacity=".3"/>
-            </svg>
+      <div class="brand-strip-inner">
+        <div class="brand-left">
+          <div class="brand-logo-shell">
+            <img src="../img/iniciales_1.png" alt="PedidoClick" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="brand-logo-fallback" style="display:none;">PC</div>
           </div>
-          <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14px;color:var(--ink);letter-spacing:-0.02em;white-space:nowrap;">System Dev <span style="color:var(--muted);font-weight:500;">Solutions</span></span>
+
+          <div class="brand-copy">
+            <div class="brand-title">PedidoClick</div>
+            <div class="brand-subtitle">Panel administrativo</div>
+          </div>
         </div>
 
-        <div class="brand-right" style="flex:0 1 auto;text-align:right;min-width:0;">
-          <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted-2);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-            Digital Solutions for Local Commerce
-          </span>
+        <div class="brand-right">
+          <div class="brand-chip">
+            <span style="width:7px;height:7px;border-radius:999px;background:#10b981;display:inline-block;"></span>
+            Gestión online
+          </div>
         </div>
       </div>
     </div>

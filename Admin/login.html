@@ -3,114 +3,775 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>System Dev Solutions | Admin Login</title>
+  <title>PedidoClick | Admin Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    .glass-card {
-      background: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(10px);
+    :root{
+      --ink:#0f172a;
+      --ink-2:#1e293b;
+      --ink-3:#334155;
+      --muted:#64748b;
+      --muted-2:#94a3b8;
+      --line:#e2e8f0;
+      --soft:#f8fafc;
+      --soft-2:#eef2ff;
+      --white:#ffffff;
+      --accent:#6d28d9;
+      --accent-2:#8b5cf6;
+      --accent-3:#c084fc;
+      --accent-glow:rgba(109,40,217,.18);
+      --hero-a:#1f1140;
+      --hero-b:#2a1458;
+      --hero-c:#140b2f;
+    }
+
+    *{ box-sizing:border-box; }
+
+    html,body{
+      margin:0;
+      padding:0;
+      min-height:100%;
+    }
+
+    body{
+      font-family:'DM Sans',sans-serif;
+      color:var(--ink);
+      overflow-x:hidden;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(109,40,217,.10) 0%, transparent 28%),
+        radial-gradient(circle at 88% 18%, rgba(139,92,246,.10) 0%, transparent 25%),
+        radial-gradient(circle at 50% 100%, rgba(109,40,217,.06) 0%, transparent 32%),
+        linear-gradient(180deg,#f8fafc 0%, #f3f6fb 100%);
+    }
+
+    h1,h2,h3,.font-display{
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+
+    body::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.022'/%3E%3C/svg%3E");
+      pointer-events:none;
+      z-index:0;
+      opacity:.35;
+    }
+
+    .page{
+      position:relative;
+      z-index:1;
+      min-height:100vh;
+      padding:24px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .shell{
+      width:100%;
+      max-width:1240px;
+      display:grid;
+      grid-template-columns:minmax(0, 1.12fr) minmax(380px, 460px);
+      gap:28px;
+      align-items:stretch;
+    }
+
+    .left-panel{
+      position:relative;
+      overflow:hidden;
+      border-radius:40px;
+      padding:38px;
+      min-height:720px;
+      background:
+        radial-gradient(circle at 84% 16%, rgba(255,255,255,.12) 0%, transparent 22%),
+        radial-gradient(circle at 20% 100%, rgba(192,132,252,.14) 0%, transparent 26%),
+        linear-gradient(145deg,var(--hero-a) 0%,var(--hero-b) 52%,var(--hero-c) 100%);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 34px 90px rgba(15,23,42,.20);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+
+    .left-panel::before{
+      content:'';
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.04) 0%, rgba(255,255,255,0) 34%);
+      pointer-events:none;
+    }
+
+    .left-inner{
+      position:relative;
+      z-index:1;
+    }
+
+    .top-brand{
+      display:flex;
+      align-items:center;
+      gap:18px;
+    }
+
+    .top-brand-logo{
+      width:92px;
+      height:92px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+    }
+
+    .top-brand-logo img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+      filter:drop-shadow(0 14px 28px rgba(0,0,0,.18));
+    }
+
+    .top-brand-fallback{
+      width:92px;
+      height:92px;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      border-radius:28px;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.10);
+      color:white;
+      font-size:30px;
+      font-weight:800;
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+
+    .top-brand-copy{
+      min-width:0;
+    }
+
+    .top-brand-title{
+      color:#fff;
+      font-size:30px;
+      font-weight:800;
+      line-height:1;
+      letter-spacing:-.04em;
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+
+    .top-brand-sub{
+      margin-top:10px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.12);
+      color:rgba(255,255,255,.78);
+      font-size:10px;
+      font-weight:800;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+
+    .hero-copy{
+      margin-top:54px;
+      max-width:560px;
+    }
+
+    .hero-title{
+      color:#fff;
+      font-size:clamp(42px, 5vw, 66px);
+      line-height:.96;
+      letter-spacing:-.065em;
+      font-weight:800;
+      margin:0;
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+
+    .hero-text{
+      margin-top:22px;
+      font-size:16px;
+      line-height:1.72;
+      color:rgba(255,255,255,.72);
+      max-width:500px;
+    }
+
+    .hero-stats{
+      margin-top:34px;
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:14px;
+      max-width:620px;
+    }
+
+    .stat-card{
+      border-radius:24px;
+      padding:18px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      backdrop-filter:blur(12px);
+    }
+
+    .stat-number{
+      color:#fff;
+      font-size:26px;
+      font-weight:800;
+      letter-spacing:-.04em;
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+
+    .stat-label{
+      margin-top:6px;
+      color:rgba(255,255,255,.62);
+      font-size:12px;
+      line-height:1.4;
+    }
+
+    .hero-feature-list{
+      margin-top:26px;
+      display:grid;
+      gap:12px;
+      max-width:620px;
+    }
+
+    .hero-feature{
+      display:flex;
+      align-items:flex-start;
+      gap:14px;
+      border-radius:22px;
+      padding:16px 18px;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.10);
+      backdrop-filter:blur(10px);
+    }
+
+    .hero-feature-dot{
+      width:11px;
+      height:11px;
+      margin-top:5px;
+      border-radius:999px;
+      background:#c4b5fd;
+      box-shadow:0 0 0 6px rgba(196,181,253,.12);
+      flex-shrink:0;
+    }
+
+    .hero-feature-title{
+      color:#fff;
+      font-size:15px;
+      font-weight:800;
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+
+    .hero-feature-text{
+      margin-top:4px;
+      color:rgba(255,255,255,.66);
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    .left-footer{
+      position:relative;
+      z-index:1;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      color:rgba(255,255,255,.54);
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+
+    .right-panel{
+      position:relative;
+      display:flex;
+      align-items:center;
+    }
+
+    .login-card{
+      width:100%;
+      position:relative;
+      overflow:hidden;
+      border-radius:40px;
+      background:rgba(255,255,255,.97);
+      border:1px solid rgba(255,255,255,.9);
+      box-shadow:0 34px 90px rgba(15,23,42,.12);
+      backdrop-filter:blur(20px);
+      padding:34px 30px 26px;
+    }
+
+    .login-card::before{
+      content:'';
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(180deg, rgba(109,40,217,.040) 0%, rgba(255,255,255,0) 34%);
+      pointer-events:none;
+    }
+
+    .login-inner{
+      position:relative;
+      z-index:1;
+    }
+
+    .login-top{
+      text-align:center;
+      margin-bottom:26px;
+    }
+
+    .login-logo-wrap{
+      display:flex;
+      justify-content:center;
+      margin-bottom:20px;
+    }
+
+    .login-logo{
+      width:200px;
+      height:200px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .login-logo img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+      filter:drop-shadow(0 16px 30px rgba(109,40,217,.16));
+    }
+
+    .login-logo-fallback{
+      width:200px;
+      height:200px;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      border-radius:46px;
+      background:linear-gradient(145deg,#6d28d9 0%,#8b5cf6 100%);
+      color:white;
+      font-size:62px;
+      font-weight:800;
+      font-family:'Plus Jakarta Sans',sans-serif;
+      box-shadow:0 18px 40px rgba(109,40,217,.22);
+    }
+
+    .login-brand{
+      font-size:32px;
+      font-weight:800;
+      color:var(--ink);
+      line-height:1;
+      letter-spacing:-.05em;
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+
+    .login-brand span{
+      color:var(--accent);
+    }
+
+    .login-subbrand{
+      margin-top:10px;
+      font-size:11px;
+      color:var(--muted-2);
+      font-weight:800;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+
+    .section-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:22px;
+    }
+
+    .section-title{
+      font-size:31px;
+      font-weight:800;
+      color:var(--ink);
+      line-height:1;
+      letter-spacing:-.055em;
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+
+    .section-subtitle{
+      margin-top:8px;
+      font-size:14px;
+      line-height:1.45;
+      color:var(--muted);
+    }
+
+    .mode-pill{
+      padding:9px 13px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+      border:1px solid transparent;
+      white-space:nowrap;
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+
+    .switch-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:17px 16px;
+      margin-bottom:16px;
+    }
+
+    .switch-title{
+      font-size:15px;
+      font-weight:800;
+      color:var(--ink);
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+
+    .switch-subtitle{
+      margin-top:3px;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .field-block{
+      margin-bottom:14px;
+    }
+
+    .field-label{
+      display:block;
+      margin:0 0 8px 6px;
+      font-size:11px;
+      color:var(--muted-2);
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+
+    .field-input{
+      width:100%;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:15px 16px;
+      font-size:14px;
+      color:#0f172a;
+      outline:none;
+      transition:.18s ease;
+      box-shadow:0 6px 18px rgba(15,23,42,.03);
+    }
+
+    .field-input:focus{
+      background:#fff;
+      border-color:#a78bfa;
+      box-shadow:0 0 0 4px rgba(167,139,250,.18);
+    }
+
+    .errorBoxBase{
+      border-radius:18px;
+      padding:14px 16px;
+      font-size:14px;
+      font-weight:600;
+      border:1px solid transparent;
+      margin-top:2px;
+    }
+
+    .btn-login{
+      width:100%;
+      margin-top:10px;
+      padding:17px 18px;
+      border-radius:24px;
+      background:linear-gradient(145deg,#0f172a 0%, #111827 100%);
+      color:#fff;
+      font-weight:800;
+      font-size:11px;
+      letter-spacing:.20em;
+      text-transform:uppercase;
+      font-family:'Plus Jakarta Sans',sans-serif;
+      box-shadow:0 20px 38px rgba(15,23,42,.18);
+      transition:all .2s ease;
+    }
+
+    .btn-login:hover{
+      transform:translateY(-1px);
+      filter:brightness(1.03);
+    }
+
+    .login-footer{
+      padding-top:16px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:12px;
+    }
+
+    .login-footer-note{
+      font-size:11px;
+      color:#94a3b8;
+      font-weight:600;
+      text-align:center;
+    }
+
+    .btn-clear{
+      font-size:11px;
+      font-weight:800;
+      color:#475569;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      transition:color .18s ease;
+      font-family:'Plus Jakarta Sans',sans-serif;
+    }
+
+    .btn-clear:hover{
+      color:#dc2626;
+    }
+
+    #toastContainer{
+      position:fixed;
+      inset:0;
+      z-index:50;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      pointer-events:none;
+    }
+
+    @media (max-width: 1040px){
+      .shell{
+        grid-template-columns:1fr;
+        max-width:560px;
+      }
+
+      .left-panel{
+        min-height:auto;
+      }
+    }
+
+    @media (max-width: 640px){
+      .page{
+        padding:14px 12px 24px;
+      }
+
+      .left-panel{
+        border-radius:28px;
+        padding:24px 18px;
+      }
+
+      .login-card{
+        border-radius:30px;
+        padding:24px 18px 22px;
+      }
+
+      .top-brand-logo{
+        width:74px;
+        height:74px;
+      }
+
+      .top-brand-fallback{
+        width:74px;
+        height:74px;
+        font-size:26px;
+      }
+
+      .login-logo{
+        width:170px;
+        height:170px;
+      }
+
+      .login-logo-fallback{
+        width:170px;
+        height:170px;
+        font-size:54px;
+      }
+
+      .hero-stats{
+        grid-template-columns:1fr;
+      }
+
+      .section-head{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .section-title{
+        font-size:26px;
+      }
+
+      .hero-title{
+        font-size:38px;
+      }
     }
   </style>
 </head>
 
-<body class="bg-slate-100 text-slate-800 min-h-screen">
+<body>
+  <div id="toastContainer"></div>
 
-<div id="toastContainer"
-     class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-</div>
+  <div class="page">
+    <div class="shell">
+      <!-- LADO IZQUIERDO -->
+      <section class="left-panel">
+        <div class="left-inner">
+          <div class="top-brand">
 
-  <div class="min-h-screen flex items-center justify-center px-4 py-10">
-    <div class="w-full max-w-md">
-      
-      <div class="text-center mb-10">
-        <h1 class="text-3xl font-extrabold tracking-tighter text-slate-900 uppercase">
-          System Dev <span class="text-slate-500 font-light">Solutions</span>
-        </h1>
-        <p class="text-[13px] tracking-[0.3em] text-slate-400 font-semibold mt-1">Digital Solutions for Local Commerce</p>
-      </div>
 
-      <div class="glass-card rounded-[2.5rem] border border-slate-200 shadow-xl p-8 md:p-10">
-        <div class="flex items-start justify-between gap-3 mb-8">
-          <div>
-            <div class="text-2xl font-extrabold text-slate-900">Iniciar sesión</div>
-            <div class="text-sm text-slate-500 mt-1" id="subtitle">
-              Empresa + email + contraseña.
+            <div class="top-brand-copy">
+              <div class="top-brand-title">PedidoClick</div>
+              <div class="top-brand-sub">Panel administrativo</div>
             </div>
           </div>
 
-          <div class="px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold border bg-amber-50 text-amber-800 border-amber-100" id="pillMode">
-            Admin
+          <div class="hero-copy">
+            <h1 class="hero-title">Todo tu negocio, en un solo panel.</h1>
+
+            <div class="hero-text">
+              Entrá a una plataforma pensada para operar rápido, controlar pedidos, mantener el menú al día y administrar la configuración completa de cada empresa.
+            </div>
+
+            <div class="hero-stats">
+              <div class="stat-card">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Acceso al panel desde cualquier momento.</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-number">+Simple</div>
+                <div class="stat-label">Interfaz clara para el uso diario del local.</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-number">1 Click</div>
+                <div class="stat-label">Gestión rápida de pedidos, menú y promos.</div>
+              </div>
+            </div>
+
+            <div class="hero-feature-list">
+              <div class="hero-feature">
+                <div class="hero-feature-dot"></div>
+                <div>
+                  <div class="hero-feature-title">Operación diaria ordenada</div>
+                  <div class="hero-feature-text">Visualizá pedidos, estados y actividad del negocio sin complicarte.</div>
+                </div>
+              </div>
+
+              <div class="hero-feature">
+                <div class="hero-feature-dot"></div>
+                <div>
+                  <div class="hero-feature-title">Menú y precios siempre actualizados</div>
+                  <div class="hero-feature-text">Modificá categorías, productos y promociones desde un mismo lugar.</div>
+                </div>
+              </div>
+
+              <div class="hero-feature">
+                <div class="hero-feature-dot"></div>
+                <div>
+                  <div class="hero-feature-title">Acceso por perfil</div>
+                  <div class="hero-feature-text">Entrá como Admin o SuperAdmin según el nivel de gestión que necesites.</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="space-y-4">
+        <div class="left-footer">
+          <div>© PedidoClick</div>
+          <div>Acceso seguro</div>
+        </div>
+      </section>
 
-          <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
-            <div>
-              <div class="text-sm font-semibold text-slate-800">Soy SuperAdmin</div>
-              <div class="text-xs text-slate-500">Entrar sin empresa.</div>
+      <!-- LOGIN -->
+      <section class="right-panel">
+        <div class="login-card">
+          <div class="login-inner">
+            <div class="login-top">
+              <div class="login-logo-wrap">
+                <div class="login-logo">
+                  <img src="../img/iniciales_1.png" alt="PedidoClick"
+                       onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <div class="login-logo-fallback">PC</div>
+                </div>
+              </div>
+
+              <div class="login-brand">Pedido<span>Click</span></div>
+              <div class="login-subbrand">Acceso al sistema</div>
             </div>
-            <input id="isSuperAdmin" type="checkbox" class="w-5 h-5 accent-slate-900 cursor-pointer"/>
-          </div>
 
-          <div id="companyBox">
-            <label class="text-xs text-slate-400 font-bold ml-1 uppercase tracking-tight">Empresa (slug)</label>
-            <input id="companySlug" type="text" placeholder="como-en-casa"
-              class="mt-1 w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 text-sm
-                     focus:outline-none focus:ring-2 focus:ring-slate-400 transition shadow-sm"/>
-          </div>
+            <div class="section-head">
+              <div>
+                <div class="section-title">Iniciar sesión</div>
+                <div class="section-subtitle" id="subtitle">Empresa + email + contraseña.</div>
+              </div>
 
-          <div>
-            <label class="text-xs text-slate-400 font-bold ml-1 uppercase tracking-tight">Email</label>
-            <input id="email" type="email" placeholder="admin@demo.com"
-              class="mt-1 w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 text-sm
-                     focus:outline-none focus:ring-2 focus:ring-slate-400 transition shadow-sm"/>
-          </div>
+              <div class="mode-pill bg-amber-50 text-amber-800 border border-amber-100" id="pillMode">
+                Admin
+              </div>
+            </div>
 
-          <div>
-            <label class="text-xs text-slate-400 font-bold ml-1 uppercase tracking-tight">Contraseña</label>
-            <input id="password" type="password" placeholder="••••••••"
-              class="mt-1 w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 text-sm
-                     focus:outline-none focus:ring-2 focus:ring-slate-400 transition shadow-sm"/>
-          </div>
+            <div class="switch-row">
+              <div>
+                <div class="switch-title">Soy SuperAdmin</div>
+                <div class="switch-subtitle">Ingresar sin empresa.</div>
+              </div>
+              <input id="isSuperAdmin" type="checkbox" class="w-5 h-5 accent-slate-900 cursor-pointer"/>
+            </div>
 
-          <div id="errorBox"
-               class="hidden bg-rose-50 border border-rose-100 text-rose-800 rounded-2xl p-4 text-sm font-medium"></div>
+            <div id="companyBox" class="field-block">
+              <label class="field-label">Empresa (slug)</label>
+              <input id="companySlug" type="text" placeholder="como-en-casa" class="field-input"/>
+            </div>
 
-          <button id="btnLogin"
-            class="w-full px-5 py-4 rounded-2xl bg-slate-900 text-white font-bold shadow-lg
-                   hover:bg-black hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 uppercase tracking-widest text-xs mt-2">
-            Entrar al sistema
-          </button>
+            <div class="field-block">
+              <label class="field-label">Email</label>
+              <input id="email" type="email" placeholder="admin@demo.com" class="field-input"/>
+            </div>
 
-          <div class="flex flex-col items-center gap-4 pt-2">
-            <div class="text-[10px] text-slate-400 font-medium">Si vence la sesión, volvés al login.</div>
-            <button id="btnClearSession" class="text-[10px] font-bold text-slate-600 hover:text-rose-500 uppercase tracking-tighter transition-colors">
-              Borrar sesión guardada
+            <div class="field-block">
+              <label class="field-label">Contraseña</label>
+              <input id="password" type="password" placeholder="••••••••" class="field-input"/>
+            </div>
+
+            <div id="errorBox" class="hidden errorBoxBase"></div>
+
+            <button id="btnLogin" class="btn-login">
+              Entrar al sistema
             </button>
+
+            <div class="login-footer">
+              <div class="login-footer-note">Si vence la sesión, volvés al login.</div>
+              <button id="btnClearSession" class="btn-clear">
+                Borrar sesión guardada
+              </button>
+            </div>
+
+            <div id="pillApi" class="hidden text-center mt-4 text-[10px] text-slate-300"></div>
           </div>
         </div>
-      </div>
-
-      <div id="pillApi" class="hidden text-center mt-4 text-[10px] text-slate-300"></div>
-
-      <div class="mt-8 text-center text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em]">
-        © MenuOnline | System Dev Solutions
-      </div>
+      </section>
     </div>
   </div>
 
   <script>
-    //   PROD
+    // PROD
     //const CONFIG_PATH = "/MenuOnline/config.json";
-    //  DEV
+    // DEV
     const CONFIG_PATH = "../config.json";
 
-    // ✅ redirecciones distintas
     const AFTER_LOGIN_REDIRECT_ADMIN = "/Admin/home.html";
-    const AFTER_LOGIN_REDIRECT_SUPER = "/SuperAdmin/companies.html"; // creamos esta después
+    const AFTER_LOGIN_REDIRECT_SUPER = "/SuperAdmin/companies.html";
 
     const TOKEN_KEY = "menuonline_token";
     const SLUG_KEY  = "menuonline_companySlug";
@@ -119,6 +780,7 @@
     const IS_SUPER_KEY = "menuonline_isSuperAdmin";
 
     let activeToast = null;
+
     function toast(message, type="info", ms=1600){
       const container = document.getElementById("toastContainer");
       if(activeToast){ activeToast.remove(); activeToast = null; }
@@ -127,14 +789,14 @@
       const icon = type==="success" ? "✓" : type==="error" ? "⚠" : "⏳";
 
       const el = document.createElement("div");
-el.className = `${colors[type]} text-white px-6 py-5 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[300px]
-                transform transition-all duration-200 scale-95 opacity-0 pointer-events-auto`;
+      el.className = `${colors[type]} text-white px-6 py-5 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[300px]
+                      transform transition-all duration-200 scale-95 opacity-0 pointer-events-auto`;
       el.innerHTML = `<div class="text-lg font-bold leading-none">${icon}</div>
                       <div class="text-sm font-semibold">${message}</div>`;
       container.appendChild(el);
       activeToast = el;
 
-requestAnimationFrame(()=> el.classList.remove("scale-95","opacity-0"));
+      requestAnimationFrame(()=> el.classList.remove("scale-95","opacity-0"));
 
       setTimeout(()=>{
         if(activeToast !== el) return;
@@ -143,26 +805,26 @@ requestAnimationFrame(()=> el.classList.remove("scale-95","opacity-0"));
       }, ms);
     }
 
-function setMessage(msg, type="error"){
-  const box = document.getElementById("errorBox");
+    function setMessage(msg, type="error"){
+      const box = document.getElementById("errorBox");
 
-  if(!msg){
-    box.classList.add("hidden");
-    box.textContent = "";
-    return;
-  }
+      if(!msg){
+        box.classList.add("hidden");
+        box.textContent = "";
+        return;
+      }
 
-  box.className = "rounded-2xl p-4 text-sm font-medium border";
+      box.className = "errorBoxBase";
 
-  if(type === "success"){
-    box.classList.add("bg-emerald-50","border-emerald-200","text-emerald-800");
-  }else{
-    box.classList.add("bg-rose-50","border-rose-100","text-rose-800");
-  }
+      if(type === "success"){
+        box.classList.add("bg-emerald-50","border","border-emerald-200","text-emerald-800");
+      }else{
+        box.classList.add("bg-rose-50","border","border-rose-100","text-rose-800");
+      }
 
-  box.textContent = msg;
-  box.classList.remove("hidden");
-}
+      box.textContent = msg;
+      box.classList.remove("hidden");
+    }
 
     function clearSession(){
       localStorage.removeItem(TOKEN_KEY);
@@ -170,6 +832,7 @@ function setMessage(msg, type="error"){
       localStorage.removeItem(EMAIL_KEY);
       localStorage.removeItem(EXP_KEY);
       localStorage.removeItem(IS_SUPER_KEY);
+      localStorage.removeItem("menuonline_role");
     }
 
     async function loadConfig(){
@@ -178,7 +841,6 @@ function setMessage(msg, type="error"){
       return await res.json();
     }
 
-    // ========= JWT exp check =========
     function parseJwt(token){
       try{
         const base64Url = token.split(".")[1];
@@ -198,66 +860,57 @@ function setMessage(msg, type="error"){
       return exp > now;
     }
 
-    // ✅ detecta rol desde el JWT (claim "role")
     function getRoleFromToken(token){
       const p = parseJwt(token);
       return p?.role || p?.Role || null;
     }
 
     async function doLogin(apiBaseUrl, companySlugOrEmpty, email, password, isSuper){
-        const body = { email, password, companySlug: companySlugOrEmpty };
+      const body = { email, password, companySlug: companySlugOrEmpty };
 
-        const res = await fetch(`${apiBaseUrl}/api/auth/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-        });
+      const res = await fetch(`${apiBaseUrl}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
 
-        // si falla, intentamos leer mensaje y salimos
-        if(!res.ok){
-            let msg = "No pude iniciar sesión";
-            try{ msg = (await res.json())?.message || msg; }catch{}
-            throw new Error(msg);
-        }
+      if(!res.ok){
+        let msg = "No pude iniciar sesión";
+        try{ msg = (await res.json())?.message || msg; }catch{}
+        throw new Error(msg);
+      }
 
-        // ✅ recién acá existe data
-        const data = await res.json();
-        if(!data?.accessToken) throw new Error("No recibí accessToken");
+      const data = await res.json();
+      if(!data?.accessToken) throw new Error("No recibí accessToken");
 
-        // token + exp + email
-        localStorage.setItem(TOKEN_KEY, data.accessToken);
-        localStorage.setItem(EMAIL_KEY, email);
+      localStorage.setItem(TOKEN_KEY, data.accessToken);
+      localStorage.setItem(EMAIL_KEY, email);
 
-        if(data.expiresAtUtc) localStorage.setItem(EXP_KEY, data.expiresAtUtc);
-        else localStorage.removeItem(EXP_KEY);
+      if(data.expiresAtUtc) localStorage.setItem(EXP_KEY, data.expiresAtUtc);
+      else localStorage.removeItem(EXP_KEY);
 
-        // role (lo guardamos)
-        const role = String(data.role || "").toLowerCase();
-        localStorage.setItem("menuonline_role", data.role || "");
+      const role = String(data.role || "").toLowerCase();
+      localStorage.setItem("menuonline_role", data.role || "");
 
-        // super final: por checkbox o por role que venga del backend
-        const isSuperFinal = !!isSuper || role === "superadmin";
-        localStorage.setItem(IS_SUPER_KEY, isSuperFinal ? "true" : "false");
+      const isSuperFinal = !!isSuper || role === "superadmin";
+      localStorage.setItem(IS_SUPER_KEY, isSuperFinal ? "true" : "false");
 
-        // company slug (solo si NO es super)
-        if(!isSuperFinal){
-            if(data.companySlug) localStorage.setItem(SLUG_KEY, data.companySlug);
-            else localStorage.setItem(SLUG_KEY, companySlugOrEmpty || "");
-        } else {
-            localStorage.removeItem(SLUG_KEY);
-        }
+      if(!isSuperFinal){
+        if(data.companySlug) localStorage.setItem(SLUG_KEY, data.companySlug);
+        else localStorage.setItem(SLUG_KEY, companySlugOrEmpty || "");
+      } else {
+        localStorage.removeItem(SLUG_KEY);
+      }
 
-        // validación exp desde JWT (tu función isTokenValid)
-        if(!isTokenValid(data.accessToken)){
-            clearSession();
-            throw new Error("Token inválido o sin vencimiento (exp).");
-        }
+      if(!isTokenValid(data.accessToken)){
+        clearSession();
+        throw new Error("Token inválido o sin vencimiento (exp).");
+      }
 
-        // redirect
-        const target = isSuperFinal ? AFTER_LOGIN_REDIRECT_SUPER : AFTER_LOGIN_REDIRECT_ADMIN;
-        setTimeout(()=> location.href = target, 350);
+      const target = isSuperFinal ? AFTER_LOGIN_REDIRECT_SUPER : AFTER_LOGIN_REDIRECT_ADMIN;
+      setTimeout(()=> location.href = target, 350);
 
-        return { isSuper: isSuperFinal };
+      return { isSuper: isSuperFinal };
     }
 
     function applyMode(isSuper){
@@ -269,12 +922,12 @@ function setMessage(msg, type="error"){
         companyBox.classList.add("hidden");
         subtitle.textContent = "Email + contraseña (sin empresa).";
         pill.textContent = "SuperAdmin";
-        pill.className = "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border bg-purple-50 text-purple-800 border-purple-100";
+        pill.className = "mode-pill bg-purple-50 text-purple-800 border border-purple-100";
       }else{
         companyBox.classList.remove("hidden");
         subtitle.textContent = "Empresa + email + contraseña.";
         pill.textContent = "Admin";
-        pill.className = "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border bg-amber-50 text-amber-800 border-amber-100";
+        pill.className = "mode-pill bg-amber-50 text-amber-800 border border-amber-100";
       }
     }
 
@@ -282,10 +935,8 @@ function setMessage(msg, type="error"){
       try{
         const cfg = await loadConfig();
         const api = cfg.apiBaseUrl || "—";
-        // Lo mantenemos en el DOM pero oculto como pediste
         document.getElementById("pillApi").textContent = `API: ${api}`;
 
-        // restaurar modo
         const lastIsSuper = localStorage.getItem(IS_SUPER_KEY) === "true";
         document.getElementById("isSuperAdmin").checked = lastIsSuper;
         applyMode(lastIsSuper);
@@ -296,7 +947,6 @@ function setMessage(msg, type="error"){
           localStorage.setItem(IS_SUPER_KEY, isSuper ? "true" : "false");
         });
 
-        // autocompletar slug/email
         if(cfg.companySlug) document.getElementById("companySlug").value = cfg.companySlug;
 
         const lastSlug = localStorage.getItem(SLUG_KEY);
@@ -305,7 +955,6 @@ function setMessage(msg, type="error"){
         if(!document.getElementById("companySlug").value && lastSlug) document.getElementById("companySlug").value = lastSlug;
         if(lastEmail) document.getElementById("email").value = lastEmail;
 
-        // ✅ si hay token válido, redirigimos según role
         const t = localStorage.getItem(TOKEN_KEY);
         if(t && isTokenValid(t)){
           const role = getRoleFromToken(t);
@@ -323,30 +972,31 @@ function setMessage(msg, type="error"){
         });
 
         document.getElementById("btnLogin").addEventListener("click", async () => {
-            setMessage(null);
-            const isSuper = document.getElementById("isSuperAdmin").checked;
-            const companySlug = document.getElementById("companySlug").value.trim();
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value;
+          setMessage(null);
 
-            if(!email || !password){
-                setMessage("Completá email y contraseña.");
-                return;
-            }
+          const isSuper = document.getElementById("isSuperAdmin").checked;
+          const companySlug = document.getElementById("companySlug").value.trim();
+          const email = document.getElementById("email").value.trim();
+          const password = document.getElementById("password").value;
 
-            if(!isSuper && !companySlug){
-                setMessage("Completá empresa, email y contraseña.");
-                return;
-            }
+          if(!email || !password){
+            setMessage("Completá email y contraseña.");
+            return;
+          }
 
-            try{
-                const slugOrEmpty = isSuper ? "" : companySlug;
-                await doLogin(cfg.apiBaseUrl, slugOrEmpty, email, password, isSuper);
-                setMessage("Bienvenido al sistema ✅", "success");
-            }catch(e){
-                console.error(e);
-                setMessage(e.message || "Error al ingresar", "error");
-            }
+          if(!isSuper && !companySlug){
+            setMessage("Completá empresa, email y contraseña.");
+            return;
+          }
+
+          try{
+            const slugOrEmpty = isSuper ? "" : companySlug;
+            await doLogin(cfg.apiBaseUrl, slugOrEmpty, email, password, isSuper);
+            setMessage("Bienvenido al sistema ✅", "success");
+          }catch(e){
+            console.error(e);
+            setMessage(e.message || "Error al ingresar", "error");
+          }
         });
 
         ["companySlug","email","password"].forEach(id => {
@@ -359,7 +1009,7 @@ function setMessage(msg, type="error"){
 
       }catch(e){
         console.error(e);
-        setError("No pude cargar configuración. Revisá config.json");
+        setMessage("No pude cargar configuración. Revisá config.json", "error");
         toast("Error cargando config", "error", 2000);
       }
     })();

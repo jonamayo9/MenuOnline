@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>System Dev Solutions | Productos</title>
+  <title>PedidoClick | Productos</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 
@@ -19,12 +19,12 @@
       --surface: #ffffff;
       --surface-2: #f8fafc;
       --surface-3: #eef2ff;
-      --accent: #5b4ef8;
-      --accent-2: #7c6ffc;
-      --accent-glow: rgba(91,78,248,0.12);
-      --hero-a: #24324a;
-      --hero-b: #2c3d59;
-      --hero-c: #1f2b40;
+      --accent: #6d28d9;
+      --accent-2: #8b5cf6;
+      --accent-glow: rgba(109,40,217,0.14);
+      --hero-a: #22113d;
+      --hero-b: #31165a;
+      --hero-c: #1d1033;
       --shadow-soft: 0 20px 60px rgba(10,10,15,0.08), 0 4px 16px rgba(10,10,15,0.04);
       --shadow-card: 0 22px 60px rgba(15,23,42,.08);
     }
@@ -64,24 +64,118 @@
       inset: 0;
       z-index: 0;
       background:
-        radial-gradient(ellipse 70% 60% at 10% 0%, rgba(91,78,248,0.05) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 90% 100%, rgba(124,111,252,0.04) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 60% at 10% 0%, rgba(109,40,217,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 100%, rgba(139,92,246,0.05) 0%, transparent 60%),
         radial-gradient(ellipse 80% 50% at 50% 50%, rgba(240,240,248,1) 0%, rgba(247,247,251,1) 100%);
     }
 
     .brand-strip {
-      border-bottom: 1px solid var(--border);
-      background: rgba(255,255,255,0.84);
-      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(22px);
+      box-shadow: 0 10px 30px rgba(15,23,42,0.05);
+    }
+
+    .brand-strip-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .brand-logo-shell {
+      width: 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .brand-logo-shell img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .brand-logo-fallback {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.04em;
+    }
+
+    .brand-copy {
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .brand-subtitle {
+      margin-top: 4px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-2);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .brand-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(109,40,217,0.08);
+      border: 1px solid rgba(109,40,217,0.10);
+      color: var(--accent);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      white-space: nowrap;
     }
 
     .hero-card {
-      background: linear-gradient(145deg, var(--hero-a) 0%, var(--hero-b) 50%, var(--hero-c) 100%);
-      border-radius: 28px;
+      background: linear-gradient(145deg, var(--hero-a) 0%, var(--hero-b) 52%, var(--hero-c) 100%);
+      border-radius: 30px;
       position: relative;
       overflow: hidden;
       border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 30px 80px rgba(15,23,42,.16);
+      box-shadow: 0 24px 60px rgba(23, 16, 46, 0.22);
     }
 
     .hero-card::before {
@@ -91,7 +185,7 @@
       right: -80px;
       width: 320px;
       height: 320px;
-      background: radial-gradient(circle, rgba(255,255,255,0.09) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(255,255,255,0.11) 0%, transparent 70%);
       pointer-events: none;
     }
 
@@ -102,7 +196,7 @@
       left: -40px;
       width: 250px;
       height: 250px;
-      background: radial-gradient(circle, rgba(124,111,252,0.06) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(167,139,250,0.12) 0%, transparent 70%);
       pointer-events: none;
     }
 
@@ -123,14 +217,14 @@
       content:"";
       position:absolute;
       inset:0;
-      background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(91,78,248,.03) 100%);
+      background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(109,40,217,.03) 100%);
       pointer-events:none;
     }
 
     .module-card:hover{
       transform: translateY(-2px);
       box-shadow: 0 28px 70px rgba(15,23,42,.10);
-      border-color: rgba(91,78,248,.18);
+      border-color: rgba(109,40,217,.18);
     }
 
     .hero-glow::before{
@@ -171,8 +265,8 @@
     }
 
     .field-input:focus{
-      border-color:#94a3b8;
-      box-shadow:0 0 0 3px rgba(148,163,184,.15);
+      border-color:#a78bfa;
+      box-shadow:0 0 0 3px rgba(167,139,250,.18);
     }
 
     .soft-btn{
@@ -252,7 +346,7 @@
 
     .feature-box:hover{
       background:#fff;
-      border-color:#dbe4ef;
+      border-color:#dcd0ff;
     }
 
     .config-box{
@@ -271,7 +365,7 @@
     }
 
     .option-card:hover{
-      border-color:#cbd5f5;
+      border-color:#d9ccff;
       box-shadow:0 20px 50px rgba(15,23,42,.08);
     }
 
@@ -293,19 +387,20 @@
 
     @media (max-width: 860px) {
       .brand-strip-inner {
-        height: auto !important;
-        min-height: 56px;
+        min-height: 64px;
         padding-top: 10px !important;
         padding-bottom: 10px !important;
-        gap: 8px;
+        gap: 10px;
         flex-wrap: wrap;
       }
 
       .brand-right {
         width: 100%;
-        text-align: left !important;
-        font-size: 9px !important;
-        letter-spacing: 0.16em !important;
+        justify-content: flex-start;
+      }
+
+      .brand-chip {
+        width: fit-content;
       }
 
       .variant-pill{
@@ -328,6 +423,106 @@
         padding:18px 18px 16px !important;
       }
     }
+
+    @media (max-width: 640px) {
+      :root {
+        --mobile-shell: 430px;
+      }
+
+      html, body {
+        overflow-x: hidden;
+      }
+
+      body {
+        background:
+          linear-gradient(180deg, #6d28d9 0%, #7c3aed 150px, #f4f7fb 150px, #f8fafc 100%);
+      }
+
+      body::before {
+        opacity: 0.18;
+      }
+
+      .bg-animated {
+        background:
+          radial-gradient(ellipse 70% 55% at 12% 0%, rgba(255,255,255,0.10) 0%, transparent 60%),
+          radial-gradient(ellipse 50% 35% at 100% 8%, rgba(255,255,255,0.06) 0%, transparent 60%),
+          linear-gradient(180deg, #6d28d9 0%, #7c3aed 140px, #f4f7fb 140px, #f8fafc 100%);
+      }
+
+      .brand-strip {
+        background: transparent;
+        border-bottom: none;
+        backdrop-filter: none;
+        box-shadow: none;
+      }
+
+      .brand-strip-inner {
+        max-width: var(--mobile-shell) !important;
+        margin: 0 auto !important;
+        padding: 14px 16px 0 !important;
+        min-height: unset !important;
+        height: auto !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 12px !important;
+        flex-wrap: nowrap !important;
+      }
+
+      .brand-left {
+        min-width: 0 !important;
+        gap: 12px !important;
+      }
+
+      .brand-logo-shell {
+        width: 52px !important;
+        height: 52px !important;
+      }
+
+      .brand-title {
+        color: white !important;
+        font-size: 17px !important;
+      }
+
+      .brand-subtitle {
+        color: rgba(255,255,255,0.72) !important;
+        font-size: 9px !important;
+        letter-spacing: 0.14em !important;
+      }
+
+      .brand-right {
+        display: none !important;
+      }
+
+      .page-shell {
+        max-width: var(--mobile-shell) !important;
+        margin: 0 auto !important;
+        padding: 14px 16px 110px !important;
+      }
+
+      .hero-card {
+        border-radius: 28px !important;
+        border: 1px solid rgba(255,255,255,0.10) !important;
+        box-shadow: 0 18px 40px rgba(20, 20, 40, 0.20);
+        overflow: hidden;
+      }
+
+      .hero-card.hero-products {
+        padding: 20px !important;
+        margin-bottom: 18px !important;
+      }
+
+      .hero-card h2 {
+        font-size: 28px !important;
+        line-height: 1.08 !important;
+        margin-bottom: 10px !important;
+      }
+
+      .hero-card p {
+        font-size: 13px !important;
+        line-height: 1.5 !important;
+        max-width: none !important;
+      }
+    }
   </style>
 </head>
 
@@ -336,30 +531,31 @@
 
 <div style="position:relative;z-index:1;min-height:100vh;">
   <div class="brand-strip sticky top-0 z-40">
-    <div class="brand-strip-inner" style="max-width:1200px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;column-gap:14px;">
-      <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 auto;">
-        <div style="width:28px;height:28px;background:var(--ink);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <rect x="1" y="1" width="5" height="5" rx="1.5" fill="white"/>
-            <rect x="8" y="1" width="5" height="5" rx="1.5" fill="white" opacity=".6"/>
-            <rect x="1" y="8" width="5" height="5" rx="1.5" fill="white" opacity=".6"/>
-            <rect x="8" y="8" width="5" height="5" rx="1.5" fill="white" opacity=".3"/>
-          </svg>
+    <div class="brand-strip-inner">
+      <div class="brand-left">
+        <div class="brand-logo-shell">
+          <img src="../img/iniciales_1.png" alt="PedidoClick" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="brand-logo-fallback" style="display:none;">PC</div>
         </div>
-        <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14px;color:var(--ink);letter-spacing:-0.02em;white-space:nowrap;">System Dev <span style="color:var(--muted);font-weight:500;">Solutions</span></span>
+
+        <div class="brand-copy">
+          <div class="brand-title">PedidoClick</div>
+          <div class="brand-subtitle">Panel administrativo</div>
+        </div>
       </div>
 
-      <div class="brand-right" style="flex:0 1 auto;text-align:right;min-width:0;">
-        <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted-2);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-          Soluciones digitales para comercio local
-        </span>
+      <div class="brand-right">
+        <div class="brand-chip">
+          <span style="width:7px;height:7px;border-radius:999px;background:#10b981;display:inline-block;"></span>
+          Gestión online
+        </div>
       </div>
     </div>
   </div>
 
-  <div style="max-width:1200px;margin:0 auto;padding:32px 24px 48px;">
+  <div class="page-shell" style="max-width:1200px;margin:0 auto;padding:32px 24px 48px;">
 
-    <div class="hero-card hero-glow relative p-6 md:p-8 mb-6">
+    <div class="hero-card hero-glow hero-products relative p-6 md:p-8 mb-6">
       <div class="relative z-[1] flex justify-between items-center flex-wrap gap-4">
         <div class="flex items-center gap-4 min-w-0">
           <a href="./home.html"
@@ -370,8 +566,8 @@
 
           <div class="min-w-0">
             <div class="flex items-center gap-2 flex-wrap mb-3">
-              <div class="chip" style="background:rgba(91,78,248,0.18);border:1px solid rgba(91,78,248,0.24);color:#d7d3ff;">
-                Panel de administración
+              <div class="chip" style="background:rgba(139,92,246,0.20);border:1px solid rgba(167,139,250,0.25);color:#e9ddff;">
+                PedidoClick
               </div>
               <div class="chip" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);">
                 Productos
@@ -722,7 +918,7 @@
 
   const TOKEN_KEY = "menuonline_token";
   const SLUG_KEY  = "menuonline_companySlug";
-    const LOGIN_PAGE = "/Admin/login.html";
+  const LOGIN_PAGE = "/Admin/login.html";
   //const CONFIG_PATH = "/MenuOnline/config.json";
   const CONFIG_PATH = "/config.json";
 
