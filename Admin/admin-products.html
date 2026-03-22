@@ -1262,7 +1262,7 @@
 
 function buildOptionCardHtml(prefix, option, index){
   const variants = Array.isArray(option.variants) ? option.variants : [];
-  const p = prefix ? `${prefix}` : "";
+  const p = prefix ? `${prefix.charAt(0).toLowerCase() + prefix.slice(1)}` : "";
 
   return `
     <div class="option-card" data-option-index="${index}">
