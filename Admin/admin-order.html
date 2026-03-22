@@ -259,7 +259,9 @@
       position: fixed;
       left: -99999px;
       top: 0;
-      width: 80mm;
+      width: 58mm;
+      min-width: 58mm;
+      max-width: 58mm;
       background: #fff;
       color: #000;
       z-index: -1;
@@ -267,50 +269,9 @@
       opacity: 0;
     }
 
-    @media (max-width: 640px) {
-      .brand-strip {
-        background: transparent;
-        border-bottom: none;
-        backdrop-filter: none;
-        box-shadow: none;
-      }
-
-      .brand-strip-inner {
-        max-width: 430px !important;
-        margin: 0 auto !important;
-        padding: 14px 16px 0 !important;
-        min-height: unset !important;
-        height: auto !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        gap: 12px !important;
-        flex-wrap: nowrap !important;
-      }
-
-      .brand-left {
-        min-width: 0 !important;
-        gap: 12px !important;
-      }
-
-      .brand-logo-shell {
-        width: 46px !important;
-        height: 46px !important;
-        border-radius: 14px !important;
-        background: rgba(255,255,255,0.18) !important;
-        border: 1px solid rgba(255,255,255,0.16);
-        backdrop-filter: blur(10px);
-        box-shadow: none;
-      }
-
-      .brand-logo-fallback { color: white !important; }
-      .brand-title { color: white !important; font-size: 17px !important; }
-      .brand-subtitle { color: rgba(255,255,255,0.72) !important; font-size: 9px !important; letter-spacing: 0.14em !important; }
-      .brand-right { display: none !important; }
-    }
-
     @media print {
       @page {
-        size: 80mm auto;
+        size: 58mm auto;
         margin: 0;
       }
 
@@ -318,11 +279,13 @@
         margin: 0 !important;
         padding: 0 !important;
         background: #fff !important;
+        max-width: 58mm !important;
       }
 
       body::before,
       .bg-animated,
-      .brand-strip{
+      .brand-strip,
+      .no-print{
         display:none !important;
       }
 
@@ -339,23 +302,20 @@
         position: absolute !important;
         left: 0 !important;
         top: 0 !important;
-        width: 80mm !important;
-        min-width: 80mm !important;
-        max-width: 80mm !important;
-        padding: 4mm !important;
+        width: 58mm !important;
+        min-width: 58mm !important;
+        max-width: 58mm !important;
+        padding: 2.8mm !important;
         margin: 0 !important;
         opacity: 1 !important;
         z-index: 999999 !important;
         background: #fff !important;
         color: #000 !important;
-        font-family: "Courier New", monospace !important;
+        font-family: monospace !important;
         font-size: 11px !important;
-        line-height: 1.25 !important;
+        line-height: 1.35 !important;
+        letter-spacing: 0 !important;
         pointer-events: none !important;
-      }
-
-      .no-print{
-        display:none !important;
       }
     }
 
@@ -2128,77 +2088,120 @@ const phone = sanitizeWhatsappNumber(rawPhone);
     // =========================
     // PRINT
     // =========================
+    function ticketText(value){
+      return String(value ?? "")
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .replace(/ñ/g, "n")
+        .replace(/Ñ/g, "N");
+    }
+
     function buildTicketHtml(detail){
-  const created = new Date(detail.createdAt).toLocaleString("es-AR");
-  const negocio = (getSlug() || "").toUpperCase();
-  const subtotal = computeOrderSubtotal(detail);
-  const surchargeAmount = computeOrderSurchargeAmount(detail);
-  const surchargePercent = computeOrderSurchargePercent(detail);
-  const total = computeOrderTotal(detail);
-  const whatsapp = detail.customerWhatsappRaw || detail.customerWhatsappE164 || "";
+      const createdDate = detail.createdAt ? new Date(detail.createdAt) : new Date();
+      const fecha = createdDate.toLocaleDateString("es-AR");
+      const hora = createdDate.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
 
-  const lines = (detail.items || []).map(it => {
-    const qty = Number(it.qty || 0);
-    const unit = Number(it.unitPrice || 0);
-    const line = Number(it.lineTotal ?? (qty * unit)) || 0;
-    const note = (it.note || "").trim();
-    const configLines = getItemConfigurationSummaryLines(it);
+      const negocioRaw = String(getSlug() || "").trim();
+      const negocio = negocioRaw ? negocioRaw.replace(/-/g, " ").toUpperCase() : "NEGOCIO";
 
-    return `
-      <div style="margin-top:6px;">
-        <div style="font-weight:bold;">${qty}x ${escapeHtml(it.name || "")}</div>
-        <div style="display:flex;justify-content:space-between;">
-          <span>@ $${money(unit)}</span>
-          <span style="font-weight:bold;">$${money(line)}</span>
-        </div>
-        ${configLines.length ? `
-          <div style="margin-top:4px;">
-            ${configLines.map(x => `<div style="padding-left:8px;">- ${escapeHtml(x)}</div>`).join("")}
+      const subtotal = computeOrderSubtotal(detail);
+      const surchargeAmount = computeOrderSurchargeAmount(detail);
+      const surchargePercent = computeOrderSurchargePercent(detail);
+      const total = computeOrderTotal(detail);
+
+      const whatsapp =
+        detail.customerWhatsappRaw ||
+        detail.customerWhatsappE164 ||
+        detail.customerWhatsapp ||
+        detail.customerPhone ||
+        "-";
+
+      const comprobante = detail.orderNumber || "-";
+      const estado = STATUS_LABEL[Number(detail.status)] || "-";
+      const pago = paymentInfo(detail) || "-";
+
+      const lines = (detail.items || []).map(it => {
+        const qty = Number(it.qty || 0);
+        const unit = Number(it.unitPrice || 0);
+        const line = Number(it.lineTotal ?? (qty * unit)) || 0;
+        const note = String(it.note || "").trim();
+        const configLines = getItemConfigurationSummaryLines(it);
+
+        return `
+          <div style="margin-top:10px;">
+            <div style="font-weight:bold;">${qty}x ${escapeHtml(ticketText(it.name || ""))}</div>
+            <div style="margin-top:3px;">$${money(line)}</div>
+            <div style="margin-top:2px;color:#444;">${qty} x $${money(unit)}</div>
+            ${configLines.length ? `
+              <div style="margin-top:4px;padding-left:8px;">
+                ${configLines.map(x => `<div style="margin-top:2px;">+ ${escapeHtml(ticketText(x))}</div>`).join("")}
+              </div>
+            ` : ``}
+            ${note ? `<div style="margin-top:4px;padding-left:8px;">Nota: ${escapeHtml(ticketText(note))}</div>` : ``}
           </div>
-        ` : ``}
-        ${note ? `<div style="margin-top:2px;">Nota: ${escapeHtml(note)}</div>` : ``}
-      </div>
-    `;
-  }).join("");
+        `;
+      }).join("");
 
-  return `
-    <div style="width:100%;color:#000;">
-      <div style="text-align:center;">
-        <div style="font-size:14px;font-weight:bold;">PEDIDO #${escapeHtml(detail.orderNumber || "")}</div>
-        <div style="margin-top:2px;">${escapeHtml(negocio)}</div>
-        <div style="margin-top:6px;">${escapeHtml(created)}</div>
-      </div>
+      return `
+        <div style="width:100%;color:#000;font-family:monospace;font-size:11px;line-height:1.35;">
+          <div style="text-align:center;">
+            <div style="font-size:14px;font-weight:bold;">PEDIDO CLICK</div>
+            <div style="margin-top:3px;font-size:13px;font-weight:bold;">${escapeHtml(ticketText(negocio))}</div>
+            <div style="margin-top:2px;">Berazategui</div>
+          </div>
 
-      <div style="margin-top:8px;border-top:1px dashed #000;padding-top:8px;">
-        <div><b>Cliente:</b> ${escapeHtml(detail.customerName || "")}</div>
-        <div><b>WhatsApp:</b> ${escapeHtml(whatsapp)}</div>
-        <div><b>Dirección:</b> ${escapeHtml(detail.address || "")}</div>
-        <div><b>Pago:</b> ${escapeHtml(paymentInfo(detail))}</div>
-        <div><b>Estado:</b> ${escapeHtml(STATUS_LABEL[Number(detail.status)] || "—")}</div>
-      </div>
+          <div style="margin:8px 0;border-top:1px dashed #000;"></div>
 
-      <div style="margin-top:8px;border-top:1px dashed #000;padding-top:8px;">
-        ${lines || "<div>(Sin items)</div>"}
-      </div>
+          <div>
+            <div><b>Comprobante:</b> ${escapeHtml(ticketText(comprobante))}</div>
+            <div style="margin-top:3px;"><b>Fecha:</b> ${escapeHtml(ticketText(fecha))}</div>
+            <div style="margin-top:3px;"><b>Hora:</b> ${escapeHtml(ticketText(hora))}</div>
+          </div>
 
-      <div style="margin-top:8px;border-top:1px dashed #000;padding-top:8px;">
-        <div style="display:flex;justify-content:space-between;"><span>Subtotal</span><span>$${money(subtotal)}</span></div>
-        ${(surchargeAmount > 0)
-          ? `<div style="display:flex;justify-content:space-between;"><span>Recargo (${surchargePercent}%)</span><span>$${money(surchargeAmount)}</span></div>`
-          : ``}
-      </div>
+          <div style="margin:8px 0;border-top:1px dashed #000;"></div>
 
-      <div style="margin-top:8px;border-top:1px dashed #000;padding-top:8px;display:flex;justify-content:space-between;font-size:14px;">
-        <b>TOTAL</b>
-        <b>$${money(total)}</b>
-      </div>
+          <div>
+            <div><b>Cliente:</b></div>
+            <div style="margin-top:2px;">${escapeHtml(ticketText(detail.customerName || "-"))}</div>
 
-      <div style="margin-top:10px;text-align:center;">
-        Gracias 🙌
-      </div>
-    </div>
-  `;
-}
+            <div style="margin-top:6px;"><b>Whatsapp:</b></div>
+            <div style="margin-top:2px;">${escapeHtml(ticketText(whatsapp))}</div>
+
+            <div style="margin-top:6px;"><b>Direccion:</b></div>
+            <div style="margin-top:2px;">${escapeHtml(ticketText(detail.address || "-"))}</div>
+          </div>
+
+          <div style="margin:8px 0;border-top:1px dashed #000;"></div>
+
+          <div>
+            <div><b>Pago:</b> ${escapeHtml(ticketText(pago))}</div>
+            <div style="margin-top:3px;"><b>Estado:</b> ${escapeHtml(ticketText(estado))}</div>
+          </div>
+
+          <div style="margin:8px 0;border-top:1px dashed #000;"></div>
+
+          <div>
+            <div style="font-weight:bold;">DETALLE</div>
+            ${lines || "<div style='margin-top:6px;'>(Sin items)</div>"}
+          </div>
+
+          <div style="margin:8px 0;border-top:1px dashed #000;"></div>
+
+          <div>
+            <div>Subtotal: $${money(subtotal)}</div>
+            ${surchargeAmount > 0 ? `<div style="margin-top:3px;">Recargo (${surchargePercent}%): $${money(surchargeAmount)}</div>` : ``}
+            <div style="margin-top:6px;font-size:13px;font-weight:bold;">TOTAL: $${money(total)}</div>
+          </div>
+
+          <div style="margin:8px 0;border-top:1px dashed #000;"></div>
+
+          <div style="text-align:center;">
+            <div>Gracias por tu compra</div>
+            <div style="margin-top:3px;">PedidoClick</div>
+          </div>
+        </div>
+      `;
+    }
 
     function printTicket(detail){
       const ticket = document.getElementById("ticket-print");
