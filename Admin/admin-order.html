@@ -399,11 +399,12 @@
 
     .order-grid{
       display:grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: 170px 180px minmax(0, 1.5fr) minmax(0, 1.5fr) minmax(0, 1.15fr);
       gap:12px;
       margin-top:16px;
       position: relative;
       z-index: 1;
+      align-items:start;
     }
 
     .order-box{
@@ -412,6 +413,11 @@
       border-radius:20px;
       padding:16px;
       min-width:0;
+      min-height:132px;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      align-self:start;
     }
 
     .order-box-label{
@@ -441,6 +447,41 @@
       color:#334155;
       line-height:1.45;
       word-break:break-word;
+    }
+
+    .expand-box-text{
+      font-size:.95rem;
+      color:#334155;
+      line-height:1.45;
+      word-break:break-word;
+      white-space:pre-line;
+    }
+
+    .expand-box-text.collapsed{
+      display:-webkit-box;
+      -webkit-line-clamp:3;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .expand-link{
+      margin-top:10px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background:transparent;
+      border:none;
+      padding:0;
+      color:#6d28d9;
+      font-size:12px;
+      font-weight:800;
+      cursor:pointer;
+      font-family:'Plus Jakarta Sans', sans-serif;
+    }
+
+    .deleted-red{
+      color:#e11d48 !important;
+      font-weight:700;
     }
 
     /* Header responsive */
@@ -1238,6 +1279,9 @@
     let createOrderLastCreated = null;
     let createOrderConfigState = null;
     let createOrderCartSeq = 1;
+    let currentRenderedOrders = [];
+    const expandedOrderCards = {};
+    const ARG_TZ = "America/Argentina/Buenos_Aires";
 
     // =========================
     // AUTH
@@ -1522,10 +1566,41 @@
       );
     }
 
+    function formatDateInTimeZone(date, timeZone = ARG_TZ) {
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).formatToParts(date);
+
+      const yyyy = parts.find(p => p.type === "year")?.value || "0000";
+      const mm = parts.find(p => p.type === "month")?.value || "01";
+      const dd = parts.find(p => p.type === "day")?.value || "01";
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function getArgentinaDateInputValue(){
+      return formatDateInTimeZone(new Date(), ARG_TZ);
+    }
+
+    function addDaysToDateInput(dateStr, days){
+      const [y,m,d] = String(dateStr || "").split("-").map(Number);
+      if(!y || !m || !d) return dateStr;
+      const dt = new Date(Date.UTC(y, m - 1, d));
+      dt.setUTCDate(dt.getUTCDate() + Number(days || 0));
+      return formatDateInTimeZone(dt, "UTC");
+    }
+
+    function getArgentinaDateFromIso(iso){
+      if(!iso) return "";
+      return formatDateInTimeZone(new Date(iso), ARG_TZ);
+    }
+
     function fmtDateTime(iso) {
       if (!iso) return "—";
       const d = new Date(iso);
-      return d.toLocaleString("es-AR");
+      return d.toLocaleString("es-AR", { timeZone: ARG_TZ });
     }
 
     function money(n) {
@@ -1558,6 +1633,66 @@
 
       const extra = list.length > max ? ` +${list.length - max} más` : "";
       return first.join(" · ") + extra;
+    }
+
+    function isDeletedText(text){
+      return String(text || "").includes("(Eliminada)") || String(text || "").includes("(Eliminado)") || String(text || "").includes("(eliminada)") || String(text || "").includes("(eliminado)");
+    }
+
+    function getOrderCardStateKey(orderId, section){
+      return `${orderId}__${section}`;
+    }
+
+    function toggleOrderCardSection(orderId, section){
+      const key = getOrderCardStateKey(orderId, section);
+      expandedOrderCards[key] = !expandedOrderCards[key];
+      renderOrders(currentRenderedOrders || []);
+    }
+
+    function getOrderCardSectionExpanded(orderId, section){
+      return !!expandedOrderCards[getOrderCardStateKey(orderId, section)];
+    }
+
+    function getOrderNotesPreview(items){
+      return (Array.isArray(items) ? items : [])
+        .map(x => x.note || x.notes || "")
+        .map(x => String(x || "").trim())
+        .filter(Boolean);
+    }
+
+    function getOrderVariantsPreview(items){
+      const rows = [];
+      (Array.isArray(items) ? items : []).forEach(item => {
+        getItemConfigurationSummaryLines(item).forEach(line => rows.push(line));
+      });
+      return rows;
+    }
+
+    function renderExpandableOrderBox(orderId, section, lines, emptyText){
+      const safeLines = (Array.isArray(lines) ? lines : [])
+        .map(x => String(x || "").trim())
+        .filter(Boolean);
+
+      if(!safeLines.length){
+        return `<div class="expand-box-text text-slate-400">${escapeHtml(emptyText)}</div>`;
+      }
+
+      const expanded = getOrderCardSectionExpanded(orderId, section);
+      const joinedText = safeLines.join(" ");
+      const longestLine = safeLines.reduce((max, line) => Math.max(max, String(line).length), 0);
+      const needsToggle = safeLines.length > 2 || joinedText.length > 90 || longestLine > 34;
+      const textClass = needsToggle && !expanded ? "collapsed" : "";
+
+      return `
+        <div class="expand-box-text ${textClass}">
+          ${safeLines.map(line => `<div class="${isDeletedText(line) ? "deleted-red" : ""}">${escapeHtml(line)}</div>`).join("")}
+        </div>
+        ${needsToggle ? `
+          <button type="button" class="expand-link" data-expand-order="${orderId}" data-expand-section="${section}">
+            ${expanded ? "Ver menos" : "Ver más"}
+          </button>
+        ` : ``}
+      `;
     }
 
     function escapeHtml(s){
@@ -1711,18 +1846,41 @@
     }
 
     async function fetchOrders() {
-      const date = document.getElementById("date").value;
+      const selectedDate = document.getElementById("date").value;
       const status = document.getElementById("status").value;
 
-      const params = new URLSearchParams();
-      if (date) params.set("date", date);
-      if (status !== "") params.set("status", status);
+      async function fetchOrdersForDate(dateValue){
+        const params = new URLSearchParams();
+        if (dateValue) params.set("date", dateValue);
+        if (status !== "") params.set("status", status);
 
-      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/orders` + (params.toString() ? `?${params}` : "");
-      const res = await fetchAuth(url);
-      if(!res) return [];
-      if (!res.ok) throw new Error("Error cargando pedidos");
-      return await res.json();
+        const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/orders` + (params.toString() ? `?${params}` : "");
+        const res = await fetchAuth(url);
+        if(!res) return [];
+        if (!res.ok) throw new Error("Error cargando pedidos");
+        const data = await res.json();
+        return Array.isArray(data) ? data : [];
+      }
+
+      if (!selectedDate) {
+        return await fetchOrdersForDate("");
+      }
+
+      const [primary, nextDay] = await Promise.all([
+        fetchOrdersForDate(selectedDate),
+        fetchOrdersForDate(addDaysToDateInput(selectedDate, 1))
+      ]);
+
+      const merged = new Map();
+      [...primary, ...nextDay].forEach(order => {
+        if(order && !merged.has(Number(order.id))){
+          merged.set(Number(order.id), order);
+        }
+      });
+
+      return Array.from(merged.values())
+        .filter(order => getArgentinaDateFromIso(order.createdAt) === selectedDate)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
     async function fetchNewCountToday() {
@@ -2268,7 +2426,7 @@ const phone = sanitizeWhatsappNumber(rawPhone);
               <div class="rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-50 to-white px-4 py-4">
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
-                    <div class="font-bold text-slate-900 truncate">${escapeHtml(it.name || "")}</div>
+                    <div class="font-bold truncate ${isDeletedText(it.name || "") ? "deleted-red" : "text-slate-900"}">${escapeHtml(it.name || "")}</div>
                     <div class="text-xs text-slate-500 mt-1">
                       ${qty} x $${money(unitPrice)}
                       ${it.note ? ` · Nota: ${escapeHtml(it.note)}` : ``}
@@ -2280,7 +2438,7 @@ const phone = sanitizeWhatsappNumber(rawPhone);
                 ${summaryLines.length ? `
                   <div class="mt-3 pt-3 border-t border-slate-200 space-y-1">
                     ${summaryLines.map(line => `
-                      <div class="text-sm text-slate-600 pl-2">- ${escapeHtml(line)}</div>
+                      <div class="text-sm pl-2 ${isDeletedText(line) ? "deleted-red" : "text-slate-600"}">- ${escapeHtml(line)}</div>
                     `).join("")}
                   </div>
                 ` : ``}
@@ -3122,7 +3280,7 @@ function mapOption(option){
 
             ${selectionSummary.length ? `
               <div class="mt-3 pt-3 border-t border-slate-200 space-y-1">
-                ${selectionSummary.map(line => `<div class="text-sm text-slate-600 pl-2">- ${escapeHtml(line)}</div>`).join("")}
+                ${selectionSummary.map(line => `<div class="text-sm pl-2 ${isDeletedText(line) ? "deleted-red" : "text-slate-600"}">- ${escapeHtml(line)}</div>`).join("")}
               </div>
             ` : ``}
 
@@ -3453,9 +3611,10 @@ async function submitCreateOrder(){
     // =========================
     function renderOrders(orders) {
       const el = document.getElementById("list");
-      setSummary(orders);
+      currentRenderedOrders = Array.isArray(orders) ? orders : [];
+      setSummary(currentRenderedOrders);
 
-      if (!orders.length) {
+      if (!currentRenderedOrders.length) {
         el.innerHTML = `
           <div class="panel-card p-8 text-center">
             <div class="text-5xl mb-3">🧾</div>
@@ -3467,11 +3626,10 @@ async function submitCreateOrder(){
 
       const currentFilter = document.getElementById("status").value;
 
-      el.innerHTML = orders.map(o => {
+      el.innerHTML = currentRenderedOrders.map(o => {
         const st = Number(o.status);
         const canAdvance = canAdvanceOrder(o);
         const paymentText = paymentInfo(o);
-        const itemsPreview = orderItemsPreview(o.items || []);
         const total = computeOrderTotal(o);
         const actions = [];
 
@@ -3499,7 +3657,6 @@ async function submitCreateOrder(){
         }
 
         if (st === 4) {
-          // solo detalle e imprimir
         } else if (st === 3) {
           actions.push(`
             <button class="action-btn bg-rose-100 text-rose-800 hover:bg-rose-200"
@@ -3539,12 +3696,16 @@ async function submitCreateOrder(){
           `);
         }
 
+        const pedidoLines = (Array.isArray(o.items) ? o.items : []).map(x => `${Number(x.qty || 0)}x ${x.name || ""}`);
+        const variantLines = getOrderVariantsPreview(o.items || []);
+        const noteLines = getOrderNotesPreview(o.items || []);
+
         return `
           <div data-order="${o.id}" data-order-number="${o.orderNumber}" class="order-card">
             <div class="order-top">
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-3 flex-wrap">
-                  <div class="text-2xl md:text-3xl font-extrabold tracking-tight break-all text-slate-950 font-display">#${o.orderNumber}</div>
+                  <div class="text-2xl md:text-3xl font-extrabold tracking-tight break-all text-slate-950 font-display">Pedido #${o.orderNumber}</div>
                   <span class="badge ${statusBadge(st)}">
                     ${STATUS_LABEL[st] ?? st}
                   </span>
@@ -3560,40 +3721,36 @@ async function submitCreateOrder(){
               </div>
             </div>
 
-<div class="order-grid">
-  <div class="order-box">
-    <div class="order-box-label">Total</div>
-    <div class="order-box-value order-box-total">$ ${money(total)}</div>
-  </div>
+            <div class="order-grid">
+              <div class="order-box">
+                <div class="order-box-label">Total</div>
+                <div class="order-box-value order-box-total">$ ${money(total)}</div>
+              </div>
 
-  <div class="order-box">
-    <div class="order-box-label">Método de pago</div>
-    <div class="mt-2">
-      <span class="badge ${paymentStatusBadge(o.paymentStatus)}">
-        ${paymentText}
-      </span>
-    </div>
-  </div>
+              <div class="order-box">
+                <div class="order-box-label">Método de pago</div>
+                <div class="mt-2">
+                  <span class="badge ${paymentStatusBadge(o.paymentStatus)}">
+                    ${paymentText}
+                  </span>
+                </div>
+              </div>
 
-  <div class="order-box">
-    <div class="order-box-label">Pedido</div>
-    <div class="order-items-preview mt-1">
-      ${escapeHtml(itemsPreview)}
-    </div>
-  </div>
+              <div class="order-box">
+                <div class="order-box-label">Pedido</div>
+                ${renderExpandableOrderBox(o.id, "pedido", pedidoLines, "Sin pedido")}
+              </div>
 
-  <div class="order-box">
-    <div class="order-box-label">Notas</div>
-    <div class="order-items-preview mt-1">
-      ${escapeHtml(
-        (Array.isArray(o.items) ? o.items : [])
-          .map(x => x.note || x.notes || "")
-          .filter(Boolean)
-          .join(" · ") || "Sin notas"
-      )}
-    </div>
-  </div>
-</div>
+              <div class="order-box">
+                <div class="order-box-label">Variantes</div>
+                ${renderExpandableOrderBox(o.id, "variantes", variantLines, "Sin variantes")}
+              </div>
+
+              <div class="order-box">
+                <div class="order-box-label">Notas</div>
+                ${renderExpandableOrderBox(o.id, "notas", noteLines, "Sin notas")}
+              </div>
+            </div>
 
             ${!canAdvance && isMercadoPagoPaymentMethod(o.paymentMethod) ? `
               <div class="mt-4 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800 relative z-[1]">
@@ -3604,7 +3761,7 @@ async function submitCreateOrder(){
         `;
       }).join("");
 
-            el.querySelectorAll("button[data-action='set']").forEach(btn => {
+      el.querySelectorAll("button[data-action='set']").forEach(btn => {
         btn.addEventListener("click", async () => {
           const id = btn.getAttribute("data-id");
           const st = parseInt(btn.getAttribute("data-status"), 10);
@@ -3689,6 +3846,14 @@ async function submitCreateOrder(){
           });
         });
       });
+
+      el.querySelectorAll("button[data-expand-order]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const orderId = Number(btn.getAttribute("data-expand-order"));
+          const section = btn.getAttribute("data-expand-section");
+          toggleOrderCardSection(orderId, section);
+        });
+      });
     }
 
     // =========================
@@ -3747,11 +3912,7 @@ async function submitCreateOrder(){
         CONFIG = await loadConfig();
         await loadCompanyNotificationConfig();
 
-        const today = new Date();
-        const yyyy = today.getUTCFullYear();
-        const mm = String(today.getUTCMonth() + 1).padStart(2, "0");
-        const dd = String(today.getUTCDate()).padStart(2, "0");
-        document.getElementById("date").value = `${yyyy}-${mm}-${dd}`;
+        document.getElementById("date").value = getArgentinaDateInputValue();
 
         document.getElementById("status").value = "1";
 

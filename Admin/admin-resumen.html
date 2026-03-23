@@ -637,7 +637,9 @@
   let CONFIG = null;
   let ordersCache = [];
   let selectedOrderId = null;
-
+const isDeleted = (text) =>
+  String(text || "").includes("(Eliminada)") ||
+  String(text || "").includes("(Eliminado)");
   // ✅ corregido para que coincida con Gestión de pedidos / backend
   const STATUS = {
     NEW: 0,
@@ -987,7 +989,9 @@
         ? items.map(it => `
             <div class="flex items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
               <div>
-                <div class="font-bold text-slate-900">${it.name || "Item"}</div>
+              <div class="font-bold ${isDeleted(it.name) ? "text-rose-600" : "text-slate-900"}">
+                ${it.name || "Item"}
+              </div>
                 <div class="text-xs text-slate-500 mt-1">
                   ${Number(it.qty || 0)} x $${fmtMoney(it.unitPrice || 0)}
                   ${it.note ? ` · Nota: ${it.note}` : ""}

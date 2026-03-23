@@ -1262,7 +1262,14 @@
 
 function buildOptionCardHtml(prefix, option, index){
   const variants = Array.isArray(option.variants) ? option.variants : [];
-  const p = prefix ? `${prefix.charAt(0).toLowerCase() + prefix.slice(1)}` : "";
+
+  const fn = {
+    removeOption: prefix === "edit" ? "editRemoveOption" : "removeOption",
+    updateOptionField: prefix === "edit" ? "editUpdateOptionField" : "updateOptionField",
+    addVariant: prefix === "edit" ? "editAddVariant" : "addVariant",
+    removeVariant: prefix === "edit" ? "editRemoveVariant" : "removeVariant",
+    updateVariantField: prefix === "edit" ? "editUpdateVariantField" : "updateVariantField"
+  };
 
   return `
     <div class="option-card" data-option-index="${index}">
@@ -1270,7 +1277,7 @@ function buildOptionCardHtml(prefix, option, index){
         <div class="text-sm font-extrabold text-slate-900 font-display">Opción ${index + 1}</div>
         <button type="button"
           class="soft-btn px-3 py-2 rounded-2xl bg-rose-100 text-rose-800 hover:bg-rose-200 text-xs"
-          onclick="${p}removeOption(${index})">
+          onclick="${fn.removeOption}(${index})">
           Eliminar opción
         </button>
       </div>
@@ -1280,7 +1287,7 @@ function buildOptionCardHtml(prefix, option, index){
           <label class="field-label">Nombre de la opción</label>
           <input class="field-input"
             value="${escapeHtml(option.name || "")}"
-            oninput="${p}updateOptionField(${index}, 'name', this.value)"
+            oninput="${fn.updateOptionField}(${index}, 'name', this.value)"
             placeholder="Ej: Carne" />
         </div>
 
@@ -1288,7 +1295,7 @@ function buildOptionCardHtml(prefix, option, index){
           <label class="field-label">Extra de precio</label>
           <input class="field-input"
             value="${escapeHtml(String(option.extraPrice ?? ""))}"
-            oninput="${p}updateOptionField(${index}, 'extraPrice', this.value)"
+            oninput="${fn.updateOptionField}(${index}, 'extraPrice', this.value)"
             placeholder="0" />
         </div>
       </div>
@@ -1301,7 +1308,7 @@ function buildOptionCardHtml(prefix, option, index){
 
         <button type="button"
           class="soft-btn px-3 py-2 rounded-2xl bg-slate-900 text-white hover:bg-slate-800 text-xs"
-          onclick="${p}addVariant(${index})">
+          onclick="${fn.addVariant}(${index})">
           Agregar variante
         </button>
       </div>
@@ -1313,18 +1320,18 @@ function buildOptionCardHtml(prefix, option, index){
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
                 <input class="field-input"
                   value="${escapeHtml(variant.name || "")}"
-                  oninput="${p}updateVariantField(${index}, ${vIndex}, 'name', this.value)"
+                  oninput="${fn.updateVariantField}(${index}, ${vIndex}, 'name', this.value)"
                   placeholder="Ej: Frita" />
 
                 <input class="field-input"
                   value="${escapeHtml(String(variant.extraPrice ?? ""))}"
-                  oninput="${p}updateVariantField(${index}, ${vIndex}, 'extraPrice', this.value)"
+                  oninput="${fn.updateVariantField}(${index}, ${vIndex}, 'extraPrice', this.value)"
                   placeholder="0" />
               </div>
 
               <button type="button"
                 class="soft-btn px-3 py-2 rounded-2xl bg-rose-100 text-rose-800 hover:bg-rose-200 text-xs shrink-0"
-                onclick="${p}removeVariant(${index}, ${vIndex})">
+                onclick="${fn.removeVariant}(${index}, ${vIndex})">
                 Quitar
               </button>
             </div>
