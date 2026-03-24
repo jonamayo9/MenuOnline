@@ -937,7 +937,7 @@
         <div style="width:40px;height:2px;background:linear-gradient(90deg,var(--accent),transparent);border-radius:2px;"></div>
       </div>
 
-      <div class="modules-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">
+      <div id="homeModules" class="modules-grid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">
         <a id="cardOrders" href="./admin-order.html" class="module-card">
           <div class="card-accent" style="background:linear-gradient(90deg,#f59e0b,#fbbf24);"></div>
           <div class="module-top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
@@ -1515,63 +1515,53 @@
       el.classList.toggle("hidden", !visible);
     }
 
-    function saveFeaturesInLocalStorage(features){
-      localStorage.setItem("menuonline_featureOrdersEnabled", String(features?.featureOrdersEnabled !== false));
-      localStorage.setItem("menuonline_featureProductsEnabled", String(features?.featureProductsEnabled !== false));
-      localStorage.setItem("menuonline_featureCategoriesEnabled", String(features?.featureCategoriesEnabled !== false));
-      localStorage.setItem("menuonline_featureShiftsEnabled", String(features?.featureShiftsEnabled !== false));
-      localStorage.setItem("menuonline_featureDashboardEnabled", String(features?.featureDashboardEnabled !== false));
-      localStorage.setItem("menuonline_featureTableManagementEnabled", String(features?.featureTableManagementEnabled === true));
-    }
+    function setHomeModulesLoading(isReady){
+  const el = document.getElementById("homeModules");
+  if(!el) return;
+  el.style.display = isReady ? "grid" : "none";
+}
 
-    function saveUserPermissionsInLocalStorage(me){
-      localStorage.setItem("menuonline_canAccessOrders", String(!!me?.canAccessOrders));
-      localStorage.setItem("menuonline_canAccessProducts", String(!!me?.canAccessProducts));
-      localStorage.setItem("menuonline_canAccessCategories", String(!!me?.canAccessCategories));
-      localStorage.setItem("menuonline_canAccessShifts", String(!!me?.canAccessShifts));
-      localStorage.setItem("menuonline_canAccessDashboard", String(!!me?.canAccessDashboard));
-      localStorage.setItem("menuonline_canAccessTablesWaiter", String(!!me?.canAccessTablesWaiter));
-      localStorage.setItem("menuonline_canAccessTableConfig", String(!!me?.canAccessTableConfig));
-      localStorage.setItem("menuonline_canAccessTableDashboard", String(!!me?.canAccessTableDashboard));
-      localStorage.setItem("menuonline_canAccessCompanySettings", String(!!me?.canAccessCompanySettings));
-      localStorage.setItem("menuonline_canAccessPriceAdjustments", String(!!me?.canAccessProducts));
-      localStorage.setItem("menuonline_canAccessPromotions", String(!!me?.canAccessProducts));
-    }
+function hideHomeModulesImmediately(){
+  setHomeModules({}, {});
+  setHomeModulesLoading(false);
+}
 
-    function readFeaturesFromLocalStorage(){
-      const hasAny =
-        localStorage.getItem("menuonline_featureOrdersEnabled") !== null ||
-        localStorage.getItem("menuonline_featureProductsEnabled") !== null ||
-        localStorage.getItem("menuonline_featureCategoriesEnabled") !== null ||
-        localStorage.getItem("menuonline_featureShiftsEnabled") !== null ||
-        localStorage.getItem("menuonline_featureDashboardEnabled") !== null ||
-        localStorage.getItem("menuonline_featureTableManagementEnabled") !== null;
-      if(!hasAny) return null;
-      return {
-        featureOrdersEnabled: localStorage.getItem("menuonline_featureOrdersEnabled") !== "false",
-        featureProductsEnabled: localStorage.getItem("menuonline_featureProductsEnabled") !== "false",
-        featureCategoriesEnabled: localStorage.getItem("menuonline_featureCategoriesEnabled") !== "false",
-        featureShiftsEnabled: localStorage.getItem("menuonline_featureShiftsEnabled") !== "false",
-        featureDashboardEnabled: localStorage.getItem("menuonline_featureDashboardEnabled") !== "false",
-        featureTableManagementEnabled: localStorage.getItem("menuonline_featureTableManagementEnabled") === "true"
-      };
-    }
+function saveFeaturesInLocalStorage(features){
+  return;
+}
 
-    function readPermissionsFromLocalStorage(){
-      return {
-        canAccessOrders: localStorage.getItem("menuonline_canAccessOrders") === "true",
-        canAccessProducts: localStorage.getItem("menuonline_canAccessProducts") === "true",
-        canAccessCategories: localStorage.getItem("menuonline_canAccessCategories") === "true",
-        canAccessShifts: localStorage.getItem("menuonline_canAccessShifts") === "true",
-        canAccessDashboard: localStorage.getItem("menuonline_canAccessDashboard") === "true",
-        canAccessTablesWaiter: localStorage.getItem("menuonline_canAccessTablesWaiter") === "true",
-        canAccessTableConfig: localStorage.getItem("menuonline_canAccessTableConfig") === "true",
-        canAccessTableDashboard: localStorage.getItem("menuonline_canAccessTableDashboard") === "true",
-        canAccessCompanySettings: localStorage.getItem("menuonline_canAccessCompanySettings") === "true",
-        canAccessPriceAdjustments: localStorage.getItem("menuonline_canAccessPriceAdjustments") === "true",
-        canAccessPromotions: localStorage.getItem("menuonline_canAccessPromotions") === "true"
-      };
-    }
+function saveUserPermissionsInLocalStorage(me){
+  return;
+}
+
+function readFeaturesFromLocalStorage(){
+  return null;
+}
+
+function clearStoredAccessState(){
+  localStorage.removeItem("menuonline_featureOrdersEnabled");
+  localStorage.removeItem("menuonline_featureProductsEnabled");
+  localStorage.removeItem("menuonline_featureCategoriesEnabled");
+  localStorage.removeItem("menuonline_featureShiftsEnabled");
+  localStorage.removeItem("menuonline_featureDashboardEnabled");
+  localStorage.removeItem("menuonline_featureTableManagementEnabled");
+
+  localStorage.removeItem("menuonline_canAccessOrders");
+  localStorage.removeItem("menuonline_canAccessProducts");
+  localStorage.removeItem("menuonline_canAccessCategories");
+  localStorage.removeItem("menuonline_canAccessShifts");
+  localStorage.removeItem("menuonline_canAccessDashboard");
+  localStorage.removeItem("menuonline_canAccessTablesWaiter");
+  localStorage.removeItem("menuonline_canAccessTableConfig");
+  localStorage.removeItem("menuonline_canAccessTableDashboard");
+  localStorage.removeItem("menuonline_canAccessCompanySettings");
+  localStorage.removeItem("menuonline_canAccessPriceAdjustments");
+  localStorage.removeItem("menuonline_canAccessPromotions");
+}
+
+function readPermissionsFromLocalStorage(){
+  return null;
+}
 
     function setTablesCards(features, permissions){
       const featureEnabled = !!features?.featureTableManagementEnabled;
@@ -1599,45 +1589,48 @@
       }
     }
 
-    function setQrCardVisibility(permissions){
-      const canSeeQr = !!permissions?.canAccessProducts || !!permissions?.canAccessCategories;
-      setCardVisible("cardMenuQr", canSeeQr);
-    }
+function setQrCardVisibility(features, permissions){
+  const canSeeQr =
+    features?.featureProductsEnabled === true &&
+    (permissions?.canAccessProducts === true || permissions?.canAccessCategories === true);
 
-    function setHomeModules(features, permissions){
-      const safeFeatures = {
-        featureOrdersEnabled: features?.featureOrdersEnabled !== false,
-        featureProductsEnabled: features?.featureProductsEnabled !== false,
-        featureCategoriesEnabled: features?.featureCategoriesEnabled !== false,
-        featureShiftsEnabled: features?.featureShiftsEnabled !== false,
-        featureDashboardEnabled: features?.featureDashboardEnabled !== false,
-        featureTableManagementEnabled: features?.featureTableManagementEnabled === true
-      };
+  setCardVisible("cardMenuQr", canSeeQr);
+}
 
-      const safePermissions = {
-        canAccessOrders: !!permissions?.canAccessOrders,
-        canAccessProducts: !!permissions?.canAccessProducts,
-        canAccessCategories: !!permissions?.canAccessCategories,
-        canAccessShifts: !!permissions?.canAccessShifts,
-        canAccessDashboard: !!permissions?.canAccessDashboard,
-        canAccessTablesWaiter: !!permissions?.canAccessTablesWaiter,
-        canAccessTableConfig: !!permissions?.canAccessTableConfig,
-        canAccessTableDashboard: !!permissions?.canAccessTableDashboard,
-        canAccessCompanySettings: !!permissions?.canAccessCompanySettings,
-        canAccessPriceAdjustments: !!permissions?.canAccessPriceAdjustments || !!permissions?.canAccessProducts,
-        canAccessPromotions: !!permissions?.canAccessPromotions || !!permissions?.canAccessProducts
-      };
+   function setHomeModules(features, permissions){
+  const safeFeatures = {
+    featureOrdersEnabled: features?.featureOrdersEnabled === true,
+    featureProductsEnabled: features?.featureProductsEnabled === true,
+    featureCategoriesEnabled: features?.featureCategoriesEnabled === true,
+    featureShiftsEnabled: features?.featureShiftsEnabled === true,
+    featureDashboardEnabled: features?.featureDashboardEnabled === true,
+    featureTableManagementEnabled: features?.featureTableManagementEnabled === true
+  };
 
-      setCardVisible("cardOrders", safeFeatures.featureOrdersEnabled && safePermissions.canAccessOrders);
-      setCardVisible("cardProducts", safeFeatures.featureProductsEnabled && safePermissions.canAccessProducts);
-      setCardVisible("cardPriceAdjustments", safeFeatures.featureProductsEnabled && safePermissions.canAccessPriceAdjustments);
-      setCardVisible("cardCategories", safeFeatures.featureCategoriesEnabled && safePermissions.canAccessCategories);
-      setCardVisible("cardConfig", safePermissions.canAccessCompanySettings);
-      setCardVisible("cardDashboard", safeFeatures.featureDashboardEnabled && safePermissions.canAccessDashboard);
-      setCardVisible("cardPromotions", safeFeatures.featureProductsEnabled && safePermissions.canAccessPromotions);
-      setTablesCards(safeFeatures, safePermissions);
-      setQrCardVisibility(safePermissions);
-    }
+  const safePermissions = {
+    canAccessOrders: permissions?.canAccessOrders === true,
+    canAccessProducts: permissions?.canAccessProducts === true,
+    canAccessCategories: permissions?.canAccessCategories === true,
+    canAccessShifts: permissions?.canAccessShifts === true,
+    canAccessDashboard: permissions?.canAccessDashboard === true,
+    canAccessTablesWaiter: permissions?.canAccessTablesWaiter === true,
+    canAccessTableConfig: permissions?.canAccessTableConfig === true,
+    canAccessTableDashboard: permissions?.canAccessTableDashboard === true,
+    canAccessCompanySettings: permissions?.canAccessCompanySettings === true,
+    canAccessPriceAdjustments: permissions?.canAccessPriceAdjustments === true,
+    canAccessPromotions: permissions?.canAccessPromotions === true
+  };
+
+  setCardVisible("cardOrders", safeFeatures.featureOrdersEnabled && safePermissions.canAccessOrders);
+  setCardVisible("cardProducts", safeFeatures.featureProductsEnabled && safePermissions.canAccessProducts);
+  setCardVisible("cardPriceAdjustments", safeFeatures.featureProductsEnabled && safePermissions.canAccessProducts && safePermissions.canAccessPriceAdjustments);
+  setCardVisible("cardCategories", safeFeatures.featureCategoriesEnabled && safePermissions.canAccessCategories);
+  setCardVisible("cardConfig", safePermissions.canAccessCompanySettings);
+  setCardVisible("cardDashboard", safeFeatures.featureDashboardEnabled && safePermissions.canAccessDashboard);
+  setCardVisible("cardPromotions", safeFeatures.featureProductsEnabled && safePermissions.canAccessProducts && safePermissions.canAccessPromotions);
+  setTablesCards(safeFeatures, safePermissions);
+  setQrCardVisibility(safeFeatures, safePermissions);
+}
 
     function buildAbsoluteMenuUrl(){
       if(!currentPublicMenuUrl) return "";
@@ -1713,143 +1706,165 @@
       document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeMenuQrModal(); });
     })();
 
-    (async function init(){
-      const token = localStorage.getItem(TOKEN_KEY) || localStorage.getItem(AUTH_KEY);
-      if(!token){ location.replace(LOGIN_PAGE); return; }
+    function setHomeModules(features, permissions){
+  const safeFeatures = {
+    featureOrdersEnabled: features?.featureOrdersEnabled === true,
+    featureProductsEnabled: features?.featureProductsEnabled === true,
+    featureCategoriesEnabled: features?.featureCategoriesEnabled === true,
+    featureShiftsEnabled: features?.featureShiftsEnabled === true,
+    featureDashboardEnabled: features?.featureDashboardEnabled === true,
+    featureTableManagementEnabled: features?.featureTableManagementEnabled === true
+  };
 
-      document.getElementById("btnLogout").addEventListener("click", logout);
+  const safePermissions = {
+    canAccessOrders: permissions?.canAccessOrders === true,
+    canAccessProducts: permissions?.canAccessProducts === true,
+    canAccessCategories: permissions?.canAccessCategories === true,
+    canAccessShifts: permissions?.canAccessShifts === true,
+    canAccessDashboard: permissions?.canAccessDashboard === true,
+    canAccessTablesWaiter: permissions?.canAccessTablesWaiter === true,
+    canAccessTableConfig: permissions?.canAccessTableConfig === true,
+    canAccessTableDashboard: permissions?.canAccessTableDashboard === true,
+    canAccessCompanySettings: permissions?.canAccessCompanySettings === true
+  };
 
-      const slug  = getCompanySlug() || "—";
-      const email = localStorage.getItem(EMAIL_KEY) || "—";
-      document.getElementById("companyLabel").textContent = slug;
-      document.getElementById("emailLabel").textContent = email;
-      currentCompanyName = slug === "—" ? "" : slug;
+  const canUseCatalog =
+    safeFeatures.featureProductsEnabled &&
+    safeFeatures.featureCategoriesEnabled &&
+    safePermissions.canAccessProducts &&
+    safePermissions.canAccessCategories;
 
-      try{
-        appConfig = await loadConfig();
-        setPublicMenuLink(slug === "—" ? "" : slug);
+  setCardVisible("cardOrders",
+    safeFeatures.featureOrdersEnabled &&
+    safePermissions.canAccessOrders
+  );
 
-        const me = await apiGetAdminMe(appConfig);
+  setCardVisible("cardProducts",
+    safeFeatures.featureProductsEnabled &&
+    safePermissions.canAccessProducts
+  );
 
-        if(me){
-          const features = {
-            featureOrdersEnabled: me.featureOrdersEnabled,
-            featureProductsEnabled: me.featureProductsEnabled,
-            featureCategoriesEnabled: me.featureCategoriesEnabled,
-            featureShiftsEnabled: me.featureShiftsEnabled,
-            featureDashboardEnabled: me.featureDashboardEnabled,
-            featureTableManagementEnabled: me.featureTableManagementEnabled
-          };
+  setCardVisible("cardCategories",
+    safeFeatures.featureCategoriesEnabled &&
+    safePermissions.canAccessCategories
+  );
 
-          const permissions = {
-            canAccessOrders: me.canAccessOrders,
-            canAccessProducts: me.canAccessProducts,
-            canAccessCategories: me.canAccessCategories,
-            canAccessShifts: me.canAccessShifts,
-            canAccessDashboard: me.canAccessDashboard,
-            canAccessTablesWaiter: me.canAccessTablesWaiter,
-            canAccessTableConfig: me.canAccessTableConfig,
-            canAccessTableDashboard: me.canAccessTableDashboard,
-            canAccessCompanySettings: me.canAccessCompanySettings,
-            canAccessPriceAdjustments: me.canAccessPriceAdjustments ?? me.canAccessProducts,
-            canAccessPromotions: me.canAccessPromotions ?? me.canAccessProducts
-          };
+  setCardVisible("cardPriceAdjustments", canUseCatalog);
+  setCardVisible("cardPromotions", canUseCatalog);
 
-          saveFeaturesInLocalStorage(features);
-          saveUserPermissionsInLocalStorage(me);
-          setHomeModules(features, permissions);
+  setCardVisible("cardConfig",
+    safePermissions.canAccessCompanySettings
+  );
 
-          currentCompanyName =
-            me.companyName ||
-            me.companyDisplayName ||
-            me.companySlug ||
-            currentCompanyName ||
-            "";
+  setCardVisible("cardDashboard",
+    safeFeatures.featureDashboardEnabled &&
+    safePermissions.canAccessDashboard
+  );
 
-          currentCompanyLogoUrl =
-            me.companyLogoUrl ||
-            me.logoUrl ||
-            me.logo ||
-            "";
+  setTablesCards(safeFeatures, safePermissions);
+  setQrCardVisibility(safeFeatures, safePermissions);
+}
 
-          const effectiveSlug = me.companySlug || (slug === "—" ? "" : slug);
+(async function init(){
+  const token = localStorage.getItem(TOKEN_KEY) || localStorage.getItem(AUTH_KEY);
+  if(!token){
+    location.replace(LOGIN_PAGE);
+    return;
+  }
 
-          if(effectiveSlug){
-            setPublicMenuLink(effectiveSlug);
-          }
+  document.getElementById("btnLogout").addEventListener("click", logout);
 
-          if(me.companySlug && me.companySlug !== slug && slug === "—"){
-            document.getElementById("companyLabel").textContent = me.companySlug;
-          }
+  const homeModulesEl = document.getElementById("homeModules");
+  if(homeModulesEl){
+    homeModulesEl.style.display = "none";
+  }
 
-          if(me.email && email === "—"){
-            document.getElementById("emailLabel").textContent = me.email;
-          }
+  setHomeModules({}, {});
 
-          if(currentCompanyName){
-            document.getElementById("companyLabel").textContent = currentCompanyName;
-          }
-        } else {
-          const localFeatures = readFeaturesFromLocalStorage();
-          const localPermissions = readPermissionsFromLocalStorage();
+  const slug  = getCompanySlug() || "—";
+  const email = localStorage.getItem(EMAIL_KEY) || "—";
+  document.getElementById("companyLabel").textContent = slug;
+  document.getElementById("emailLabel").textContent = email;
+  currentCompanyName = slug === "—" ? "" : slug;
 
-          if(localFeatures){
-            setHomeModules(localFeatures, localPermissions);
-          } else {
-            setHomeModules(
-              {
-                featureOrdersEnabled:true,
-                featureProductsEnabled:true,
-                featureCategoriesEnabled:true,
-                featureShiftsEnabled:true,
-                featureDashboardEnabled:true,
-                featureTableManagementEnabled:false
-              },
-              {
-                canAccessOrders:true,
-                canAccessProducts:true,
-                canAccessCategories:true,
-                canAccessShifts:false,
-                canAccessDashboard:true,
-                canAccessTablesWaiter:false,
-                canAccessTableConfig:false,
-                canAccessTableDashboard:false,
-                canAccessCompanySettings:false,
-                canAccessPriceAdjustments:true,
-                canAccessPromotions:true
-              }
-            );
-          }
-        }
-      } catch(e){
-        console.error(e);
-        toast("No pude cargar config.json", "error", 2000);
-        setPublicMenuLink("");
-        setHomeModules(
-          {
-            featureOrdersEnabled:true,
-            featureProductsEnabled:true,
-            featureCategoriesEnabled:true,
-            featureShiftsEnabled:true,
-            featureDashboardEnabled:true,
-            featureTableManagementEnabled:false
-          },
-          {
-            canAccessOrders:true,
-            canAccessProducts:true,
-            canAccessCategories:true,
-            canAccessShifts:false,
-            canAccessDashboard:true,
-            canAccessTablesWaiter:false,
-            canAccessTableConfig:false,
-            canAccessTableDashboard:false,
-            canAccessCompanySettings:false,
-            canAccessPriceAdjustments:true,
-            canAccessPromotions:true
-          }
-        );
+  try{
+    appConfig = await loadConfig();
+    setPublicMenuLink(slug === "—" ? "" : slug);
+
+    const me = await apiGetAdminMe(appConfig);
+
+    if(me){
+      const features = {
+        featureOrdersEnabled: me?.featureOrdersEnabled === true,
+        featureProductsEnabled: me?.featureProductsEnabled === true,
+        featureCategoriesEnabled: me?.featureCategoriesEnabled === true,
+        featureShiftsEnabled: me?.featureShiftsEnabled === true,
+        featureDashboardEnabled: me?.featureDashboardEnabled === true,
+        featureTableManagementEnabled: me?.featureTableManagementEnabled === true
+      };
+
+      const permissions = {
+        canAccessOrders: me?.canAccessOrders === true,
+        canAccessProducts: me?.canAccessProducts === true,
+        canAccessCategories: me?.canAccessCategories === true,
+        canAccessShifts: me?.canAccessShifts === true,
+        canAccessDashboard: me?.canAccessDashboard === true,
+        canAccessTablesWaiter: me?.canAccessTablesWaiter === true,
+        canAccessTableConfig: me?.canAccessTableConfig === true,
+        canAccessTableDashboard: me?.canAccessTableDashboard === true,
+        canAccessCompanySettings: me?.canAccessCompanySettings === true
+      };
+
+      saveFeaturesInLocalStorage(features);
+      saveUserPermissionsInLocalStorage(me);
+
+      setHomeModules(features, permissions);
+
+      currentCompanyName =
+        me.companyName ||
+        me.companyDisplayName ||
+        me.companySlug ||
+        currentCompanyName ||
+        "";
+
+      currentCompanyLogoUrl =
+        me.companyLogoUrl ||
+        me.logoUrl ||
+        me.logo ||
+        "";
+
+      const effectiveSlug = me.companySlug || (slug === "—" ? "" : slug);
+
+      if(effectiveSlug){
+        setPublicMenuLink(effectiveSlug);
       }
-    })();
+
+      if(me.companySlug && me.companySlug !== slug && slug === "—"){
+        document.getElementById("companyLabel").textContent = me.companySlug;
+      }
+
+      if(me.email && email === "—"){
+        document.getElementById("emailLabel").textContent = me.email;
+      }
+
+      if(currentCompanyName){
+        document.getElementById("companyLabel").textContent = currentCompanyName;
+      }
+    } else {
+      setPublicMenuLink("");
+      setHomeModules({}, {});
+    }
+  } catch(e){
+    console.error(e);
+    toast("No pude cargar config.json", "error", 2000);
+    setPublicMenuLink("");
+    setHomeModules({}, {});
+  } finally {
+    if(homeModulesEl){
+      homeModulesEl.style.display = "grid";
+    }
+  }
+})();
   </script>
 </body>
 </html>
