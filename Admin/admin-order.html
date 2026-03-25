@@ -1474,24 +1474,29 @@
       }
     }
 
-    function paymentStatusBadge(status) {
-      const s = String(status || "").toLowerCase();
+function paymentStatusBadge(status){
 
-      switch (s) {
-        case "approved":
-          return "bg-emerald-50 text-emerald-800 border-emerald-100";
-        case "pending":
-          return "bg-amber-50 text-amber-800 border-amber-100";
-        case "rejected":
-          return "bg-rose-50 text-rose-800 border-rose-100";
-        case "cancelled":
-          return "bg-slate-100 text-slate-700 border-slate-200";
-        case "none":
-          return "bg-slate-50 text-slate-600 border-slate-200";
-        default:
-          return "bg-slate-50 text-slate-700 border-slate-200";
-      }
-    }
+  const s = Number(status);
+
+  switch (s) {
+
+    case 2:
+      return "bg-emerald-50 text-emerald-800 border-emerald-100";
+
+    case 1:
+      return "bg-amber-50 text-amber-800 border-amber-100";
+
+    case 3:
+      return "bg-rose-50 text-rose-800 border-rose-100";
+
+    case 4:
+      return "bg-rose-50 text-rose-800 border-rose-100";
+
+    default:
+      return "bg-slate-50 text-slate-700 border-slate-200";
+
+  }
+}
 
     function paymentStatusLabel(status) {
       const s = String(status || "").toLowerCase();
@@ -3773,14 +3778,35 @@ async function submitCreateOrder(){
                 <div class="order-box-value order-box-total">$ ${money(total)}</div>
               </div>
 
-              <div class="order-box">
-                <div class="order-box-label">Método de pago</div>
-                <div class="mt-2">
-                  <span class="badge ${paymentStatusBadge(o.paymentStatus)}">
-                    ${paymentText}
-                  </span>
-                </div>
+            <div class="order-box">
+              <div class="order-box-label">Método de pago</div>
+
+              <div class="mt-2 flex flex-col gap-1">
+
+                <!-- linea 1: metodo de pago -->
+                <span class="badge bg-slate-100 text-slate-800 border-slate-200">
+                  ${o.paymentMethod || "-"}
+                </span>
+
+                <!-- linea 2: estado MP -->
+                ${
+                  isMercadoPagoPaymentMethod(o.paymentMethod)
+                  ? `
+                    <span class="badge ${paymentStatusBadge(o.paymentStatus)}">
+                      ${
+                        o.paymentStatus === 2 ? "Aprobado" :
+                        o.paymentStatus === 1 ? "Pendiente" :
+                        o.paymentStatus === 3 ? "Rechazado" :
+                        o.paymentStatus === 4 ? "Cancelado" :
+                        ""
+                      }
+                    </span>
+                  `
+                  : ``
+                }
+
               </div>
+            </div>
 
               <div class="order-box">
                 <div class="order-box-label">Pedido</div>
