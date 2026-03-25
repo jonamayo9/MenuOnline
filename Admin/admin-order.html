@@ -1553,15 +1553,15 @@ function paymentStatusBadge(status){
     }
 
     function canAdvanceOrder(order){
-      const ps = String(order.paymentStatus || "").toLowerCase();
 
-      if(isMercadoPagoPaymentMethod(order.paymentMethod)){
-        return ps === "approved";
-      }
+      // si es MercadoPago solo puede avanzar cuando el pago está aprobado
+      if(isMercadoPagoPaymentMethod(order.paymentMethod))
+        return Number(order.paymentStatus) === 2;
 
+      // otros medios de pago siempre pueden avanzar
       return true;
     }
-
+    
     function canMarkPaid(order){
       const ps = String(order?.paymentStatus || "").toLowerCase();
       return (
