@@ -1849,18 +1849,48 @@
       const selectedDate = document.getElementById("date").value;
       const status = document.getElementById("status").value;
 
-      async function fetchOrdersForDate(dateValue){
-        const params = new URLSearchParams();
-        if (dateValue) params.set("date", dateValue);
-        if (status !== "") params.set("status", status);
+async function fetchOrdersForDate(dateValue){
 
-        const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/orders` + (params.toString() ? `?${params}` : "");
-        const res = await fetchAuth(url);
-        if(!res) return [];
-        if (!res.ok) throw new Error("Error cargando pedidos");
-        const data = await res.json();
-        return Array.isArray(data) ? data : [];
-      }
+  const params = new URLSearchParams();
+
+  if (dateValue) params.set("date", dateValue);
+  if (status !== "") params.set("status", status);
+
+  const url =
+    `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/orders` +
+    (params.toString() ? `?${params}` : "");
+
+  const res = await fetchAuth(url);
+
+  if(!res) return [];
+
+  if (!res.ok)
+    throw new Error("Error cargando pedidos");
+
+  const data = await res.json();
+
+  const orders = Array.isArray(data) ? data : [];
+
+  // solo si la empresa tiene MercadoPago habilitado
+  if(window?.company?.mercadoPagoEnabled === true){
+
+    try{
+
+      await fetch(
+        `${CONFIG.apiBaseUrl}/api/payments/mercadopago/webhook/sync-pending-orders`,
+        { method:"POST" }
+      );
+
+    }catch(e){
+
+      console.warn("No se pudo sincronizar MP");
+
+    }
+
+  }
+
+  return orders;
+}
 
       if (!selectedDate) {
         return await fetchOrdersForDate("");
@@ -4045,6 +4075,31 @@ async function checkNewOrders() {
         await checkNewOrders();
 
         setInterval(checkNewOrders, 10000);
+
+        async function syncMercadoPagoOrders(orders){
+    const mpPending = orders.filter(o =>
+        o.paymentMethod === "MercadoPago" &&
+        o.paymentStatus !== "Approved" &&
+        o.paymentId
+    );
+
+    for(const order of mpPending){
+
+        try{
+
+            await fetch(
+                `/api/payments/mercadopago/webhook/sync-payment-by-payment-id/${order.paymentId}?companySlug=${companySlug}`,
+                {
+                    method: "POST"
+                }
+            );
+
+        }catch(e){
+            console.warn("No se pudo sincronizar pago MP", order.id);
+        }
+
+    }
+}
 
         setInterval(async () => {
           const modalNewOpen = !document.getElementById("newModal").classList.contains("hidden");
