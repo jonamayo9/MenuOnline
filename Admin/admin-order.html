@@ -1850,16 +1850,15 @@ function paymentStatusBadge(status){
       return await res.json();
     }
 
-    async function fetchOrders() {
-      const selectedDate = document.getElementById("date").value;
-      const status = document.getElementById("status").value;
-
-async function fetchOrdersForDate(dateValue){
+   async function fetchOrdersForDate(dateValue, status){
 
   const params = new URLSearchParams();
 
-  if (dateValue) params.set("date", dateValue);
-  if (status !== "") params.set("status", status);
+  if (dateValue)
+    params.set("date", dateValue);
+
+  if (status !== "")
+    params.set("status", status);
 
   const url =
     `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/orders` +
@@ -1867,57 +1866,86 @@ async function fetchOrdersForDate(dateValue){
 
   const res = await fetchAuth(url);
 
-  if(!res) return [];
+  if(!res)
+    return [];
 
   if (!res.ok)
     throw new Error("Error cargando pedidos");
 
   const data = await res.json();
 
-  const orders = Array.isArray(data) ? data : [];
+  return Array.isArray(data)
+    ? data
+    : [];
+}
 
-  // solo si la empresa tiene MercadoPago habilitado
-  if(window?.company?.mercadoPagoEnabled === true){
 
-    try{
 
-      await fetch(
-        `${CONFIG.apiBaseUrl}/api/payments/mercadopago/webhook/sync-pending-orders`,
-        { method:"POST" }
-      );
+async function fetchOrders(){
 
-    }catch(e){
+  const selectedDate =
+    document.getElementById("date").value;
 
-      console.warn("No se pudo sincronizar MP");
+  const status =
+    document.getElementById("status").value;
 
-    }
+
+  if (!selectedDate){
+
+    return await fetchOrdersForDate(
+      "",
+      status
+    );
 
   }
 
-  return orders;
-}
 
-      if (!selectedDate) {
-        return await fetchOrdersForDate("");
+  const [primary, nextDay] = await Promise.all([
+
+    fetchOrdersForDate(
+      selectedDate,
+      status
+    ),
+
+    fetchOrdersForDate(
+      addDaysToDateInput(selectedDate, 1),
+      status
+    )
+
+  ]);
+
+
+  const merged = new Map();
+
+  [...primary, ...nextDay]
+    .forEach(order => {
+
+      if(order && !merged.has(Number(order.id))){
+
+        merged.set(
+          Number(order.id),
+          order
+        );
+
       }
 
-      const [primary, nextDay] = await Promise.all([
-        fetchOrdersForDate(selectedDate),
-        fetchOrdersForDate(addDaysToDateInput(selectedDate, 1))
-      ]);
+    });
 
-      const merged = new Map();
-      [...primary, ...nextDay].forEach(order => {
-        if(order && !merged.has(Number(order.id))){
-          merged.set(Number(order.id), order);
-        }
-      });
 
-      return Array.from(merged.values())
-        .filter(order => getArgentinaDateFromIso(order.createdAt) === selectedDate)
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    }
+  return Array
+    .from(merged.values())
 
+    .filter(order =>
+      getArgentinaDateFromIso(order.createdAt)
+      === selectedDate
+    )
+
+    .sort((a, b) =>
+      new Date(b.createdAt)
+      - new Date(a.createdAt)
+    );
+
+}
     async function fetchNewCountToday() {
       const date = document.getElementById("date").value;
       const params = new URLSearchParams();
@@ -2091,6 +2119,23 @@ async function fetchOrdersForDate(dateValue){
     async function refreshAfterAction(message = null){
       await refresh(true);
       await checkNewOrders();
+
+      // sync MercadoPago después del check de nuevos pedidos
+      if(
+        window?.company?.mercadoPagoEnabled &&
+        currentRenderedOrders?.some(o =>
+          isMercadoPagoPaymentMethod(o.paymentMethod)
+        )
+      ){
+        try{
+          await fetch(
+            `${CONFIG.apiBaseUrl}/api/payments/mercadopago/webhook/sync-pending-orders`,
+            { method:"POST" }
+          );
+        }catch(e){
+          console.warn("sync MP error", e);
+        }
+      }
 
       if(message){
         toastUpdate(message, "success", 1800);
