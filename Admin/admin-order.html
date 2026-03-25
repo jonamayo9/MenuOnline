@@ -1946,29 +1946,6 @@ async function fetchOrders(){
     );
 
 }
-async function checkNewOrders() {
-  try {
-    const orders = await fetchNewOrdersToday();
-    const currentIds = new Set(orders.map(x => Number(x.id)));
-    const hasRealNewOrder = orders.some(x => !lastNewOrderIds.has(Number(x.id)));
-
-    if (orders.length > 0) {
-      showNewBanner(orders.length);
-
-      if (hasRealNewOrder && soundUnlocked) {
-        playNewOrderSound(false);
-      }
-    } else {
-      hideNewBanner();
-    }
-
-    lastNewCount = orders.length;
-    lastNewOrderIds = currentIds;
-  } catch (e) {
-    console.error("checkNewOrders error:", e);
-  }
-}
-
     async function fetchNewOrders() {
       const date = document.getElementById("date").value;
       const params = new URLSearchParams();
@@ -4017,19 +3994,22 @@ async function submitCreateOrder(){
 
 async function checkNewOrders() {
   try {
-    const count = await fetchNewCountToday();
+    const orders = await fetchNewOrders();
+    const currentIds = new Set(orders.map(x => Number(x.id)));
+    const hasRealNewOrder = orders.some(x => !lastNewOrderIds.has(Number(x.id)));
 
-    if (count > 0) {
-      showNewBanner(count);
+    if (orders.length > 0) {
+      showNewBanner(orders.length);
 
-      if (count > lastNewCount && soundUnlocked) {
+      if (hasRealNewOrder && soundUnlocked) {
         playNewOrderSound(false);
       }
     } else {
       hideNewBanner();
     }
 
-    lastNewCount = count;
+    lastNewCount = orders.length;
+    lastNewOrderIds = currentIds;
   } catch (e) {
     console.error("checkNewOrders error:", e);
   }
