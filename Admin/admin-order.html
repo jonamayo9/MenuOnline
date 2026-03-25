@@ -1946,19 +1946,28 @@ async function fetchOrders(){
     );
 
 }
-    async function fetchNewCountToday() {
-      const date = document.getElementById("date").value;
-      const params = new URLSearchParams();
-      if (date) params.set("date", date);
-      params.set("status", "0");
+async function checkNewOrders() {
+  try {
+    const orders = await fetchNewOrdersToday();
+    const currentIds = new Set(orders.map(x => Number(x.id)));
+    const hasRealNewOrder = orders.some(x => !lastNewOrderIds.has(Number(x.id)));
 
-      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/orders?${params.toString()}`;
-      const res = await fetchAuth(url);
-      if(!res) return 0;
-      if (!res.ok) return 0;
-      const list = await res.json();
-      return Array.isArray(list) ? list.length : 0;
+    if (orders.length > 0) {
+      showNewBanner(orders.length);
+
+      if (hasRealNewOrder && soundUnlocked) {
+        playNewOrderSound(false);
+      }
+    } else {
+      hideNewBanner();
     }
+
+    lastNewCount = orders.length;
+    lastNewOrderIds = currentIds;
+  } catch (e) {
+    console.error("checkNewOrders error:", e);
+  }
+}
 
     async function fetchNewOrders() {
       const date = document.getElementById("date").value;
@@ -4004,6 +4013,7 @@ async function submitCreateOrder(){
     }
 
     let lastNewCount = 0;
+    let lastNewOrderIds = new Set();
 
 async function checkNewOrders() {
   try {
