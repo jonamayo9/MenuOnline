@@ -3569,7 +3569,7 @@ async function submitCreateOrder(){
                   </span>
                 </div>
 
-                ${!canAdvance && isMercadoPagoPaymentMethod(o.paymentMethod) ? `
+              ${!canAdvance && isMercadoPagoPaymentMethod(o.paymentMethod) && o.paymentStatus === 1 ? `
                   <div class="mt-3 text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-2xl px-3 py-3">
                     Esperando confirmación de pago.
                   </div>
@@ -3659,7 +3659,23 @@ async function submitCreateOrder(){
       el.innerHTML = currentRenderedOrders.map(o => {
         const st = Number(o.status);
         const canAdvance = canAdvanceOrder(o);
-        const paymentText = paymentInfo(o);
+        let paymentText = paymentInfo(o);
+
+        if(isMercadoPagoPaymentMethod(o.paymentMethod)){
+
+          if(o.paymentStatus === 2)
+            paymentText = "MercadoPago • Aprobado";
+
+          else if(o.paymentStatus === 1)
+            paymentText = "MercadoPago • Pendiente";
+
+          else if(o.paymentStatus === 3)
+            paymentText = "MercadoPago • Rechazado";
+
+          else if(o.paymentStatus === 4)
+            paymentText = "MercadoPago • Cancelado";
+
+        }
         const total = computeOrderTotal(o);
         const actions = [];
 
@@ -3782,7 +3798,10 @@ async function submitCreateOrder(){
               </div>
             </div>
 
-            ${!canAdvance && isMercadoPagoPaymentMethod(o.paymentMethod) ? `
+            ${!canAdvance 
+              && isMercadoPagoPaymentMethod(o.paymentMethod) 
+              && o.paymentStatus === 1
+            ?  `
               <div class="mt-4 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800 relative z-[1]">
                 Este pedido todavía está esperando confirmación de pago.
               </div>
