@@ -3,14 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "clean": "if exist dist rmdir /s /q dist",
-    "copy": "powershell -Command \"robocopy . dist /E /XD dist node_modules .git /XF package-lock.json /NFL /NDL /NJH /NJS /NC /NS; if ($LASTEXITCODE -le 7) { exit 0 } else { exit $LASTEXITCODE }\"",
-    "build:html": "powershell -Command \"Get-ChildItem -Recurse -Filter *.html | Where-Object { $_.FullName -notmatch '\\\\dist\\\\|\\\\node_modules\\\\' } | ForEach-Object { $rel = $_.FullName.Substring($PWD.Path.Length + 1); $out = Join-Path 'dist' $rel; $outDir = Split-Path $out; if (!(Test-Path $outDir)) { New-Item -ItemType Directory -Force -Path $outDir | Out-Null }; npx html-minifier-terser $_.FullName --collapse-whitespace --remove-comments --minify-css true --minify-js true -o $out }\"",
-    "build:js": "powershell -Command \"Get-ChildItem -Recurse -Filter *.js | Where-Object { $_.FullName -notmatch '\\\\dist\\\\|\\\\node_modules\\\\' } | ForEach-Object { $rel = $_.FullName.Substring($PWD.Path.Length + 1); $out = Join-Path 'dist' $rel; $outDir = Split-Path $out; if (!(Test-Path $outDir)) { New-Item -ItemType Directory -Force -Path $outDir | Out-Null }; npx javascript-obfuscator $_.FullName --output $out --compact true --control-flow-flattening true --string-array true --string-array-encoding base64 --self-defending true --disable-console-output true }\"",
-    "build": "npm run clean && npm run copy && npm run build:html && npm run build:js"
+    "build": "node scripts/build.js"
   },
   "devDependencies": {
     "html-minifier-terser": "^7.2.0",
-    "javascript-obfuscator": "^5.4.1"
+    "javascript-obfuscator": "^5.4.1",
+    "shx": "^0.3.4"
   }
 }
