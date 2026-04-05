@@ -107,7 +107,7 @@
         headers: {
           "Accept": "application/json",
           "Authorization": "Bearer " + state.token
-        }
+        } 
       }
     );
 
