@@ -1,0 +1,605 @@
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+    :root{
+      --accent:#d97706;
+      --accent-dark:#b45309;
+      --primary:#0f172a;
+      --bg:#f8fafc;
+    }
+
+    body{
+      font-family:'Plus Jakarta Sans',sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(245,158,11,.06), transparent 26%),
+        linear-gradient(180deg,#f8fafc 0%,#f1f5f9 100%);
+      color:var(--primary);
+      margin:0;
+    }
+
+    .no-scrollbar::-webkit-scrollbar{ display:none; }
+
+    .tab-btn{
+      position:relative;
+      transition:.2s ease;
+      color:#94a3b8;
+      font-size:13px;
+      font-weight:800;
+      padding:12px 2px;
+      white-space:nowrap;
+    }
+
+    .tab-btn:hover{ color:#334155; }
+
+    .tab-active{ color:var(--primary); }
+
+    .tab-active::after{
+      content:'';
+      position:absolute;
+      left:0;
+      bottom:2px;
+      width:100%;
+      height:3px;
+      border-radius:999px;
+      background:var(--accent);
+      box-shadow:0 8px 16px rgba(217,119,6,.18);
+    }
+
+    .food-card{
+      background:rgba(255,255,255,.98);
+      border-radius:30px;
+      border:1px solid rgba(226,232,240,.95);
+      box-shadow:0 14px 34px rgba(15,23,42,0.06);
+      transition:.18s ease;
+    }
+
+    .food-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 18px 42px rgba(15,23,42,.08);
+    }
+
+    .glass-card{
+      background:rgba(255,255,255,.88);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+
+    #modal-checkout{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:100;
+      background:rgba(2,6,23,.55);
+      backdrop-filter:blur(10px);
+    }
+
+    #modal-config-product{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:110;
+      background:rgba(2,6,23,.55);
+      backdrop-filter:blur(10px);
+    }
+
+    .clamp-2{
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .hero-soft{
+      background:
+        radial-gradient(circle at top left, rgba(245,158,11,.08), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(15,23,42,.03), transparent 38%),
+        #ffffff;
+    }
+
+    .subtle-card{
+      background:#fff;
+      border:1px solid #e2e8f0;
+      box-shadow:0 10px 24px rgba(15,23,42,.04);
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:.45rem;
+      padding:.45rem .8rem;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      border:1px solid transparent;
+      white-space:nowrap;
+    }
+
+    .promo-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:.4rem;
+      padding:.42rem .72rem;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      white-space:nowrap;
+      color:#b45309;
+      background:linear-gradient(180deg, #fff7ed 0%, #ffedd5 100%);
+      border:1px solid #fdba74;
+      box-shadow:0 8px 16px rgba(245,158,11,.10);
+    }
+
+    .promo-price-old{
+      font-size:.85rem;
+      line-height:1;
+      color:#94a3b8;
+      text-decoration:line-through;
+      font-weight:800;
+      margin-top:.35rem;
+    }
+
+    .promo-price-new{
+      color:#b45309 !important;
+      text-shadow:0 10px 22px rgba(245,158,11,.14);
+    }
+
+    .promo-saving{
+      margin-top:.35rem;
+      font-size:11px;
+      font-weight:900;
+      color:#c2410c;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+    }
+
+    .qty-shell{
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+    }
+
+    .checkout-field{
+      width:100%;
+      padding:1rem;
+      background:#f8fafc;
+      border-radius:1rem;
+      outline:none;
+      border:1px solid #e2e8f0;
+      color:#0f172a;
+      transition:.18s ease;
+    }
+
+    .checkout-field:focus{
+      border-color:#f59e0b;
+      box-shadow:0 0 0 4px rgba(245,158,11,.12);
+    }
+
+    .config-chip{
+      border:1px solid #e2e8f0;
+      background:#fff;
+      color:#334155;
+      transition:.15s ease;
+    }
+
+    .config-chip.active{
+      border-color:#f59e0b;
+      background:#fff7ed;
+      color:#b45309;
+      box-shadow:0 0 0 3px rgba(245,158,11,.10);
+    }
+
+    #modal-config-product{
+  align-items:center;
+  justify-content:center;
+  padding:1rem;
+}
+
+#modal-config-product .config-dialog{
+  width:100%;
+  max-width:680px;
+  max-height:min(90vh, 920px);
+  display:flex;
+  flex-direction:column;
+  padding:0;
+  border-radius:2rem;
+  overflow:hidden;
+}
+
+#modal-config-product .config-head{
+  padding:1.15rem 1.2rem 1rem;
+  border-bottom:1px solid #e2e8f0;
+  background:linear-gradient(180deg,#ffffff 0%, #fffdf8 100%);
+  flex:0 0 auto;
+}
+
+#modal-config-product .config-body{
+  padding:1rem 1.2rem 0;
+  overflow-y:auto;
+  flex:1 1 auto;
+  min-height:0;
+}
+
+#modal-config-product .config-footer{
+  padding:1rem 1.2rem 1.1rem;
+  border-top:1px solid #e2e8f0;
+  background:linear-gradient(180deg,rgba(255,255,255,.96) 0%, #ffffff 100%);
+  flex:0 0 auto;
+}
+
+#modal-config-product #configProductOptions{
+  margin-top:1rem;
+  max-height:none;
+  overflow:visible;
+  padding-right:0;
+  display:grid;
+  gap:.8rem;
+}
+
+#modal-config-product .config-option-card{
+  border:1px solid #e2e8f0;
+  border-radius:1.25rem;
+  padding:1rem;
+  background:#fff;
+  box-shadow:0 8px 18px rgba(15,23,42,.04);
+}
+
+#modal-config-product .config-option-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:1rem;
+  align-items:start;
+}
+
+#modal-config-product .config-option-trigger{
+  min-width:0;
+  text-align:left;
+}
+
+#modal-config-product .config-option-title{
+  font-size:1rem;
+  font-weight:900;
+  color:#0f172a;
+  line-height:1.1;
+}
+
+#modal-config-product .config-option-sub{
+  margin-top:.28rem;
+  font-size:.68rem;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.18em;
+  color:#94a3b8;
+}
+
+#modal-config-product .config-variants-wrap{
+  margin-top:.85rem;
+  padding-top:.85rem;
+  border-top:1px solid #eef2f7;
+}
+
+#modal-config-product .config-variants-label{
+  font-size:.62rem;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.18em;
+  color:#94a3b8;
+  margin-bottom:.55rem;
+}
+
+#modal-config-product .config-qty-shell{
+  display:inline-flex;
+  align-items:center;
+  gap:.7rem;
+  padding:.35rem;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  border-radius:1.1rem;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
+}
+
+#modal-config-product .config-qty-shell .mobile-qty-btn{
+  width:2.7rem;
+  height:2.7rem;
+  border-radius:.9rem;
+}
+
+#modal-config-product .config-qty-num{
+  min-width:1.8rem;
+  text-align:center;
+  font-weight:900;
+  font-size:1.15rem;
+  color:#0f172a;
+}
+
+#modal-config-product .config-inline-grid{
+  display:grid;
+  grid-template-columns: 190px minmax(0,1fr);
+  gap:.85rem;
+  align-items:stretch;
+}
+
+#modal-config-product .config-progress-card,
+#modal-config-product .config-note-card,
+#modal-config-product .config-summary-card{
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  border-radius:1.2rem;
+}
+
+#modal-config-product .config-progress-card{
+  padding:.95rem 1rem;
+}
+
+#modal-config-product .config-note-card{
+  padding:.4rem;
+}
+
+#modal-config-product .config-summary-card{
+  margin-top:.9rem;
+  margin-bottom:1.2rem; /* espacio antes del total */
+  padding:1rem;
+}
+#modal-config-product .config-total-box{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:1rem;
+  margin-bottom:.9rem;
+}
+
+#modal-config-product .config-total-amount{
+  font-size:1.75rem;
+  line-height:1;
+  font-weight:900;
+  color:#d97706;
+  letter-spacing:-.03em;
+}
+
+    @media (max-width: 768px){
+      .tab-btn{ font-size:14px; padding:12px 2px; }
+    }
+
+    @media (max-width: 640px){
+      #btnWhatsApp{
+        display:none !important;
+      }
+
+      header .glass-card .max-w-4xl{
+        padding-top:.9rem !important;
+        padding-bottom:.9rem !important;
+      }
+
+      #companyName{
+        font-size:1.2rem !important;
+        line-height:1.08 !important;
+        max-width:170px !important;
+      }
+
+      #companyLogo,
+      #companyLogoPh{
+        transform:scale(.92);
+      }
+
+      #orderModeBadge,
+      #badgeOpen{
+        font-size:9px !important;
+        padding:.38rem .7rem !important;
+      }
+
+      #tabsWrap nav{
+        padding-top:.25rem !important;
+        padding-bottom:.25rem !important;
+      }
+
+      #tabs-categorias{
+        gap:1.2rem !important;
+      }
+
+      .tab-btn{
+        font-size:13px !important;
+        padding:10px 0 !important;
+      }
+
+      #heroInfo{
+        margin-bottom:1rem !important;
+      }
+
+      #heroInfo .hero-soft{
+        padding:1rem !important;
+        border-radius:1.4rem !important;
+      }
+
+      #scheduleToday{
+        padding:.85rem 1rem !important;
+        border-radius:1rem !important;
+      }
+
+      #scheduleWrap{
+        margin-top:.6rem !important;
+      }
+
+      #scheduleHint{
+        margin-top:.75rem !important;
+        font-size:.8rem !important;
+      }
+
+      #btnToggleSchedule{
+        margin-top:.65rem !important;
+      }
+
+      #heroStats{
+        display:none !important;
+      }
+
+      .food-card{
+        border-radius:1.4rem !important;
+        padding:.95rem !important;
+      }
+
+      .food-card > div{
+        gap:.85rem !important;
+        align-items:flex-start !important;
+      }
+
+      #lista-platos{
+        gap:.9rem !important;
+      }
+
+      .food-card .mobile-img{
+        width:84px !important;
+        height:84px !important;
+        border-radius:1rem !important;
+      }
+
+      .food-card .mobile-price{
+        font-size:1.05rem !important;
+        line-height:1 !important;
+        margin-top:.35rem !important;
+      }
+
+      .food-card h3{
+        font-size:1.05rem !important;
+        line-height:1.1 !important;
+      }
+
+      .food-card p{
+        font-size:.88rem !important;
+        line-height:1.3 !important;
+      }
+
+      .food-card .text-right{
+        min-width:78px !important;
+      }
+
+      .food-card .text-\[10px\]{
+        font-size:9px !important;
+      }
+
+      .promo-price-old{
+        font-size:.72rem !important;
+        margin-top:.22rem !important;
+      }
+
+      .promo-saving{
+        font-size:9px !important;
+        margin-top:.22rem !important;
+      }
+
+      .promo-pill{
+        font-size:9px !important;
+        padding:.34rem .6rem !important;
+      }
+
+      .qty-shell{
+        width:100%;
+        justify-content:space-between;
+        padding:.45rem .5rem !important;
+      }
+
+      .food-card .mobile-qty-btn{
+        width:40px !important;
+        height:40px !important;
+        font-size:1rem !important;
+      }
+
+      #barra-carrito{
+        padding:1rem !important;
+        border-radius:1.35rem !important;
+        left:.75rem !important;
+        right:.75rem !important;
+        bottom:.75rem !important;
+      }
+
+      #barra-carrito button{
+        padding:.95rem 1.15rem !important;
+        font-size:.78rem !important;
+        border-radius:1rem !important;
+      }
+
+      #btnWhatsAppMobile{
+        margin-top:.75rem !important;
+        padding:.85rem 1rem !important;
+        border-radius:1rem !important;
+        box-shadow:0 6px 16px rgba(15,23,42,.08) !important;
+      }
+
+      #modal-checkout .max-w-md{
+        border-radius:1.6rem !important;
+        padding:1.15rem !important;
+      }
+
+      #modal-checkout h2,
+      #modal-config-product h2{
+        font-size:1.35rem !important;
+      }
+
+      #modal-config-product{
+        align-items:flex-end !important;
+        padding:0 !important;
+      }
+
+      #modal-config-product .config-dialog{
+        max-width:none !important;
+        max-height:92dvh !important;
+        border-bottom-left-radius:0 !important;
+        border-bottom-right-radius:0 !important;
+      }
+
+      #modal-config-product .config-head{
+        padding:1rem 1rem .85rem !important;
+      }
+
+      #modal-config-product .config-body{
+        padding:.9rem 1rem 0 !important;
+      }
+
+      #modal-config-product .config-footer{
+        padding:.9rem 1rem 1rem !important;
+      }
+
+      #modal-config-product .config-inline-grid{
+        grid-template-columns:1fr !important;
+        gap:.85rem !important;
+      }
+
+      #modal-config-product .config-option-row{
+        grid-template-columns:1fr !important;
+        gap:.75rem !important;
+      }
+
+      #modal-config-product .config-qty-shell{
+        width:100% !important;
+        justify-content:space-between !important;
+      }
+
+      #modal-config-product .config-qty-shell .mobile-qty-btn{
+        width:48px !important;
+        height:48px !important;
+      }
+
+      #modal-config-product .config-total-box{
+        flex-direction:column !important;
+        align-items:flex-start !important;
+        gap:.5rem !important;
+      }
+    }
+
+    @media print {
+      @page { margin:0; size:80mm auto; }
+      body * { display:none !important; }
+      #ticket-imprimir, #ticket-imprimir * { display:block !important; }
+      #ticket-imprimir{
+        position:absolute;
+        left:0;
+        top:0;
+        width:80mm !important;
+        padding:4mm !important;
+        background:white !important;
+        color:black !important;
+        font-family:'Courier New',Courier,monospace !important;
+        font-size:12px !important;
+        line-height:1.2 !important;
+      }
+      .no-print{ display:none !important; }
+    }

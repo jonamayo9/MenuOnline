@@ -1,0 +1,3009 @@
+let CONFIG = null;
+    let isRefreshing = false;
+    const orderDetailCache = new Map();
+    let companyOrderNotificationMode = 0;
+    let companyOrderNotificationTemplate = "";
+
+    // Nuevo pedido
+    let paymentOptionsCache = null;
+    let createOrderMenuItems = [];
+    let createOrderCategories = [];
+    let createOrderCategoryFilter = "all";
+    let createOrderSearch = "";
+    let createOrderCart = [];
+    let createOrderPaymentMethod = "Cash";
+    let createOrderLastCreated = null;
+    let createOrderConfigState = null;
+    let createOrderCartSeq = 1;
+    let currentRenderedOrders = [];
+    const expandedOrderCards = {};
+    const ARG_TZ = "America/Argentina/Buenos_Aires";
+
+    // =========================
+    // AUTH
+    // =========================
+    const TOKEN_KEY = "menuonline_token";
+    const SLUG_KEY  = "menuonline_companySlug";
+    const LOGIN_PAGE = "/Admin/login.html";
+    //   PROD
+    //const CONFIG_PATH = "/MenuOnline/config.json";
+    //  DEV
+    const CONFIG_PATH = "/config.json";
+
+    function logoutToLogin(){
+      localStorage.removeItem(TOKEN_KEY);
+      location.replace(LOGIN_PAGE);
+    }
+
+    function parseJwt(token){
+      try{
+        const base64Url = token.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const json = decodeURIComponent(atob(base64).split("").map(c =>
+          "%" + c.charCodeAt(0).toString(16).padStart(2,"0")
+        ).join(""));
+        return JSON.parse(json);
+      }catch{
+        return null;
+      }
+    }
+
+    const BUSINESS_GASTRONOMIA = 1;
+const BUSINESS_OTROS = 2;
+
+async function loadConfig(){
+  const res = await fetch(CONFIG_PATH, { cache: "no-store" });
+  if(!res.ok) throw new Error("No pude leer config.json");
+  return await res.json();
+}
+
+async function fetchAuth(url, options = {}){
+  const token = localStorage.getItem(TOKEN_KEY);
+  if(!token){
+    logoutToLogin();
+    return null;
+  }
+
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      Authorization: "Bearer " + token
+    }
+  });
+
+  if(res.status === 401 || res.status === 403){
+    logoutToLogin();
+    return null;
+  }
+
+  return res;
+}
+
+async function apiGetAdminMe(){
+  const res = await fetchAuth(`${CONFIG.apiBaseUrl}/api/admin/me`);
+  if(!res || !res.ok) return null;
+  return await res.json().catch(() => null);
+}
+
+function redirectNotFound(){
+  location.replace("/404.html");
+}
+
+async function guardAdminOrderAccess(){
+  try{
+    CONFIG = await loadConfig();
+
+    const me = await apiGetAdminMe();
+    if(!me){
+      redirectNotFound();
+      return false;
+    }
+
+    if(Number(me.businessType) === BUSINESS_OTROS){
+      redirectNotFound();
+      return false;
+    }
+
+    if(me.featureOrdersEnabled !== true || me.canAccessOrders !== true){
+      redirectNotFound();
+      return false;
+    }
+
+    return true;
+  }catch(err){
+    console.error(err);
+    redirectNotFound();
+    return false;
+  }
+}
+
+    async function loadCompanyNotificationConfig(){
+      const slug = getSlug();
+
+      const res = await fetchAuth(`${CONFIG.apiBaseUrl}/api/public/${slug}/menu`);
+      if(!res || !res.ok) return;
+
+      const data = await res.json().catch(() => null);
+      companyOrderNotificationMode = Number(data?.negocio?.orderNotificationMode ?? 0);
+      companyOrderNotificationTemplate = String(data?.negocio?.orderNotificationTemplate || "").trim();
+    }
+
+    function isTokenValid(token){
+      const payload = parseJwt(token);
+      const exp = payload?.exp;
+      if(!exp) return false;
+      const now = Math.floor(Date.now()/1000);
+      return exp > now;
+    }
+
+    function requireAuth(){
+      const t = localStorage.getItem(TOKEN_KEY);
+      if(!t || !isTokenValid(t)){
+        logoutToLogin();
+        return false;
+      }
+      return true;
+    }
+
+    function authHeaders(extra = {}){ 
+      const token = localStorage.getItem(TOKEN_KEY);
+      return { ...extra, "Authorization": "Bearer " + token };
+    }
+
+    async function fetchAuth(url, options = {}){
+      if(!requireAuth()) return null;
+
+      const res = await fetch(url, {
+        ...options,
+        headers: authHeaders(options.headers || {})
+      });
+
+      if(res.status === 401 || res.status === 403){
+        logoutToLogin();
+        return null;
+      }
+      return res;
+    }
+
+    function getSlug(){
+      return localStorage.getItem(SLUG_KEY) || CONFIG.companySlug;
+    }
+
+    // =========================
+    // TOAST
+    // =========================
+    let activeToastEl = null;
+
+    function toastShow(message, type = "info") {
+      const container = document.getElementById("toastContainer");
+
+      if (activeToastEl) {
+        activeToastEl.remove();
+        activeToastEl = null;
+      }
+
+      const colors = {
+        success: "bg-emerald-500",
+        error: "bg-rose-500",
+        info: "bg-slate-900"
+      };
+
+      const icon = type === "success" ? "✓" : type === "error" ? "⚠" : "⏳";
+
+      const el = document.createElement("div");
+      el.className = `
+        ${colors[type]} text-white px-5 py-4 rounded-2xl shadow-2xl
+        flex items-center gap-3 min-w-[280px]
+        transform transition-all duration-200 translate-y-2 opacity-0
+      `;
+      el.innerHTML = `
+        <div class="text-lg font-bold leading-none">${icon}</div>
+        <div class="text-sm font-semibold">${message}</div>
+      `;
+
+      container.appendChild(el);
+      activeToastEl = el;
+
+      requestAnimationFrame(() => {
+        el.classList.remove("translate-y-2", "opacity-0");
+      });
+
+      return el;
+    }
+
+    function toastUpdate(message, type = "info", autoCloseMs = null) {
+      if (!activeToastEl) {
+        toastShow(message, type);
+        if (autoCloseMs) toastAutoClose(autoCloseMs);
+        return;
+      }
+
+      const colors = {
+        success: "bg-emerald-500",
+        error: "bg-rose-500",
+        info: "bg-slate-900"
+      };
+
+      const icon = type === "success" ? "✓" : type === "error" ? "⚠" : "⏳";
+
+      activeToastEl.className = `
+        ${colors[type]} text-white px-5 py-4 rounded-2xl shadow-2xl
+        flex items-center gap-3 min-w-[280px]
+        transform transition-all duration-200
+      `;
+      activeToastEl.innerHTML = `
+        <div class="text-lg font-bold leading-none">${icon}</div>
+        <div class="text-sm font-semibold">${message}</div>
+      `;
+
+      if (autoCloseMs) toastAutoClose(autoCloseMs);
+    }
+
+    function toastAutoClose(ms = 1800) {
+      const el = activeToastEl;
+      if (!el) return;
+
+      setTimeout(() => {
+        if (activeToastEl !== el) return;
+        el.classList.add("translate-y-2", "opacity-0");
+        setTimeout(() => {
+          if (activeToastEl === el) activeToastEl = null;
+          el.remove();
+        }, 200);
+      }, ms);
+    }
+
+    function toastClear() {
+      if (!activeToastEl) return;
+      activeToastEl.remove();
+      activeToastEl = null;
+    }
+
+    // =========================
+    // LABELS
+    // =========================
+    const STATUS_LABEL = {
+      0: "Nuevo",
+      1: "Preparando",
+      3: "Entregado",
+      4: "Cancelado"
+    };
+
+    function statusBadge(status) {
+      switch (status) {
+        case 0: return "bg-blue-50 text-blue-700 border-blue-100";
+        case 1: return "bg-amber-50 text-amber-800 border-amber-100";
+        case 3: return "bg-emerald-50 text-emerald-800 border-emerald-100";
+        case 4: return "bg-rose-50 text-rose-800 border-rose-100";
+        default: return "bg-slate-50 text-slate-700 border-slate-100";
+      }
+    }
+
+function paymentStatusBadge(status){
+
+  const s = Number(status);
+
+  switch (s) {
+
+    case 2:
+      return "bg-emerald-50 text-emerald-800 border-emerald-100";
+
+    case 1:
+      return "bg-amber-50 text-amber-800 border-amber-100";
+
+    case 3:
+      return "bg-rose-50 text-rose-800 border-rose-100";
+
+    case 4:
+      return "bg-rose-50 text-rose-800 border-rose-100";
+
+    default:
+      return "bg-slate-50 text-slate-700 border-slate-200";
+
+  }
+}
+
+    function paymentStatusLabel(status) {
+      const s = String(status || "").toLowerCase();
+
+      switch (s) {
+        case "approved": return "Aprobado";
+        case "pending": return "Pendiente";
+        case "rejected": return "Rechazado";
+        case "cancelled": return "Cancelado";
+        case "none": return "Sin pago online";
+        default: return status || "—";
+      }
+    }
+
+    function normalizePaymentMethodLabel(method){
+      const raw = String(method || "").trim().toLowerCase();
+
+      if (raw.startsWith("cash")) return "Efectivo";
+      if (raw.startsWith("qr")) return "QR";
+      if (raw.startsWith("transfer")) return "Transferencia";
+      if (raw.startsWith("mercadopago")) return "MercadoPago";
+
+      return method || "—";
+    }
+
+    function isQrPaymentMethod(method){
+      const raw = String(method || "").trim().toLowerCase();
+      return raw.startsWith("qr");
+    }
+
+    function isTransferPaymentMethod(method){
+      const raw = String(method || "").trim().toLowerCase();
+      return raw.startsWith("transfer");
+    }
+
+    function isMercadoPagoPaymentMethod(method){
+      const raw = String(method || "").trim().toLowerCase();
+      return raw.startsWith("mercadopago");
+    }
+
+    function paymentInfo(order){
+      const methodLabel = normalizePaymentMethodLabel(order.paymentMethod);
+      const paymentStatus = String(order.paymentStatus || "").toLowerCase();
+
+      if (isMercadoPagoPaymentMethod(order.paymentMethod)) {
+        return `${methodLabel} · ${paymentStatusLabel(paymentStatus)}`;
+      }
+
+      if (isQrPaymentMethod(order.paymentMethod) || isTransferPaymentMethod(order.paymentMethod)) {
+        return `${methodLabel} · ${paymentStatusLabel(paymentStatus)}`;
+      }
+
+      return methodLabel;
+    }
+
+    function canAdvanceOrder(order){
+
+      // si es MercadoPago solo puede avanzar cuando el pago está aprobado
+      if(isMercadoPagoPaymentMethod(order.paymentMethod))
+        return Number(order.paymentStatus) === 2;
+
+      // otros medios de pago siempre pueden avanzar
+      return true;
+    }
+    
+    function canMarkPaid(order){
+      const ps = String(order?.paymentStatus || "").toLowerCase();
+      return (
+        (isTransferPaymentMethod(order?.paymentMethod) || isQrPaymentMethod(order?.paymentMethod)) &&
+        ps !== "approved" &&
+        ps !== "cancelled"
+      );
+    }
+
+    function formatDateInTimeZone(date, timeZone = ARG_TZ) {
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).formatToParts(date);
+
+      const yyyy = parts.find(p => p.type === "year")?.value || "0000";
+      const mm = parts.find(p => p.type === "month")?.value || "01";
+      const dd = parts.find(p => p.type === "day")?.value || "01";
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function getArgentinaDateInputValue(){
+      return formatDateInTimeZone(new Date(), ARG_TZ);
+    }
+
+    function addDaysToDateInput(dateStr, days){
+      const [y,m,d] = String(dateStr || "").split("-").map(Number);
+      if(!y || !m || !d) return dateStr;
+      const dt = new Date(Date.UTC(y, m - 1, d));
+      dt.setUTCDate(dt.getUTCDate() + Number(days || 0));
+      return formatDateInTimeZone(dt, "UTC");
+    }
+
+    function getArgentinaDateFromIso(iso){
+      if(!iso) return "";
+      return formatDateInTimeZone(new Date(iso), ARG_TZ);
+    }
+
+    function fmtDateTime(iso) {
+      if (!iso) return "—";
+      const d = new Date(iso);
+      return d.toLocaleString("es-AR", { timeZone: ARG_TZ });
+    }
+
+    function money(n) {
+      return new Intl.NumberFormat("es-AR").format(Number(n || 0));
+    }
+
+    function computeOrderTotal(order){
+      if (Number(order?.total || 0) > 0) return Number(order.total || 0);
+
+      const items = Array.isArray(order?.items) ? order.items : [];
+      return items.reduce((acc, it) => {
+        const qty = Number(it.qty ?? 0);
+        const unit = Number(it.unitPrice ?? 0);
+        const lineTotal = Number(it.lineTotal ?? (qty * unit));
+        return acc + (Number.isNaN(lineTotal) ? 0 : lineTotal);
+      }, 0);
+    }
+
+    function orderItemsPreview(items, max = 3){
+      const list = Array.isArray(items) ? items : [];
+      if(!list.length) return "Ver detalle";
+
+      const first = list.slice(0, max).map(i => {
+        const qty = Number(i.qty ?? i.Qty ?? 0);
+        const name = i.name ?? i.Name ?? "";
+        return `${qty}x ${name}`;
+      }).filter(Boolean);
+
+      if(!first.length) return "Ver detalle";
+
+      const extra = list.length > max ? ` +${list.length - max} más` : "";
+      return first.join(" · ") + extra;
+    }
+
+    function isDeletedText(text){
+      return String(text || "").includes("(Eliminada)") || String(text || "").includes("(Eliminado)") || String(text || "").includes("(eliminada)") || String(text || "").includes("(eliminado)");
+    }
+
+    function getOrderCardStateKey(orderId, section){
+      return `${orderId}__${section}`;
+    }
+
+    function toggleOrderCardSection(orderId, section){
+      const key = getOrderCardStateKey(orderId, section);
+      expandedOrderCards[key] = !expandedOrderCards[key];
+      renderOrders(currentRenderedOrders || []);
+    }
+
+    function getOrderCardSectionExpanded(orderId, section){
+      return !!expandedOrderCards[getOrderCardStateKey(orderId, section)];
+    }
+
+    function getOrderNotesPreview(items){
+      return (Array.isArray(items) ? items : [])
+        .map(x => x.note || x.notes || "")
+        .map(x => String(x || "").trim())
+        .filter(Boolean);
+    }
+
+    function getOrderVariantsPreview(items){
+      const rows = [];
+      (Array.isArray(items) ? items : []).forEach(item => {
+        getItemConfigurationSummaryLines(item).forEach(line => rows.push(line));
+      });
+      return rows;
+    }
+
+    function renderExpandableOrderBox(orderId, section, lines, emptyText){
+      const safeLines = (Array.isArray(lines) ? lines : [])
+        .map(x => String(x || "").trim())
+        .filter(Boolean);
+
+      if(!safeLines.length){
+        return `<div class="expand-box-text text-slate-400">${escapeHtml(emptyText)}</div>`;
+      }
+
+      const expanded = getOrderCardSectionExpanded(orderId, section);
+      const joinedText = safeLines.join(" ");
+      const longestLine = safeLines.reduce((max, line) => Math.max(max, String(line).length), 0);
+      const needsToggle = safeLines.length > 2 || joinedText.length > 90 || longestLine > 34;
+      const textClass = needsToggle && !expanded ? "collapsed" : "";
+
+      return `
+        <div class="expand-box-text ${textClass}">
+          ${safeLines.map(line => `<div class="${isDeletedText(line) ? "deleted-red" : ""}">${escapeHtml(line)}</div>`).join("")}
+        </div>
+        ${needsToggle ? `
+          <button type="button" class="expand-link" data-expand-order="${orderId}" data-expand-section="${section}">
+            ${expanded ? "Ver menos" : "Ver más"}
+          </button>
+        ` : ``}
+      `;
+    }
+
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function inferProductLabel(itemName, quantity){
+      const normalized = String(itemName || "").toLowerCase();
+
+      if (normalized.includes("empanada")) {
+        return quantity === 1 ? "empanada" : "empanadas";
+      }
+
+      if (normalized.includes("pizza")) {
+        return quantity === 1 ? "mitad" : "mitades";
+      }
+
+      return quantity === 1 ? "unidad" : "unidades";
+    }
+
+    function buildSelectionSummary(itemName, quantity, optionName, variantName){
+      const productLabel = inferProductLabel(itemName, quantity);
+
+      if (!variantName) {
+        return `${quantity} ${productLabel} de ${optionName}`;
+      }
+
+      return `${quantity} ${productLabel} de ${optionName} - ${variantName}`;
+    }
+
+    function getItemConfigurationSummaryLines(item){
+      if (!item) return [];
+
+      if (Array.isArray(item.configurationSummary) && item.configurationSummary.length) {
+        return item.configurationSummary.filter(Boolean);
+      }
+
+      if (Array.isArray(item.selections) && item.selections.length) {
+        return item.selections
+          .map(s => buildSelectionSummary(
+            item.name || "",
+            Number(s.quantity || 0),
+            s.optionName || "",
+            s.variantName || null
+          ))
+          .filter(Boolean);
+      }
+
+      return [];
+    }
+
+    function computeOrderSubtotal(order){
+      if (Number(order?.subtotalBase || 0) > 0) {
+        return Number(order.subtotalBase || 0);
+      }
+
+      const items = Array.isArray(order?.items) ? order.items : [];
+      return items.reduce((acc, it) => {
+        const line = Number(it.lineTotal ?? 0);
+        return acc + (Number.isNaN(line) ? 0 : line);
+      }, 0);
+    }
+
+    function computeOrderSurchargeAmount(order){
+      return Number(order?.paymentSurchargeAmount || 0);
+    }
+
+    function computeOrderSurchargePercent(order){
+      return Number(order?.paymentSurchargePercent || 0);
+    }
+
+    // =========================
+    // AUDIO
+    // =========================
+    let audioCtx = null;
+    let soundUnlocked = false;
+
+    async function unlockAudio(withTest = true){
+      try{
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if(!audioCtx) audioCtx = new AudioCtx();
+
+        if(audioCtx.state === "suspended") {
+          await audioCtx.resume();
+        }
+
+        soundUnlocked = (audioCtx.state === "running");
+        document.getElementById("soundState").textContent = soundUnlocked ? "Sonido activado ✅" : "Toque para activar";
+
+        if(withTest && soundUnlocked){
+          playNewOrderSound(true);
+        }
+
+        return soundUnlocked;
+      }catch{
+        soundUnlocked = false;
+        document.getElementById("soundState").textContent = "No pude activar sonido";
+        return false;
+      }
+    }
+
+    function playNewOrderSound(isTest = false) {
+      try {
+        if(!audioCtx || audioCtx.state !== "running") return;
+
+        const master = audioCtx.createGain();
+        master.gain.value = 0.55;
+        master.connect(audioCtx.destination);
+
+        function beep(freq, ms, type = "square", gain = 1.0) {
+          const o = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+
+          o.type = type;
+          o.frequency.value = freq;
+
+          const now = audioCtx.currentTime;
+          g.gain.setValueAtTime(0.0001, now);
+          g.gain.exponentialRampToValueAtTime(gain, now + 0.01);
+          g.gain.exponentialRampToValueAtTime(0.0001, now + ms / 1000);
+
+          o.connect(g);
+          g.connect(master);
+
+          o.start(now);
+          o.stop(now + ms / 1000);
+        }
+
+        beep(988, 260, "square", 1.0);
+        setTimeout(() => beep(784, 260, "square", 1.0), 290);
+        setTimeout(() => beep(440, 180, "sine", 0.8), 610);
+
+        if(isTest){
+          toastUpdate("🔊 Sonido OK", "success", 1200);
+        }
+      } catch {}
+    }
+
+    // =========================
+    // API
+    // =========================
+    async function loadConfig() {
+      const res = await fetch(CONFIG_PATH, { cache: "no-store" });
+      if (!res.ok) throw new Error("No pude leer config.json");
+      return await res.json();
+    }
+
+   async function fetchOrdersForDate(dateValue, status){
+
+  const params = new URLSearchParams();
+
+  if (dateValue)
+    params.set("date", dateValue);
+
+  if (status !== "")
+    params.set("status", status);
+
+  const url =
+    `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/orders` +
+    (params.toString() ? `?${params}` : "");
+
+  const res = await fetchAuth(url);
+
+  if(!res)
+    return [];
+
+  if (!res.ok)
+    throw new Error("Error cargando pedidos");
+
+  const data = await res.json();
+
+  return Array.isArray(data)
+    ? data
+    : [];
+}
+
+
+
+async function fetchOrders(){
+
+  const selectedDate =
+    document.getElementById("date").value;
+
+  const status =
+    document.getElementById("status").value;
+
+
+  if (!selectedDate){
+
+    return await fetchOrdersForDate(
+      "",
+      status
+    );
+
+  }
+
+
+  const [primary, nextDay] = await Promise.all([
+
+    fetchOrdersForDate(
+      selectedDate,
+      status
+    ),
+
+    fetchOrdersForDate(
+      addDaysToDateInput(selectedDate, 1),
+      status
+    )
+
+  ]);
+
+
+  const merged = new Map();
+
+  [...primary, ...nextDay]
+    .forEach(order => {
+
+      if(order && !merged.has(Number(order.id))){
+
+        merged.set(
+          Number(order.id),
+          order
+        );
+
+      }
+
+    });
+
+
+  return Array
+    .from(merged.values())
+
+    .filter(order =>
+      getArgentinaDateFromIso(order.createdAt)
+      === selectedDate
+    )
+
+    .sort((a, b) =>
+      new Date(b.createdAt)
+      - new Date(a.createdAt)
+    );
+
+}
+    async function fetchNewOrders() {
+      const date = document.getElementById("date").value;
+      const params = new URLSearchParams();
+      if (date) params.set("date", date);
+      params.set("status", "0");
+
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/orders?${params.toString()}`;
+      const res = await fetchAuth(url);
+      if(!res) return [];
+      if (!res.ok) throw new Error("No pude cargar pedidos nuevos");
+      return await res.json();
+    }
+
+    async function fetchOrderDetail(orderId){
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/orders/${orderId}`;
+      const res = await fetchAuth(url);
+      if(!res) return null;
+      if(!res.ok) throw new Error("No pude cargar el detalle del pedido");
+      return await res.json();
+    }
+
+    async function updateStatus(orderId, status) {
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/orders/${orderId}/status`;
+      const res = await fetchAuth(url, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      });
+
+      if(!res) return;
+      if (!res.ok) {
+        let msg = "Error cambiando estado";
+        try{
+          const txt = await res.text();
+          if(txt) msg = txt;
+        }catch{}
+        throw new Error(msg);
+      }
+    }
+
+    async function fetchPaymentOptions(){
+      if(paymentOptionsCache) return paymentOptionsCache;
+
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/payment-options`;
+      const res = await fetchAuth(url);
+      if(!res) throw new Error("No pude cargar opciones de pago.");
+      if(!res.ok) throw new Error("No pude cargar opciones de pago.");
+
+      paymentOptionsCache = await res.json();
+      return paymentOptionsCache;
+    }
+
+    async function fetchMenuForCreateOrder(){
+      const publicUrl = `${CONFIG.apiBaseUrl}/api/public/${getSlug()}/menu`;
+      const res = await fetch(publicUrl, { cache: "no-store" });
+      if(!res.ok) throw new Error("No pude cargar el menú.");
+
+      const data = await res.json();
+      companyOrderNotificationMode = Number(data?.negocio?.orderNotificationMode ?? 0);
+      companyOrderNotificationTemplate = String(data?.negocio?.orderNotificationTemplate || "").trim();
+
+      return normalizeMenuResponse(data);
+    }
+
+    async function createManualOrder(payload){
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/manual`;
+      const res = await fetchAuth(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if(!res) throw new Error("No pude crear el pedido.");
+
+      const text = await res.text();
+      let data = null;
+      try{ data = text ? JSON.parse(text) : null; }catch{}
+
+      if(!res.ok){
+        throw new Error(data?.message || data?.title || text || "No pude crear el pedido.");
+      }
+
+      return data;
+    }
+
+    async function markOrderPaid(orderId){
+      const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/orders/${orderId}/mark-paid`;
+      const res = await fetchAuth(url, { method: "POST" });
+
+      if(!res) throw new Error("No pude marcar el pago.");
+
+      const text = await res.text();
+      let data = null;
+      try{ data = text ? JSON.parse(text) : null; }catch{}
+
+      if(!res.ok){
+        throw new Error(data?.message || data?.title || text || "No pude marcar el pago.");
+      }
+
+      return data;
+    }
+
+    // =========================
+    // CACHE / ENRICH
+    // =========================
+    async function getOrderDetailCached(orderId, force = false){
+      const key = Number(orderId);
+
+      if (!force && orderDetailCache.has(key)) {
+        return orderDetailCache.get(key);
+      }
+
+      const detail = await fetchOrderDetail(key);
+      if (detail) {
+        orderDetailCache.set(key, detail);
+      }
+      return detail;
+    }
+
+    async function enrichOrdersWithDetails(orders){
+      const list = Array.isArray(orders) ? orders : [];
+
+      const enriched = await Promise.all(list.map(async (o) => {
+        const hasItems = Array.isArray(o.items) && o.items.length > 0;
+        if (hasItems) return o;
+
+        try{
+          const detail = await getOrderDetailCached(o.id);
+          if (!detail) return o;
+
+          return {
+            ...o,
+            items: Array.isArray(detail.items) ? detail.items : [],
+            customerName: detail.customerName ?? o.customerName,
+            address: detail.address ?? o.address,
+            customerWhatsapp: detail.customerWhatsapp ?? o.customerWhatsapp,
+            customerWhatsappRaw: detail.customerWhatsappRaw ?? detail.customerWhatsapp ?? o.customerWhatsappRaw ?? o.customerWhatsapp,
+            customerWhatsappE164: detail.customerWhatsappE164 ?? o.customerWhatsappE164,
+            total: Number(o.total || 0) > 0 ? o.total : detail.total,
+            paymentMethod: detail.paymentMethod ?? o.paymentMethod,
+            paymentStatus: detail.paymentStatus ?? o.paymentStatus,
+            status: detail.status ?? o.status,
+            orderNumber: detail.orderNumber ?? o.orderNumber,
+            createdAt: detail.createdAt ?? o.createdAt,
+            subtotalBase: detail.subtotalBase ?? o.subtotalBase,
+            paymentSurchargePercent: detail.paymentSurchargePercent ?? o.paymentSurchargePercent,
+            paymentSurchargeAmount: detail.paymentSurchargeAmount ?? o.paymentSurchargeAmount
+          };
+        }catch{
+          return o;
+        }
+      }));
+
+      return enriched;
+    }
+
+    async function refreshAfterAction(message = null){
+      await refresh(true);
+      await checkNewOrders();
+
+      // sync MercadoPago después del check de nuevos pedidos
+      if(
+        window?.company?.mercadoPagoEnabled &&
+        currentRenderedOrders?.some(o =>
+          isMercadoPagoPaymentMethod(o.paymentMethod)
+        )
+      ){
+        try{
+          await fetch(
+            `${CONFIG.apiBaseUrl}/api/payments/mercadopago/webhook/sync-pending-orders`,
+            { method:"POST" }
+          );
+        }catch(e){
+          console.warn("sync MP error", e);
+        }
+      }
+
+      if(message){
+        toastUpdate(message, "success", 1800);
+      }
+    }
+
+    // =========================
+    // UI Helpers
+    // =========================
+    function setSummary(orders) {
+      const count = orders.length;
+      const total = orders.reduce((acc, o) => {
+        const st = Number(o.status);
+        if (st === 4) return acc;
+        return acc + computeOrderTotal(o);
+      }, 0);
+
+      document.getElementById("summary").textContent =
+        count ? `${count} pedido(s) · Total $ ${money(total)}` : "";
+    }
+
+    function showNewBanner(count) {
+      document.getElementById("newCount").textContent = String(count);
+      document.getElementById("newBanner").classList.remove("hidden");
+    }
+
+    function hideNewBanner() {
+      document.getElementById("newBanner").classList.add("hidden");
+    }
+
+    function openNewModal() { document.getElementById("newModal").classList.remove("hidden"); }
+    function closeNewModal() { document.getElementById("newModal").classList.add("hidden"); }
+
+    function openDetailModal(){ document.getElementById("detailModal").classList.remove("hidden"); }
+    function closeDetailModal(){ document.getElementById("detailModal").classList.add("hidden"); }
+
+    function openCreateOrderModal(){ document.getElementById("createOrderModal").classList.remove("hidden"); }
+    function closeCreateOrderModal(){ document.getElementById("createOrderModal").classList.add("hidden"); closeCreateOrderConfigModal(); }
+
+    const cancelState = { orderId: null, orderNumber: null, after: null };
+
+    function openCancelModal(orderId, orderNumber, afterFn){
+      cancelState.orderId = Number(orderId);
+      cancelState.orderNumber = orderNumber ? String(orderNumber) : null;
+      cancelState.after = typeof afterFn === "function" ? afterFn : null;
+
+      document.getElementById("cancelSub").textContent =
+        cancelState.orderNumber ? `Pedido #${cancelState.orderNumber}` : `Pedido ID ${cancelState.orderId}`;
+
+      document.getElementById("cancelModal").classList.remove("hidden");
+    }
+
+    function closeCancelModal(){
+      document.getElementById("cancelModal").classList.add("hidden");
+      cancelState.orderId = null;
+      cancelState.orderNumber = null;
+      cancelState.after = null;
+    }
+
+        const notifyState = { order: null };
+
+    function openNotifyModal(order){
+      notifyState.order = order || null;
+      document.getElementById("notifySub").textContent =
+        order?.orderNumber ? `Pedido #${order.orderNumber}` : "Pedido seleccionado";
+
+      document.getElementById("notifyModal").classList.remove("hidden");
+    }
+
+    function closeNotifyModal(){
+      document.getElementById("notifyModal").classList.add("hidden");
+      notifyState.order = null;
+    }
+
+    function sanitizeWhatsappNumber(value){
+      return String(value || "").replace(/\D/g, "");
+    }
+
+    function buildOrderDetailText(order){
+      const items = Array.isArray(order?.items) ? order.items : [];
+
+      if(!items.length) return "Sin detalle";
+
+      return items.map(it => {
+        const qty = Number(it.qty || 0);
+        const name = it.name || "";
+        const note = (it.note || "").trim();
+        const configLines = getItemConfigurationSummaryLines(it);
+
+        let line = `${qty}x ${name}`;
+
+        if(configLines.length){
+          line += ` (${configLines.join(", ")})`;
+        }
+
+        if(note){
+          line += ` - Nota: ${note}`;
+        }
+
+        return line;
+      }).join("\n");
+    }
+
+    function applyNotificationTemplate(template, order){
+      const finalTemplate = String(template || "").trim();
+
+      if(!finalTemplate){
+        return "";
+      }
+
+      return finalTemplate
+        .replaceAll("{customerName}", order?.customerName || "Cliente")
+        .replaceAll("{orderNumber}", order?.orderNumber ? `#${order.orderNumber}` : "")
+        .replaceAll("{orderDetail}", buildOrderDetailText(order))
+        .replaceAll("{address}", order?.address || "")
+        .replaceAll("${total}", money(Number(order?.total || 0)))
+        .replaceAll("{total}", money(Number(order?.total || 0)))
+        .replaceAll("{paymentMethod}", getPaymentMethodLabel(order));
+    }
+
+    function buildManualWhatsappMessage(order){
+      return applyNotificationTemplate(companyOrderNotificationTemplate, order);
+    }
+
+    function getPaymentMethodLabel(order){
+  const raw = (order?.paymentMethod || "").toLowerCase();
+
+  if(raw.includes("efectivo"))
+    return "Efectivo";
+
+  if(raw.includes("transfer"))
+    return "Transferencia";
+
+  if(raw.includes("mercado"))
+    return "Mercado Pago";
+
+  return order?.paymentMethod || "";
+}
+
+    function shouldAskManualWhatsappNotification(order){
+    const phone = getOrderWhatsapp(order);
+    return companyOrderNotificationMode === 1 && !!sanitizeWhatsappNumber(phone);
+    }
+
+function notifyCustomerManualWhatsapp(order){
+const rawPhone = getOrderWhatsapp(order);
+const phone = sanitizeWhatsappNumber(rawPhone);
+
+  if(!phone){
+    toastUpdate("El pedido no tiene WhatsApp cargado", "error", 2500);
+    return;
+  }
+
+  const message = buildManualWhatsappMessage(order);
+
+  if(!message){
+    toastUpdate("La empresa no tiene plantilla de notificación configurada", "error", 2500);
+    return;
+  }
+
+  const whatsappUrl =
+    `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+
+  window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+}
+
+    async function confirmCancel(){
+      if(!cancelState.orderId) return;
+      const id = cancelState.orderId;
+
+      try{
+        toastShow("Cancelando pedido...", "info");
+        await updateStatus(id, 4);
+
+        closeCancelModal();
+
+        const after = cancelState.after;
+        cancelState.after = null;
+
+        await refreshAfterAction("Pedido cancelado");
+        if (after) await after();
+      }catch(e){
+        console.error(e);
+        toastUpdate(e.message || "Error al cancelar", "error", 2500);
+      }
+    }
+
+    // =========================
+    // PRINT
+    // =========================
+    function ticketText(value){
+      return String(value ?? "")
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .replace(/ñ/g, "n")
+        .replace(/Ñ/g, "N");
+    }
+
+    function buildTicketHtml(detail){
+      const createdDate = detail.createdAt ? new Date(detail.createdAt) : new Date();
+      const fecha = createdDate.toLocaleDateString("es-AR");
+      const hora = createdDate.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+
+      const negocioRaw = String(getSlug() || "").trim();
+      const negocio = negocioRaw ? negocioRaw.replace(/-/g, " ").toUpperCase() : "NEGOCIO";
+
+      const subtotal = computeOrderSubtotal(detail);
+      const surchargeAmount = computeOrderSurchargeAmount(detail);
+      const surchargePercent = computeOrderSurchargePercent(detail);
+      const total = computeOrderTotal(detail);
+
+      const whatsapp =
+        detail.customerWhatsappRaw ||
+        detail.customerWhatsappE164 ||
+        detail.customerWhatsapp ||
+        detail.customerPhone ||
+        "-";
+
+      const comprobante = detail.orderNumber || "-";
+      const estado = STATUS_LABEL[Number(detail.status)] || "-";
+      const pago = paymentInfo(detail) || "-";
+
+      const lines = (detail.items || []).map(it => {
+        const qty = Number(it.qty || 0);
+        const unit = Number(it.unitPrice || 0);
+        const line = Number(it.lineTotal ?? (qty * unit)) || 0;
+        const note = String(it.note || "").trim();
+        const configLines = getItemConfigurationSummaryLines(it);
+
+        return `
+          <div style="margin-top:10px;">
+            <div style="font-weight:bold;">${qty}x ${escapeHtml(ticketText(it.name || ""))}</div>
+            <div style="margin-top:3px;">$${money(line)}</div>
+            <div style="margin-top:2px;color:#444;">${qty} x $${money(unit)}</div>
+            ${configLines.length ? `
+              <div style="margin-top:4px;padding-left:8px;">
+                ${configLines.map(x => `<div style="margin-top:2px;">+ ${escapeHtml(ticketText(x))}</div>`).join("")}
+              </div>
+            ` : ``}
+            ${note ? `<div style="margin-top:4px;padding-left:8px;">Nota: ${escapeHtml(ticketText(note))}</div>` : ``}
+          </div>
+        `;
+      }).join("");
+
+      return `
+        <div style="width:100%;color:#000;font-family:monospace;font-size:11px;line-height:1.35;">
+          <div style="text-align:center;">
+            <div style="font-size:14px;font-weight:bold;">PEDIDO CLICK</div>
+            <div style="margin-top:3px;font-size:13px;font-weight:bold;">${escapeHtml(ticketText(negocio))}</div>
+            <div style="margin-top:2px;">Berazategui</div>
+          </div>
+
+          <div style="margin:8px 0;border-top:1px dashed #000;"></div>
+
+          <div>
+            <div><b>Comprobante:</b> ${escapeHtml(ticketText(comprobante))}</div>
+            <div style="margin-top:3px;"><b>Fecha:</b> ${escapeHtml(ticketText(fecha))}</div>
+            <div style="margin-top:3px;"><b>Hora:</b> ${escapeHtml(ticketText(hora))}</div>
+          </div>
+
+          <div style="margin:8px 0;border-top:1px dashed #000;"></div>
+
+          <div>
+            <div><b>Cliente:</b></div>
+            <div style="margin-top:2px;">${escapeHtml(ticketText(detail.customerName || "-"))}</div>
+
+            <div style="margin-top:6px;"><b>Whatsapp:</b></div>
+            <div style="margin-top:2px;">${escapeHtml(ticketText(whatsapp))}</div>
+
+            <div style="margin-top:6px;"><b>Direccion:</b></div>
+            <div style="margin-top:2px;">${escapeHtml(ticketText(detail.address || "-"))}</div>
+          </div>
+
+          <div style="margin:8px 0;border-top:1px dashed #000;"></div>
+
+          <div>
+            <div><b>Pago:</b> ${escapeHtml(ticketText(pago))}</div>
+            <div style="margin-top:3px;"><b>Estado:</b> ${escapeHtml(ticketText(estado))}</div>
+          </div>
+
+          <div style="margin:8px 0;border-top:1px dashed #000;"></div>
+
+          <div>
+            <div style="font-weight:bold;">DETALLE</div>
+            ${lines || "<div style='margin-top:6px;'>(Sin items)</div>"}
+          </div>
+
+          <div style="margin:8px 0;border-top:1px dashed #000;"></div>
+
+          <div>
+            <div>Subtotal: $${money(subtotal)}</div>
+            ${surchargeAmount > 0 ? `<div style="margin-top:3px;">Recargo (${surchargePercent}%): $${money(surchargeAmount)}</div>` : ``}
+            <div style="margin-top:6px;font-size:13px;font-weight:bold;">TOTAL: $${money(total)}</div>
+          </div>
+
+          <div style="margin:8px 0;border-top:1px dashed #000;"></div>
+
+          <div style="text-align:center;">
+            <div>Gracias por tu compra</div>
+            <div style="margin-top:3px;">PedidoClick</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function printTicket(detail){
+      const ticket = document.getElementById("ticket-print");
+      const body = document.getElementById("ticket-body");
+
+      body.innerHTML = buildTicketHtml(detail);
+
+      setTimeout(() => {
+        window.print();
+
+        setTimeout(() => {
+          body.innerHTML = "";
+        }, 300);
+      }, 80);
+    }
+
+    // =========================
+    // DETAIL
+    // =========================
+    async function openOrderDetail(orderId){
+      try{
+        toastShow("Cargando detalle...", "info");
+        const d = await getOrderDetailCached(orderId, true);
+        if(!d) return;
+
+        orderDetailCache.set(Number(orderId), d);
+
+        const subtotal = computeOrderSubtotal(d);
+        const surchargeAmount = computeOrderSurchargeAmount(d);
+        const surchargePercent = computeOrderSurchargePercent(d);
+        const total = computeOrderTotal(d);
+
+        document.getElementById("dTitle").textContent = `Pedido #${d.orderNumber}`;
+        document.getElementById("dSub").textContent = fmtDateTime(d.createdAt);
+        document.getElementById("dCustomerName").textContent = d.customerName || "—";
+        document.getElementById("dWhatsapp").textContent =
+          d.customerWhatsappRaw ||
+          d.customerWhatsappE164 ||
+          d.customerWhatsapp ||
+          d.customerPhone ||
+          "—";
+        document.getElementById("dAddress").textContent = d.address || "—";
+        document.getElementById("dPayment").textContent = normalizePaymentMethodLabel(d.paymentMethod);
+        document.getElementById("dTotal").textContent = money(total);
+
+        const st = Number(d.status);
+        const stBadgeCls = statusBadge(st);
+        document.getElementById("dStatus").className = `px-3 py-1 rounded-full text-xs font-semibold border ${stBadgeCls}`;
+        document.getElementById("dStatus").textContent = STATUS_LABEL[st] ?? st;
+
+        const pBadgeCls = paymentStatusBadge(d.paymentStatus);
+        document.getElementById("dPaymentStatus").className = `px-3 py-1 rounded-full text-xs font-semibold border ${pBadgeCls}`;
+        document.getElementById("dPaymentStatus").textContent = paymentStatusLabel(d.paymentStatus);
+
+        const itemsEl = document.getElementById("dItems");
+        itemsEl.innerHTML = `
+          ${(d.items || []).map(it => {
+            const qty = Number(it.qty || 0);
+            const unitPrice = Number(it.unitPrice || 0);
+            const lineTotal = Number(it.lineTotal ?? (qty * unitPrice)) || 0;
+            const summaryLines = getItemConfigurationSummaryLines(it);
+
+            return `
+              <div class="rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-50 to-white px-4 py-4">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <div class="font-bold truncate ${isDeletedText(it.name || "") ? "deleted-red" : "text-slate-900"}">${escapeHtml(it.name || "")}</div>
+                    <div class="text-xs text-slate-500 mt-1">
+                      ${qty} x $${money(unitPrice)}
+                      ${it.note ? ` · Nota: ${escapeHtml(it.note)}` : ``}
+                    </div>
+                  </div>
+                  <div class="font-black text-slate-900 whitespace-nowrap">$ ${money(lineTotal)}</div>
+                </div>
+
+                ${summaryLines.length ? `
+                  <div class="mt-3 pt-3 border-t border-slate-200 space-y-1">
+                    ${summaryLines.map(line => `
+                      <div class="text-sm pl-2 ${isDeletedText(line) ? "deleted-red" : "text-slate-600"}">- ${escapeHtml(line)}</div>
+                    `).join("")}
+                  </div>
+                ` : ``}
+              </div>
+            `;
+          }).join("")}
+
+          <div class="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 mt-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-sm text-slate-600">
+                <span>Subtotal</span>
+                <span class="font-bold text-slate-900">$ ${money(subtotal)}</span>
+              </div>
+
+              ${surchargeAmount > 0 ? `
+                <div class="flex items-center justify-between text-sm text-slate-600">
+                  <span>Recargo (${money(surchargePercent)}%)</span>
+                  <span class="font-bold text-slate-900">$ ${money(surchargeAmount)}</span>
+                </div>
+              ` : ``}
+
+              <div class="pt-3 mt-3 border-t border-slate-200 flex items-center justify-between">
+                <span class="text-base font-black text-slate-900 font-display">Total</span>
+                <span class="text-xl font-black text-slate-900 font-display">$ ${money(total)}</span>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const btnPrint = document.getElementById("btnPrintTicket");
+        btnPrint.classList.remove("hidden");
+        btnPrint.onclick = () => printTicket(d);
+
+        const btnMarkPaid = document.getElementById("btnMarkPaid");
+        if (canMarkPaid(d)) {
+          btnMarkPaid.classList.remove("hidden");
+          btnMarkPaid.onclick = async () => {
+            try{
+              toastShow("Marcando pago...", "info");
+              await markOrderPaid(d.id);
+              orderDetailCache.delete(Number(d.id));
+              await refresh(true);
+              await openOrderDetail(d.id);
+              toastUpdate("Pago aprobado", "success", 1800);
+            }catch(e){
+              console.error(e);
+              toastUpdate(e.message || "No pude marcar el pago", "error", 2500);
+            }
+          };
+        } else {
+          btnMarkPaid.classList.add("hidden");
+          btnMarkPaid.onclick = null;
+        }
+
+        await renderDetailPaymentExtra(d);
+
+        openDetailModal();
+        toastClear();
+      }catch(e){
+        console.error(e);
+        toastUpdate("No pude cargar el detalle", "error", 2500);
+      }
+    }
+
+    async function renderDetailPaymentExtra(detail){
+      const wrap = document.getElementById("detailPaymentExtra");
+      const transferInfo = document.getElementById("detailTransferInfo");
+      const qrInfo = document.getElementById("detailQrInfo");
+
+      wrap.classList.add("hidden");
+      transferInfo.classList.add("hidden");
+      qrInfo.classList.add("hidden");
+
+      if (!isTransferPaymentMethod(detail.paymentMethod) && !isQrPaymentMethod(detail.paymentMethod)) return;
+
+      const opts = await fetchPaymentOptions();
+      wrap.classList.remove("hidden");
+
+      if (isTransferPaymentMethod(detail.paymentMethod)) {
+        transferInfo.classList.remove("hidden");
+        document.getElementById("detailTransferAlias").textContent = opts.transferAlias || "No configurado";
+        document.getElementById("detailTransferCvu").textContent = opts.transferCvu || "No configurado";
+      }
+
+      if (isQrPaymentMethod(detail.paymentMethod)) {
+        qrInfo.classList.remove("hidden");
+        const qrWrap = document.getElementById("detailQrCanvasWrap");
+        qrWrap.innerHTML = "";
+
+        const payload = buildQrText(opts, detail);
+        if (!payload) {
+          qrWrap.innerHTML = `<div class="text-sm text-slate-500">No hay QR configurado.</div>`;
+          return;
+        }
+
+        const canvas = document.createElement("canvas");
+        qrWrap.appendChild(canvas);
+        await QRCode.toCanvas(canvas, payload, { width: 250, margin: 1 });
+      }
+    }
+
+    // =========================
+    // NUEVO PEDIDO
+    // =========================
+    function roundCreateOrderMoney(n){
+      return Math.round(Number(n || 0) * 100) / 100;
+    }
+
+    function buildCreateOrderCartKey(itemId, configured = false){
+      if(!configured) return `simple-${itemId}`;
+      const key = `cfg-${itemId}-${Date.now()}-${createOrderCartSeq}`;
+      createOrderCartSeq += 1;
+      return key;
+    }
+
+    function getCreateOrderSelectionsExtraTotal(selections){
+      if(!Array.isArray(selections) || !selections.length) return 0;
+
+      return roundCreateOrderMoney(
+        selections.reduce((acc, s) => acc + (Number(s.extraPrice || 0) * Number(s.quantity || 0)), 0)
+      );
+    }
+
+    function recalculateCreateOrderCartLine(line){
+      if(!line) return line;
+
+      const qty = Number(line.quantity || 0);
+      const basePrice = Number(line.basePrice ?? line.price ?? 0);
+      const extraTotal = Number(line.extraTotal ?? getCreateOrderSelectionsExtraTotal(line.selections) ?? 0);
+
+      line.basePrice = roundCreateOrderMoney(basePrice);
+      line.extraTotal = roundCreateOrderMoney(extraTotal);
+      line.unitPrice = roundCreateOrderMoney(line.basePrice + line.extraTotal);
+      line.price = line.unitPrice;
+      line.lineTotal = roundCreateOrderMoney(line.unitPrice * qty);
+      return line;
+    }
+
+    function buildCreateOrderSelectionSummaryFromSelections(productName, selections){
+      return (selections || []).map(s => {
+        const qty = Number(s.quantity || 0);
+        const optionName = s.optionName || "";
+        const variantName = s.variantName || "";
+        const normalized = String(productName || "").toLowerCase();
+
+        let unitText = qty === 1 ? "unidad" : "unidades";
+        if(normalized.includes("empanada")){
+          unitText = qty === 1 ? "empanada" : "empanadas";
+        }else if(normalized.includes("pizza")){
+          unitText = qty === 1 ? "mitad" : "mitades";
+        }
+
+        return variantName
+          ? `${qty} ${unitText} de ${optionName} - ${variantName}`
+          : `${qty} ${unitText} de ${optionName}`;
+      });
+    }
+
+    function createOrderGroupSelectionsByKey(rows){
+      const map = new Map();
+
+      (rows || []).forEach(r => {
+        const optionId = Number(r.menuItemOptionId || 0);
+        const variantId = Number(r.menuItemOptionVariantId || 0);
+        const key = `${optionId}-${variantId}`;
+
+        if(!map.has(key)){
+          map.set(key, {
+            menuItemOptionId: r.menuItemOptionId,
+            menuItemOptionVariantId: r.menuItemOptionVariantId ?? null,
+            optionName: r.optionName || "",
+            variantName: r.variantName || "",
+            quantity: 0,
+            extraPrice: Number(r.extraPrice || 0)
+          });
+        }
+
+        map.get(key).quantity += Number(r.quantity || 1);
+      });
+
+      return Array.from(map.values());
+    }
+
+    function getCreateOrderSelectedTotal(){
+      if(!createOrderConfigState) return 0;
+      return createOrderConfigState.selectedItems.reduce((acc, row) => acc + Number(row.quantity || 1), 0);
+    }
+
+    function getCreateOrderOptionSelectedQty(optionId){
+      if(!createOrderConfigState) return 0;
+      return createOrderConfigState.selectedItems
+        .filter(x => Number(x.menuItemOptionId) === Number(optionId))
+        .reduce((acc, x) => acc + Number(x.quantity || 1), 0);
+    }
+
+    function getCreateOrderSelectedVariantLabel(optionId){
+      if(!createOrderConfigState) return "";
+
+      const optionState = createOrderConfigState.optionStates.find(x => Number(x.optionId) === Number(optionId));
+      if(!optionState) return "";
+
+      const option = createOrderConfigState.options.find(x => Number(x.id) === Number(optionId));
+      if(!option) return "";
+
+      const variant = (option.variants || []).find(v => Number(v.id) === Number(optionState.selectedVariantId || 0));
+      return variant ? variant.name : "";
+    }
+
+    function openCreateOrderConfigModal(){
+      document.getElementById("createOrderConfigModal").classList.remove("hidden");
+    }
+
+    function closeCreateOrderConfigModal(){
+      document.getElementById("createOrderConfigModal").classList.add("hidden");
+      createOrderConfigState = null;
+      document.getElementById("coConfigProductOptions").innerHTML = "";
+      document.getElementById("coConfigProductSummary").innerHTML = "";
+      document.getElementById("coConfigProductNote").value = "";
+    }
+
+    function toggleCreateOrderOptionExpand(optionId){
+  if(!createOrderConfigState) return;
+
+  createOrderConfigState.optionStates = createOrderConfigState.optionStates.map(x => ({
+    ...x,
+    expanded: Number(x.optionId) === Number(optionId) ? !x.expanded : x.expanded
+  }));
+
+  renderCreateOrderConfigProduct();
+}
+
+function selectCreateOrderConfigVariant(optionId, variantId){
+  if(!createOrderConfigState) return;
+
+  const target = createOrderConfigState.optionStates.find(
+    x => Number(x.optionId) === Number(optionId)
+  );
+  if(!target) return;
+
+  target.selectedVariantId = Number(variantId);
+  target.expanded = true;
+  createOrderConfigState.validationMessage = "";
+  renderCreateOrderConfigProduct();
+}
+
+function addCreateOrderConfigSelection(optionId){
+  if(!createOrderConfigState) return;
+
+  const total = getCreateOrderSelectedTotal();
+  if(total >= Number(createOrderConfigState.required || 0)) return;
+
+  const option = createOrderConfigState.options.find(
+    x => Number(x.id) === Number(optionId)
+  );
+  if(!option) return;
+
+  const variants = Array.isArray(option.variants) ? option.variants : [];
+  const optionState = createOrderConfigState.optionStates.find(
+    x => Number(x.optionId) === Number(optionId)
+  );
+
+  if(variants.length){
+    const selectedVariantId = Number(optionState?.selectedVariantId || 0);
+    const variant = variants.find(v => Number(v.id) === selectedVariantId);
+
+    if(!variant){
+      if(optionState) optionState.expanded = true;
+      createOrderConfigState.validationMessage = `Elegí una variante para ${option.name}.`;
+      renderCreateOrderConfigProduct();
+      return;
+    }
+
+    createOrderConfigState.validationMessage = "";
+    createOrderConfigState.selectedItems.push({
+      menuItemOptionId: option.id,
+      menuItemOptionVariantId: variant.id,
+      optionName: option.name,
+      variantName: variant.name,
+      quantity: 1,
+      extraPrice: Number(option.extraPrice || 0) + Number(variant.extraPrice || 0)
+    });
+  }else{
+    createOrderConfigState.validationMessage = "";
+    createOrderConfigState.selectedItems.push({
+      menuItemOptionId: option.id,
+      menuItemOptionVariantId: null,
+      optionName: option.name,
+      variantName: "",
+      quantity: 1,
+      extraPrice: Number(option.extraPrice || 0)
+    });
+  }
+
+  renderCreateOrderConfigProduct();
+}
+
+function removeCreateOrderConfigSelection(optionId){
+  if(!createOrderConfigState) return;
+
+  const option = createOrderConfigState.options.find(
+    x => Number(x.id) === Number(optionId)
+  );
+  if(!option) return;
+
+  const variants = Array.isArray(option.variants) ? option.variants : [];
+  const optionState = createOrderConfigState.optionStates.find(
+    x => Number(x.optionId) === Number(optionId)
+  );
+
+  let removeIndex = -1;
+
+  if(variants.length && Number(optionState?.selectedVariantId || 0) > 0){
+    for(let i = createOrderConfigState.selectedItems.length - 1; i >= 0; i--){
+      const row = createOrderConfigState.selectedItems[i];
+      if(
+        Number(row.menuItemOptionId) === Number(optionId) &&
+        Number(row.menuItemOptionVariantId || 0) === Number(optionState.selectedVariantId || 0)
+      ){
+        removeIndex = i;
+        break;
+      }
+    }
+  }
+
+  if(removeIndex === -1){
+    for(let i = createOrderConfigState.selectedItems.length - 1; i >= 0; i--){
+      const row = createOrderConfigState.selectedItems[i];
+      if(Number(row.menuItemOptionId) === Number(optionId)){
+        removeIndex = i;
+        break;
+      }
+    }
+  }
+
+  if(removeIndex >= 0){
+    createOrderConfigState.selectedItems.splice(removeIndex, 1);
+    renderCreateOrderConfigProduct();
+  }
+}
+
+function changeCreateOrderConfigQty(index, delta){
+  if(!createOrderConfigState) return;
+
+  const option = createOrderConfigState.options[index];
+  if(!option) return;
+
+  if(delta > 0){
+    addCreateOrderConfigSelection(option.id);
+  }else{
+    removeCreateOrderConfigSelection(option.id);
+  }
+}
+
+    function openCreateOrderConfigProduct(menuItemId){
+      const item = createOrderMenuItems.find(x => x.id === menuItemId);
+      if(!item || !item.hasConfiguration) return;
+
+      createOrderConfigState = {
+        product: item,
+        required: Number(item.requiredSelectionUnits || 0),
+        options: Array.isArray(item.options) ? item.options.map(o => ({
+          id: o.id,
+          name: o.name,
+          extraPrice: Number(o.extraPrice || 0),
+          variants: Array.isArray(o.variants) ? o.variants.map(v => ({
+            id: v.id,
+            name: v.name,
+            extraPrice: Number(v.extraPrice || 0)
+          })) : []
+        })) : [],
+        optionStates: Array.isArray(item.options) ? item.options.map(o => ({
+          optionId: o.id,
+          selectedVariantId: null,
+          expanded: false
+        })) : [],
+        selectedItems: [],
+        note: "",
+        validationMessage: ""
+      };
+
+      document.getElementById("coConfigProductName").textContent = item.name;
+      document.getElementById("coConfigProductHelp").textContent =
+        item.configurationMode === 2
+          ? `Elegí exactamente ${item.requiredSelectionUnits || 0} mitades.`
+          : `Elegí exactamente ${item.requiredSelectionUnits || 0} unidades.`;
+
+      document.getElementById("coConfigProductNote").value = "";
+      renderCreateOrderConfigProduct();
+      openCreateOrderConfigModal();
+    }
+
+    function renderCreateOrderConfigProduct(){
+      if(!createOrderConfigState) return;
+
+      const total = getCreateOrderSelectedTotal();
+      const required = Number(createOrderConfigState.required || 0);
+      const rowsWrap = document.getElementById("coConfigProductOptions");
+      const progress = document.getElementById("coConfigProgressText");
+      const summary = document.getElementById("coConfigProductSummary");
+      const note = document.getElementById("coConfigProductNote");
+
+      progress.textContent = `${total} / ${required}`;
+
+      rowsWrap.innerHTML = createOrderConfigState.options.map((option, idx) => {
+        const optionState = createOrderConfigState.optionStates.find(x => Number(x.optionId) === Number(option.id));
+        const variants = Array.isArray(option.variants) ? option.variants : [];
+        const qty = getCreateOrderOptionSelectedQty(option.id);
+        const selectedVariantLabel = getCreateOrderSelectedVariantLabel(option.id);
+        const hasVariants = variants.length > 0;
+        const showVariants = hasVariants && !!optionState?.expanded;
+
+        return `
+          <div class="border border-slate-200 rounded-2xl p-4 bg-white">
+            <div class="flex items-start justify-between gap-4">
+              <button type="button" class="min-w-0 text-left flex-1" data-co-toggle-option="${option.id}">
+                <div class="text-sm font-black text-slate-900">${escapeHtml(option.name)}</div>
+                ${hasVariants
+                    ? `<div class="mt-1 text-xs font-extrabold uppercase tracking-widest text-slate-500">${escapeHtml(selectedVariantLabel || "Elegí variante")}</div>`
+                    : `<div class="mt-1 text-xs font-extrabold uppercase tracking-widest text-slate-400">Sin variantes</div>`}
+              </button>
+
+              <div class="inline-flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-2 py-2 shrink-0">
+                <button type="button" class="h-11 w-11 rounded-xl bg-white flex items-center justify-center text-slate-700 border border-slate-200 hover:bg-slate-100 transition text-lg" data-co-config-minus="${idx}">−</button>
+                <span class="font-black text-lg min-w-[28px] text-center text-slate-900">${Number(qty || 0)}</span>
+                <button type="button" class="h-11 w-11 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black transition text-lg" data-co-config-plus="${idx}">+</button>
+              </div>
+            </div>
+
+            ${showVariants ? `
+              <div class="mt-4 pt-4 border-t border-slate-100">
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Variantes</div>
+                <div class="flex flex-wrap gap-2">
+                  ${variants.map(variant => `
+                    <button type="button" data-co-select-variant="${option.id}" data-co-variant-id="${variant.id}" class="config-chip ${Number(optionState?.selectedVariantId || 0) === Number(variant.id) ? "active" : ""} px-3 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wider">
+                      ${escapeHtml(variant.name)}
+                    </button>
+                  `).join("")}
+                </div>
+              </div>
+            ` : ``}
+          </div>
+        `;
+      }).join("");
+
+      rowsWrap.querySelectorAll("[data-co-toggle-option]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const optionId = Number(btn.getAttribute("data-co-toggle-option"));
+          const option = createOrderConfigState?.options?.find(x => Number(x.id) === optionId);
+          if(option && Array.isArray(option.variants) && option.variants.length){
+            toggleCreateOrderOptionExpand(optionId);
+          }
+        });
+      });
+
+      rowsWrap.querySelectorAll("[data-co-config-minus]").forEach(btn => {
+        btn.addEventListener("click", () => changeCreateOrderConfigQty(Number(btn.getAttribute("data-co-config-minus")), -1));
+      });
+
+      rowsWrap.querySelectorAll("[data-co-config-plus]").forEach(btn => {
+        btn.addEventListener("click", () => changeCreateOrderConfigQty(Number(btn.getAttribute("data-co-config-plus")), 1));
+      });
+
+      rowsWrap.querySelectorAll("[data-co-select-variant]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          selectCreateOrderConfigVariant(
+            Number(btn.getAttribute("data-co-select-variant")),
+            Number(btn.getAttribute("data-co-variant-id"))
+          );
+        });
+      });
+
+      const groupedRows = createOrderGroupSelectionsByKey(createOrderConfigState.selectedItems);
+      const basePrice = Number(createOrderConfigState.product.price || 0) || 0;
+      const extraTotal = getCreateOrderSelectionsExtraTotal(groupedRows);
+      const finalUnitPrice = roundCreateOrderMoney(basePrice + extraTotal);
+      const selectionSummary = groupedRows.length
+        ? buildCreateOrderSelectionSummaryFromSelections(
+            createOrderConfigState.product.name,
+            groupedRows.map(r => ({
+              quantity: r.quantity,
+              optionName: r.optionName,
+              variantName: r.variantName
+            }))
+          )
+        : [];
+
+      const validationHtml = createOrderConfigState.validationMessage
+        ? `
+          <div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl px-4 py-3 text-sm font-bold">
+            ${escapeHtml(createOrderConfigState.validationMessage)}
+          </div>
+        `
+        : "";
+
+      summary.innerHTML = `
+        ${validationHtml}
+        <div class="text-xs font-black uppercase tracking-widest text-slate-500 ${createOrderConfigState.validationMessage ? 'mt-4' : ''}">Resumen</div>
+        ${selectionSummary.length
+          ? `<div class="mt-3 space-y-2">${selectionSummary.map(line => `<div class="font-bold text-slate-800">${escapeHtml(line)}</div>`).join("")}</div>`
+          : `<div class="mt-3 text-slate-500">Todavía no elegiste combinaciones.</div>`}
+        <div class="mt-4 pt-4 border-t border-slate-200 space-y-2">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-500 font-semibold">Precio base</span>
+            <span class="font-black text-slate-900">$${money(basePrice)}</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-500 font-semibold">Extras</span>
+            <span class="font-black text-slate-900">$${money(extraTotal)}</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-900 font-extrabold">Precio final</span>
+            <span class="font-black text-slate-900">$${money(finalUnitPrice)}</span>
+          </div>
+        </div>
+      `;
+
+      note.oninput = e => {
+        if(createOrderConfigState) createOrderConfigState.note = e.target.value || "";
+      };
+    }
+
+
+   function normalizeMenuResponse(data){
+      const items = [];
+      const categoriesMap = new Map();
+
+      function ensureCategory(name){
+        const safeName = String(name || "Sin categoría").trim() || "Sin categoría";
+        const key = safeName.toLowerCase();
+
+        if(!categoriesMap.has(key)){
+          categoriesMap.set(key, { key, name: safeName });
+        }
+
+        return categoriesMap.get(key);
+      }
+
+      function toNumber(value){
+        const n = Number(value);
+        return Number.isNaN(n) ? 0 : n;
+      }
+
+function mapOption(option){
+  const rawVariants =
+    option?.variants ??
+    option?.Variants ??
+    option?.Variantes ??
+    option?.menuItemOptionVariants ??
+    option?.MenuItemOptionVariants ??
+    option?.optionVariants ??
+    option?.OptionVariants ??
+    [];
+
+  return {
+    id: Number(option?.id ?? option?.Id ?? option?.menuItemOptionId ?? 0),
+    name: String(option?.name ?? option?.Name ?? option?.nombre ?? option?.Nombre ?? "").trim(),
+    extraPrice: toNumber(option?.extraPrice ?? option?.ExtraPrice ?? option?.extra ?? 0),
+    variants: Array.isArray(rawVariants)
+      ? rawVariants.map(variant => ({
+          id: Number(variant?.id ?? variant?.Id ?? variant?.menuItemOptionVariantId ?? 0),
+          name: String(variant?.name ?? variant?.Name ?? variant?.nombre ?? variant?.Nombre ?? "").trim(),
+          extraPrice: toNumber(variant?.extraPrice ?? variant?.ExtraPrice ?? variant?.extra ?? 0)
+        })).filter(v => v.id && v.name)
+      : []
+  };
+}
+
+      function pushItem(raw, fallbackCategoryName = "Sin categoría"){
+        if(!raw) return;
+
+        const id = Number(raw.id ?? raw.menuItemId ?? raw.itemId);
+        if(!id) return;
+
+        const name = String(raw.nombre ?? raw.name ?? raw.title ?? "").trim();
+        if(!name) return;
+
+        const categoryName = raw.categoria ?? raw.categoryName ?? raw.category?.name ?? fallbackCategoryName;
+        const category = ensureCategory(categoryName);
+
+        items.push({
+          id,
+          name,
+          description: String(raw.descripcion ?? raw.description ?? "").trim(),
+          price: toNumber(raw.finalPrice ?? raw.precioFinal ?? raw.precio ?? raw.price),
+          basePrice: toNumber(raw.precio ?? raw.price ?? raw.finalPrice ?? raw.precioFinal),
+          categoryKey: category.key,
+          categoryName: category.name,
+          hasConfiguration: !!(raw.hasConfiguration ?? raw.HasConfiguration ?? false),
+          requiredSelectionUnits: Number(raw.requiredSelectionUnits ?? raw.RequiredSelectionUnits ?? 0),
+          configurationMode: Number(raw.configurationMode ?? raw.ConfigurationMode ?? 0),
+          options: Array.isArray(raw.options ?? raw.Options ?? raw.menuItemOptions ?? raw.MenuItemOptions)
+            ? (raw.options ?? raw.Options ?? raw.menuItemOptions ?? raw.MenuItemOptions).map(mapOption).filter(o => o.id && o.name)
+            : []
+        });
+      }
+
+      if (Array.isArray(data?.menu)) data.menu.forEach(x => pushItem(x));
+      else if (Array.isArray(data?.items)) data.items.forEach(x => pushItem(x));
+      else if (Array.isArray(data?.menuItems)) data.menuItems.forEach(x => pushItem(x));
+      else if (Array.isArray(data)) data.forEach(x => pushItem(x));
+
+      if (Array.isArray(data?.categorias)) {
+        data.categorias.forEach(catName => ensureCategory(catName));
+      }
+
+      const categories = [
+        { key: "all", name: "Todos" },
+        ...Array.from(categoriesMap.values())
+      ];
+
+      return { items, categories };
+    }
+
+    function resetCreateOrderState(){
+      createOrderSearch = "";
+      createOrderCategoryFilter = "all";
+      createOrderCart = [];
+      createOrderPaymentMethod = "Cash";
+      createOrderLastCreated = null;
+      closeCreateOrderConfigModal();
+
+      document.getElementById("coCustomerName").value = "";
+      document.getElementById("coAddress").value = "";
+      document.getElementById("coOrderType").value = "Delivery";
+      document.getElementById("coSearch").value = "";
+      document.getElementById("createOrderSuccessWrap").classList.add("hidden");
+      document.getElementById("newOrderQrCanvasWrap").innerHTML = "";
+      document.getElementById("newOrderQrCanvasBox").classList.add("hidden");
+      document.getElementById("coCustomerWhatsapp").value = "";
+
+      renderPaymentMethodSelector();
+      renderCreateOrderCategories();
+      renderCreateOrderProducts();
+      renderCreateOrderCart();
+      syncCreateOrderPaymentBlocks();
+    }
+
+    async function prepareCreateOrderModal(){
+      const [menuData, paymentOpts] = await Promise.all([
+        fetchMenuForCreateOrder(),
+        fetchPaymentOptions()
+      ]);
+
+      createOrderMenuItems = menuData.items;
+      createOrderCategories = menuData.categories;
+      paymentOptionsCache = paymentOpts;
+
+      document.getElementById("newOrderTransferAlias").textContent = paymentOpts.transferAlias || "No configurado";
+     // document.getElementById("newOrderTransferCvu").textContent = paymentOpts.transferCvu || "No configurado";
+
+      resetCreateOrderState();
+    }
+
+    function renderPaymentMethodSelector(){
+      document.querySelectorAll("[data-payment]").forEach(btn => {
+        const method = btn.getAttribute("data-payment");
+        btn.classList.toggle("active", method === createOrderPaymentMethod);
+      });
+    }
+
+    function renderCreateOrderCategories(){
+      const el = document.getElementById("coCategories");
+      el.innerHTML = createOrderCategories.map(cat => `
+        <button type="button"
+          class="payment-chip ${cat.key === createOrderCategoryFilter ? "active" : ""}"
+          data-co-category="${escapeHtml(cat.key)}">
+          ${escapeHtml(cat.name)}
+        </button>
+      `).join("");
+
+      el.querySelectorAll("[data-co-category]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          createOrderCategoryFilter = btn.getAttribute("data-co-category");
+          renderCreateOrderCategories();
+          renderCreateOrderProducts();
+        });
+      });
+    }
+
+    function filteredCreateOrderProducts(){
+      const term = createOrderSearch.trim().toLowerCase();
+
+      return createOrderMenuItems.filter(x => {
+        const byCategory = createOrderCategoryFilter === "all" || x.categoryKey === createOrderCategoryFilter;
+        const byTerm = !term
+          || x.name.toLowerCase().includes(term)
+          || x.description.toLowerCase().includes(term)
+          || x.categoryName.toLowerCase().includes(term);
+
+        return byCategory && byTerm;
+      });
+    }
+
+    function renderCreateOrderProducts(){
+      const el = document.getElementById("coProducts");
+      const list = filteredCreateOrderProducts();
+
+      if(!list.length){
+        el.innerHTML = `<div class="empty-soft col-span-full">No encontré productos para mostrar.</div>`;
+        return;
+      }
+
+      el.innerHTML = list.map(p => `
+        <div class="product-card">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <div class="font-black text-slate-900 truncate">${escapeHtml(p.name)}</div>
+              <div class="text-xs text-slate-400 uppercase tracking-[.14em] mt-1 font-display">${escapeHtml(p.categoryName)}</div>
+            </div>
+            <div class="text-lg font-black text-slate-900 whitespace-nowrap font-display">$ ${money(p.price)}</div>
+          </div>
+
+          <div class="text-sm text-slate-500 min-h-[40px]">
+            ${escapeHtml(p.description || "Sin descripción")}
+          </div>
+
+          <button type="button"
+            class="w-full px-4 py-3 rounded-2xl bg-slate-900 text-white font-semibold hover:bg-slate-800 transition btn-press"
+            data-add-product="${p.id}">
+            Agregar
+          </button>
+        </div>
+      `).join("");
+
+      el.querySelectorAll("[data-add-product]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = Number(btn.getAttribute("data-add-product"));
+          addToCreateOrderCart(id);
+        });
+      });
+    }
+
+    function addToCreateOrderCart(itemId){
+      const item = createOrderMenuItems.find(x => x.id === itemId);
+      if(!item) return;
+
+      if(item.hasConfiguration){
+        openCreateOrderConfigProduct(itemId);
+        return;
+      }
+
+      const cartKey = buildCreateOrderCartKey(item.id, false);
+      const existing = createOrderCart.find(x => x.cartKey === cartKey);
+
+      if(existing){
+        existing.quantity += 1;
+        recalculateCreateOrderCartLine(existing);
+      } else {
+        createOrderCart.push(recalculateCreateOrderCartLine({
+          cartKey,
+          productId: item.id,
+          name: item.name,
+          basePrice: Number(item.price || 0),
+          extraTotal: 0,
+          unitPrice: Number(item.price || 0),
+          price: Number(item.price || 0),
+          quantity: 1,
+          notes: "",
+          isConfigured: false,
+          selections: [],
+          selectionSummary: []
+        }));
+      }
+
+      renderCreateOrderCart();
+    }
+
+    function removeFromCreateOrderCart(cartKey){
+      createOrderCart = createOrderCart.filter(x => x.cartKey !== cartKey);
+      renderCreateOrderCart();
+    }
+
+    function updateCreateOrderItemQty(cartKey, delta){
+      const item = createOrderCart.find(x => x.cartKey === cartKey);
+      if(!item) return;
+
+      item.quantity += delta;
+      if(item.quantity <= 0){
+        removeFromCreateOrderCart(cartKey);
+        return;
+      }
+
+      recalculateCreateOrderCartLine(item);
+      renderCreateOrderCart();
+    }
+
+    function updateCreateOrderItemNote(cartKey, note){
+      const item = createOrderCart.find(x => x.cartKey === cartKey);
+      if(!item) return;
+      item.notes = note;
+    }
+
+    function getPaymentSurchargePercentByMethod(method){
+      const opts = paymentOptionsCache || {};
+      switch(String(method || "")){
+        case "Cash": return Number(opts.cashSurchargePercent || 0);
+        case "Transfer": return Number(opts.transferSurchargePercent || 0);
+        case "Qr": return Number(opts.qrSurchargePercent || 0);
+        default: return 0;
+      }
+    }
+
+    function computeCreateOrderTotals(){
+      const subtotal = createOrderCart.reduce((acc, x) => acc + Number(x.lineTotal ?? ((Number(x.price || 0)) * Number(x.quantity || 0))), 0);
+      const surchargePercent = getPaymentSurchargePercentByMethod(createOrderPaymentMethod);
+      const surchargeAmount = roundCreateOrderMoney(subtotal * surchargePercent / 100);
+      const total = roundCreateOrderMoney(subtotal + surchargeAmount);
+
+      return { subtotal, surchargePercent, surchargeAmount, total };
+    }
+
+    function renderCreateOrderCart(){
+      const el = document.getElementById("coCart");
+      const totals = computeCreateOrderTotals();
+
+      document.getElementById("coSubtotal").textContent = money(totals.subtotal);
+      document.getElementById("coSurchargePercent").textContent = money(totals.surchargePercent);
+      document.getElementById("coSurchargeAmount").textContent = money(totals.surchargeAmount);
+      document.getElementById("coTotal").textContent = money(totals.total);
+
+      if(!createOrderCart.length){
+        el.innerHTML = `<div class="empty-soft">Todavía no agregaste productos.</div>`;
+        return;
+      }
+
+      el.innerHTML = createOrderCart.map(item => {
+        const line = Number(item.lineTotal ?? (Number(item.price || 0) * Number(item.quantity || 0)));
+        const selectionSummary = Array.isArray(item.selectionSummary) ? item.selectionSummary : [];
+
+        return `
+          <div class="cart-item">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="font-black text-slate-900 break-words">${escapeHtml(item.name)}</div>
+                <div class="text-sm text-slate-500 mt-1">$ ${money(item.unitPrice ?? item.price)} c/u</div>
+              </div>
+              <div class="text-lg font-black text-slate-900 whitespace-nowrap font-display">$ ${money(line)}</div>
+            </div>
+
+            ${selectionSummary.length ? `
+              <div class="mt-3 pt-3 border-t border-slate-200 space-y-1">
+                ${selectionSummary.map(line => `<div class="text-sm pl-2 ${isDeletedText(line) ? "deleted-red" : "text-slate-600"}">- ${escapeHtml(line)}</div>`).join("")}
+              </div>
+            ` : ``}
+
+            <div class="mt-3 flex items-center gap-2">
+              <button type="button" class="h-10 w-10 rounded-2xl bg-slate-100 hover:bg-slate-200 font-black" data-qty-minus="${escapeHtml(item.cartKey)}">−</button>
+              <div class="min-w-[42px] text-center font-black">${item.quantity}</div>
+              <button type="button" class="h-10 w-10 rounded-2xl bg-slate-100 hover:bg-slate-200 font-black" data-qty-plus="${escapeHtml(item.cartKey)}">+</button>
+              <button type="button" class="ml-auto px-4 py-2 rounded-2xl bg-rose-100 text-rose-800 font-semibold hover:bg-rose-200 transition btn-press" data-remove-product="${escapeHtml(item.cartKey)}">Quitar</button>
+            </div>
+
+            <div class="mt-3">
+              <input type="text" class="field-input" placeholder="Nota del item (opcional)" value="${escapeHtml(item.notes || "")}" data-item-note="${escapeHtml(item.cartKey)}" />
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      el.querySelectorAll("[data-qty-minus]").forEach(btn => {
+        btn.addEventListener("click", () => updateCreateOrderItemQty(btn.getAttribute("data-qty-minus"), -1));
+      });
+
+      el.querySelectorAll("[data-qty-plus]").forEach(btn => {
+        btn.addEventListener("click", () => updateCreateOrderItemQty(btn.getAttribute("data-qty-plus"), 1));
+      });
+
+      el.querySelectorAll("[data-remove-product]").forEach(btn => {
+        btn.addEventListener("click", () => removeFromCreateOrderCart(btn.getAttribute("data-remove-product")));
+      });
+
+      el.querySelectorAll("[data-item-note]").forEach(input => {
+        input.addEventListener("input", () => {
+          updateCreateOrderItemNote(input.getAttribute("data-item-note"), input.value);
+        });
+      });
+    }
+
+function confirmCreateOrderConfigProduct(){
+  if(!createOrderConfigState) return;
+
+  const total = getCreateOrderSelectedTotal();
+  const required = Number(createOrderConfigState.required || 0);
+
+  if(total !== required){
+    toastUpdate(`Tenés que seleccionar exactamente ${required} unidades.`, "error", 2200);
+    return;
+  }
+
+  const groupedRows = createOrderGroupSelectionsByKey(createOrderConfigState.selectedItems);
+  const note = document.getElementById("coConfigProductNote").value.trim();
+  const basePrice = Number(createOrderConfigState.product.price || 0) || 0;
+  const extraTotal = getCreateOrderSelectionsExtraTotal(groupedRows);
+  const cartKey = buildCreateOrderCartKey(createOrderConfigState.product.id, true);
+
+  createOrderCart.push(recalculateCreateOrderCartLine({
+    cartKey,
+    productId: createOrderConfigState.product.id,
+    name: createOrderConfigState.product.name,
+    basePrice,
+    extraTotal,
+    unitPrice: roundCreateOrderMoney(basePrice + extraTotal),
+    price: roundCreateOrderMoney(basePrice + extraTotal),
+    quantity: 1,
+    notes: note,
+    isConfigured: true,
+    selections: groupedRows.map(r => ({
+      menuItemOptionId: r.menuItemOptionId,
+      menuItemOptionVariantId: r.menuItemOptionVariantId,
+      quantity: Number(r.quantity || 0),
+      optionName: r.optionName,
+      variantName: r.variantName,
+      extraPrice: Number(r.extraPrice || 0)
+    })),
+    selectionSummary: buildCreateOrderSelectionSummaryFromSelections(
+      createOrderConfigState.product.name,
+      groupedRows.map(r => ({
+        quantity: r.quantity,
+        optionName: r.optionName,
+        variantName: r.variantName
+      }))
+    )
+  }));
+
+  closeCreateOrderConfigModal();
+  renderCreateOrderCart();
+}
+
+    function syncCreateOrderPaymentBlocks(){
+      const transferWrap = document.getElementById("newOrderTransferWrap");
+      const qrWrap = document.getElementById("newOrderQrWrap");
+
+      transferWrap.classList.toggle("hidden", createOrderPaymentMethod !== "Transfer");
+      qrWrap.classList.toggle("hidden", createOrderPaymentMethod !== "Qr");
+
+      renderPaymentMethodSelector();
+      renderCreateOrderCart();
+    }
+
+    function buildQrText(opts, order){
+      const base = String(
+        order?.qrPayload ??
+        opts?.qrPayload ??
+        opts?.qrPaymentPayload ??
+        opts?.transferAlias ??
+        opts?.alias ??
+        ""
+      ).trim();
+
+      if(!base) return "";
+
+      const total = computeOrderTotal(order);
+      const orderNumber = order?.orderNumber ? String(order.orderNumber) : "";
+      const customerName = String(order?.customerName || "").trim();
+
+      return [
+        base,
+        orderNumber ? `Pedido:${orderNumber}` : "",
+        total ? `Monto:${Number(total).toFixed(2)}` : "",
+        customerName ? `Cliente:${customerName}` : ""
+      ].filter(Boolean).join("\n");
+    }
+
+    async function renderNewOrderQr(orderResult){
+      const opts = await fetchPaymentOptions();
+      const wrap = document.getElementById("newOrderQrCanvasWrap");
+      const box = document.getElementById("newOrderQrCanvasBox");
+      wrap.innerHTML = "";
+
+      const payload = buildQrText(opts, orderResult);
+      if(!payload){
+        box.classList.add("hidden");
+        return;
+      }
+
+      const canvas = document.createElement("canvas");
+      wrap.appendChild(canvas);
+      await QRCode.toCanvas(canvas, payload, { width: 260, margin: 1 });
+      box.classList.remove("hidden");
+    }
+
+    function buildCreateOrderPayload(){
+      return {
+        customerName: document.getElementById("coCustomerName").value.trim(),
+        customerWhatsapp: document.getElementById("coCustomerWhatsapp").value.trim(),
+        address: document.getElementById("coAddress").value.trim(),
+        orderType: document.getElementById("coOrderType").value,
+        paymentMethod: ({
+          Cash: 1,
+          Transfer: 2,
+          Qr: 3
+        })[createOrderPaymentMethod] ?? 1,
+        items: createOrderCart.map(x => ({
+          productId: x.productId,
+          quantity: x.quantity,
+          notes: (x.notes || "").trim() || null,
+          selections: Array.isArray(x.selections)
+            ? x.selections.map(s => ({
+                menuItemOptionId: s.menuItemOptionId,
+                menuItemOptionVariantId: s.menuItemOptionVariantId ?? null,
+                quantity: s.quantity
+              }))
+            : []
+        }))
+      };
+    }
+
+async function submitCreateOrder(){
+      const customerName = document.getElementById("coCustomerName").value.trim();
+      if(!customerName){
+        throw new Error("Ingresá el nombre del cliente.");
+      }
+      const customerWhatsapp = document.getElementById("coCustomerWhatsapp").value.trim();
+
+      if(!customerWhatsapp){
+        throw new Error("Ingresá el WhatsApp del cliente.");
+      }
+
+      if(!createOrderCart.length){
+        throw new Error("Agregá al menos un producto.");
+      }
+
+      const payload = buildCreateOrderPayload();
+      console.log("MANUAL ORDER PAYLOAD", JSON.stringify(payload, null, 2));
+      const result = await createManualOrder(payload);
+
+      const detail = await getOrderDetailCached(result.id, true);
+      createOrderLastCreated = detail || result;
+
+      document.getElementById("createOrderSuccessWrap").classList.remove("hidden");
+      document.getElementById("createOrderSuccessNumber").textContent = createOrderLastCreated.orderNumber || result.orderNumber || "—";
+      document.getElementById("createOrderSuccessTotal").textContent = money(computeOrderTotal(createOrderLastCreated));
+
+      if (isQrPaymentMethod(createOrderLastCreated.paymentMethod || createOrderPaymentMethod)) {
+        await renderNewOrderQr(createOrderLastCreated);
+      } else {
+        document.getElementById("newOrderQrCanvasWrap").innerHTML = "";
+        document.getElementById("newOrderQrCanvasBox").classList.add("hidden");
+      }
+
+      return createOrderLastCreated;
+    }
+
+    function printLastCreatedOrder(){
+      if(!createOrderLastCreated) return;
+      printTicket(createOrderLastCreated);
+    }
+
+    function getOrderWhatsapp(order){
+  return String(
+    order?.customerWhatsappE164 ||
+    order?.customerWhatsappRaw ||
+    order?.customerWhatsapp ||
+    order?.customerPhone ||
+    ""
+  ).trim();
+}
+
+    // =========================
+    // RENDER MODAL NUEVOS
+    // =========================
+    function renderNewModal(orders) {
+      const el = document.getElementById("newModalList");
+
+      if (!orders.length) {
+        el.innerHTML = `
+          <div class="p-5 rounded-3xl border bg-slate-50 text-slate-700">
+            No hay pedidos nuevos 🎉
+          </div>`;
+        return;
+      }
+
+      el.innerHTML = orders.map(o => {
+        const canAdvance = canAdvanceOrder(o);
+
+        return `
+          <div class="p-5 rounded-[26px] border border-slate-200 bg-white hover:shadow-md transition"
+               data-order="${o.id}" data-order-number="${o.orderNumber}">
+            <div class="flex items-start justify-between gap-4 flex-wrap">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-3 flex-wrap">
+                  <div class="text-xl font-black font-display">#${o.orderNumber}</div>
+                  <span class="px-3 py-1 rounded-full text-xs font-semibold border ${statusBadge(Number(o.status))}">
+                    ${STATUS_LABEL[Number(o.status)] ?? o.status}
+                  </span>
+                </div>
+
+                <div class="text-sm text-slate-500 mt-2">${fmtDateTime(o.createdAt)}</div>
+                <div class="mt-3 text-3xl font-black font-display">$ ${money(computeOrderTotal(o))}</div>
+
+                <div class="mt-4 text-sm text-slate-600 leading-relaxed">
+                  ${escapeHtml(orderItemsPreview(o.items || []))}
+                </div>
+
+                <div class="mt-4 flex flex-wrap items-center gap-2">
+                  <span class="px-3 py-1 rounded-full text-xs font-semibold border ${paymentStatusBadge(o.paymentStatus)}">
+                    ${paymentInfo(o)}
+                  </span>
+                </div>
+
+              ${!canAdvance && isMercadoPagoPaymentMethod(o.paymentMethod) && o.paymentStatus === 1 ? `
+                  <div class="mt-3 text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-2xl px-3 py-3">
+                    Esperando confirmación de pago.
+                  </div>
+                ` : ``}
+              </div>
+
+              <div class="flex gap-2 flex-wrap">
+                <button class="px-4 py-2 rounded-2xl bg-slate-100 text-slate-800 font-semibold hover:bg-slate-200 transition btn-press"
+                  data-detail="1" data-id="${o.id}">
+                  Ver detalle
+                </button>
+
+                ${canAdvance ? `
+                  <button class="px-4 py-2 rounded-2xl bg-amber-100 text-amber-800 font-semibold hover:bg-amber-200 transition btn-press"
+                    data-take="1" data-id="${o.id}">
+                    Tomar
+                  </button>
+                ` : ``}
+
+                <button class="px-4 py-2 rounded-2xl bg-rose-100 text-rose-800 font-semibold hover:bg-rose-200 transition btn-press"
+                  data-cancel="1" data-id="${o.id}">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      el.querySelectorAll("button[data-detail='1']").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = Number(btn.getAttribute("data-id"));
+          await openOrderDetail(id);
+        });
+      });
+
+      el.querySelectorAll("button[data-take='1']").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          try {
+            toastShow("Tomando pedido...", "info");
+            await updateStatus(id, 1);
+            closeNewModal();
+            await refreshAfterAction("Pedido pasado a Preparando");
+            await openOrderDetail(Number(id));
+          } catch (e) {
+            console.error(e);
+            toastUpdate(e.message || "Error al tomar pedido", "error", 2500);
+          }
+        });
+      });
+
+      el.querySelectorAll("button[data-cancel='1']").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-id");
+          const card = btn.closest("[data-order]");
+          const orderNumber = card?.getAttribute("data-order-number") || null;
+
+          openCancelModal(id, orderNumber, async () => {
+            await refresh(true);
+            await checkNewOrders();
+          });
+        });
+      });
+    }
+
+    // =========================
+    // RENDER LISTA
+    // =========================
+    function renderOrders(orders) {
+      const el = document.getElementById("list");
+      currentRenderedOrders = Array.isArray(orders) ? orders : [];
+      setSummary(currentRenderedOrders);
+
+      if (!currentRenderedOrders.length) {
+        el.innerHTML = `
+          <div class="panel-card p-8 text-center">
+            <div class="text-5xl mb-3">🧾</div>
+            <div class="font-extrabold text-xl text-slate-900 font-display">No hay pedidos</div>
+            <div class="text-sm text-slate-500 mt-2">Probá cambiando la fecha o el estado.</div>
+          </div>`;
+        return;
+      }
+
+      const currentFilter = document.getElementById("status").value;
+
+      el.innerHTML = currentRenderedOrders.map(o => {
+        const st = Number(o.status);
+        const canAdvance = canAdvanceOrder(o);
+        let paymentText = paymentInfo(o);
+
+        if(isMercadoPagoPaymentMethod(o.paymentMethod)){
+
+          if(o.paymentStatus === 2)
+            paymentText = "MercadoPago • Aprobado";
+
+          else if(o.paymentStatus === 1)
+            paymentText = "MercadoPago • Pendiente";
+
+          else if(o.paymentStatus === 3)
+            paymentText = "MercadoPago • Rechazado";
+
+          else if(o.paymentStatus === 4)
+            paymentText = "MercadoPago • Cancelado";
+
+        }
+        const total = computeOrderTotal(o);
+        const actions = [];
+
+        actions.push(`
+          <button class="action-btn bg-slate-100 text-slate-800 hover:bg-slate-200"
+            data-action="detail" data-id="${o.id}">
+            Ver detalle
+          </button>
+        `);
+
+        actions.push(`
+          <button class="action-btn bg-indigo-100 text-indigo-800 hover:bg-indigo-200"
+            data-action="print" data-id="${o.id}">
+            Imprimir
+          </button>
+        `);
+
+        if (canMarkPaid(o)) {
+          actions.push(`
+            <button class="action-btn bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+              data-action="mark-paid" data-id="${o.id}">
+              Marcar pagado
+            </button>
+          `);
+        }
+
+        if (st === 4) {
+        } else if (st === 3) {
+          actions.push(`
+            <button class="action-btn bg-rose-100 text-rose-800 hover:bg-rose-200"
+              data-action="cancel" data-id="${o.id}">
+              Cancelar
+            </button>
+          `);
+        } else if (st === 1) {
+          if (currentFilter !== "3" && canAdvance) {
+            actions.push(`
+              <button class="action-btn bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+                data-action="set" data-id="${o.id}" data-status="3">
+                Enviado
+              </button>
+            `);
+          }
+          actions.push(`
+            <button class="action-btn bg-rose-100 text-rose-800 hover:bg-rose-200"
+              data-action="cancel" data-id="${o.id}">
+              Cancelar
+            </button>
+          `);
+        } else if (st === 0) {
+          if (currentFilter !== "1" && canAdvance) {
+            actions.push(`
+              <button class="action-btn bg-amber-100 text-amber-800 hover:bg-amber-200"
+                data-action="set" data-id="${o.id}" data-status="1">
+                Preparando
+              </button>
+            `);
+          }
+          actions.push(`
+            <button class="action-btn bg-rose-100 text-rose-800 hover:bg-rose-200"
+              data-action="cancel" data-id="${o.id}">
+              Cancelar
+            </button>
+          `);
+        }
+
+        const pedidoLines = (Array.isArray(o.items) ? o.items : []).map(x => `${Number(x.qty || 0)}x ${x.name || ""}`);
+        const variantLines = getOrderVariantsPreview(o.items || []);
+        const noteLines = getOrderNotesPreview(o.items || []);
+
+        return `
+          <div data-order="${o.id}" data-order-number="${o.orderNumber}" class="order-card">
+            <div class="order-top">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-3 flex-wrap">
+                  <div class="text-2xl md:text-3xl font-extrabold tracking-tight break-all text-slate-950 font-display">Pedido #${o.orderNumber}</div>
+                  <span class="badge ${statusBadge(st)}">
+                    ${STATUS_LABEL[st] ?? st}
+                  </span>
+                </div>
+
+                <div class="text-sm text-slate-500 mt-2">
+                  ${fmtDateTime(o.createdAt)}
+                </div>
+              </div>
+
+              <div class="order-actions">
+                ${actions.join("")}
+              </div>
+            </div>
+
+            <div class="order-grid">
+              <div class="order-box">
+                <div class="order-box-label">Total</div>
+                <div class="order-box-value order-box-total">$ ${money(total)}</div>
+              </div>
+
+            <div class="order-box">
+              <div class="order-box-label">Método de pago</div>
+
+              <div class="mt-2 flex flex-col gap-1">
+
+                <!-- linea 1: metodo de pago -->
+                <span class="badge bg-slate-100 text-slate-800 border-slate-200">
+                  ${o.paymentMethod || "-"}
+                </span>
+
+                <!-- linea 2: estado MP -->
+                ${
+                  isMercadoPagoPaymentMethod(o.paymentMethod)
+                  ? `
+                    <span class="badge ${paymentStatusBadge(o.paymentStatus)}">
+                      ${
+                        o.paymentStatus === 2 ? "Aprobado" :
+                        o.paymentStatus === 1 ? "Pendiente" :
+                        o.paymentStatus === 3 ? "Rechazado" :
+                        o.paymentStatus === 4 ? "Cancelado" :
+                        ""
+                      }
+                    </span>
+                  `
+                  : ``
+                }
+
+              </div>
+            </div>
+
+              <div class="order-box">
+                <div class="order-box-label">Pedido</div>
+                ${renderExpandableOrderBox(o.id, "pedido", pedidoLines, "Sin pedido")}
+              </div>
+
+              <div class="order-box">
+                <div class="order-box-label">Variantes</div>
+                ${renderExpandableOrderBox(o.id, "variantes", variantLines, "Sin variantes")}
+              </div>
+
+              <div class="order-box">
+                <div class="order-box-label">Notas</div>
+                ${renderExpandableOrderBox(o.id, "notas", noteLines, "Sin notas")}
+              </div>
+            </div>
+
+            ${!canAdvance 
+              && isMercadoPagoPaymentMethod(o.paymentMethod) 
+              && o.paymentStatus === 1
+            ?  `
+              <div class="mt-4 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800 relative z-[1]">
+                Este pedido todavía está esperando confirmación de pago.
+              </div>
+            ` : ``}
+          </div>
+        `;
+      }).join("");
+
+      el.querySelectorAll("button[data-action='set']").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          const st = parseInt(btn.getAttribute("data-status"), 10);
+
+          try {
+            toastShow("Actualizando estado...", "info");
+            await updateStatus(id, st);
+            orderDetailCache.delete(Number(id));
+
+            const detail = await getOrderDetailCached(Number(id), true);
+
+            await refresh(true);
+            await checkNewOrders();
+            toastUpdate("Estado actualizado", "success", 1800);
+
+            if (st === 1) {
+              await openOrderDetail(Number(id));
+            }
+
+            if (st === 3 && detail && shouldAskManualWhatsappNotification(detail)) {
+              openNotifyModal(detail);
+            }
+          } catch (e) {
+            console.error(e);
+            toastUpdate(e.message || "Error al actualizar estado", "error", 2500);
+          }
+        });
+      });
+
+      el.querySelectorAll("button[data-action='detail']").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = Number(btn.getAttribute("data-id"));
+          await openOrderDetail(id);
+        });
+      });
+
+      el.querySelectorAll("button[data-action='print']").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = Number(btn.getAttribute("data-id"));
+          try{
+            toastShow("Preparando ticket...", "info");
+            const detail = await getOrderDetailCached(id, true);
+            if(!detail){
+              toastUpdate("No pude obtener el detalle", "error", 2500);
+              return;
+            }
+            printTicket(detail);
+            toastClear();
+          }catch(e){
+            console.error(e);
+            toastUpdate("No pude imprimir el ticket", "error", 2500);
+          }
+        });
+      });
+
+      el.querySelectorAll("button[data-action='mark-paid']").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = Number(btn.getAttribute("data-id"));
+          try{
+            toastShow("Marcando pago...", "info");
+            await markOrderPaid(id);
+            orderDetailCache.delete(id);
+            await refresh(true);
+            toastUpdate("Pago aprobado", "success", 1800);
+          }catch(e){
+            console.error(e);
+            toastUpdate(e.message || "No pude marcar el pago", "error", 2500);
+          }
+        });
+      });
+
+      el.querySelectorAll("button[data-action='cancel']").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-id");
+          const card = btn.closest("[data-order]");
+          const orderNumber = card?.getAttribute("data-order-number") || null;
+
+          openCancelModal(id, orderNumber, async () => {
+            orderDetailCache.delete(Number(id));
+            await refresh(true);
+            await checkNewOrders();
+          });
+        });
+      });
+
+      el.querySelectorAll("button[data-expand-order]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const orderId = Number(btn.getAttribute("data-expand-order"));
+          const section = btn.getAttribute("data-expand-section");
+          toggleOrderCardSection(orderId, section);
+        });
+      });
+    }
+
+    // =========================
+    // REFRESH
+    // =========================
+    async function refresh(forceDetails = false) {
+      if (isRefreshing) return;
+      isRefreshing = true;
+
+      const refreshBtn = document.getElementById("refresh");
+      const oldText = refreshBtn.textContent;
+      refreshBtn.textContent = "Cargando...";
+      refreshBtn.disabled = true;
+
+      try {
+        if (forceDetails) {
+          orderDetailCache.clear();
+        }
+
+        const orders = await fetchOrders();
+        const enrichedOrders = await enrichOrdersWithDetails(orders);
+        renderOrders(enrichedOrders);
+      } finally {
+        refreshBtn.textContent = oldText;
+        refreshBtn.disabled = false;
+        isRefreshing = false;
+      }
+    }
+
+    let lastNewCount = 0;
+    let lastNewOrderIds = new Set();
+
+async function checkNewOrders() {
+  try {
+    const orders = await fetchNewOrders();
+    const currentIds = new Set(orders.map(x => Number(x.id)));
+    const hasRealNewOrder = orders.some(x => !lastNewOrderIds.has(Number(x.id)));
+
+    if (orders.length > 0) {
+      showNewBanner(orders.length);
+
+      if (hasRealNewOrder && soundUnlocked) {
+        playNewOrderSound(false);
+      }
+    } else {
+      hideNewBanner();
+    }
+
+    lastNewCount = orders.length;
+    lastNewOrderIds = currentIds;
+  } catch (e) {
+    console.error("checkNewOrders error:", e);
+  }
+}
+
+    // =========================
+    // INIT
+    // =========================
+    (async function init() {
+      try {
+        if(!requireAuth()) return;
+
+      const allowed = await guardAdminOrderAccess();
+      if(!allowed) return;
+
+      await loadCompanyNotificationConfig();
+
+
+        document.getElementById("date").value = getArgentinaDateInputValue();
+
+        document.getElementById("status").value = "1";
+
+        document.getElementById("btnEnableSound").addEventListener("click", async () => {
+          toastShow("Activando sonido...", "info");
+          const ok = await unlockAudio(true);
+          if (ok) toastUpdate("Sonido activado ✅", "success", 1500);
+          else toastUpdate("No pude activar el sonido", "error", 2500);
+        });
+
+        document.getElementById("date").addEventListener("change", async () => {
+          await refresh(true);
+          await checkNewOrders();
+        });
+
+        document.getElementById("status").addEventListener("change", async () => {
+          await refresh(true);
+        });
+
+        document.getElementById("refresh").addEventListener("click", async () => {
+          await refresh(true);
+          await checkNewOrders();
+        });
+
+        document.getElementById("goNew").addEventListener("click", async () => {
+          try {
+            toastShow("Cargando pedidos nuevos...", "info");
+            const news = await fetchNewOrders();
+            const enriched = await enrichOrdersWithDetails(news);
+            renderNewModal(enriched);
+            openNewModal();
+            toastClear();
+          } catch (e) {
+            console.error(e);
+            toastUpdate("No pude cargar los nuevos", "error", 2500);
+          }
+        });
+
+        document.getElementById("dismissNew").addEventListener("click", () => hideNewBanner());
+        document.getElementById("closeNewModal").addEventListener("click", () => closeNewModal());
+
+        document.getElementById("newModal").addEventListener("click", (e) => {
+          if (e.target.id === "newModal") closeNewModal();
+        });
+
+        document.getElementById("closeDetailModal").addEventListener("click", closeDetailModal);
+        document.getElementById("detailModal").addEventListener("click", (e) => {
+          if (e.target.id === "detailModal") closeDetailModal();
+        });
+
+        document.getElementById("closeCancelModal").addEventListener("click", closeCancelModal);
+        document.getElementById("btnCancelBack").addEventListener("click", closeCancelModal);
+        document.getElementById("btnCancelConfirm").addEventListener("click", confirmCancel);
+        document.getElementById("closeNotifyModal").addEventListener("click", closeNotifyModal);
+        document.getElementById("btnNotifyNo").addEventListener("click", closeNotifyModal);
+        document.getElementById("btnNotifyYes").addEventListener("click", () => {
+          const order = notifyState.order;
+          closeNotifyModal();
+          if(order){
+            notifyCustomerManualWhatsapp(order);
+          }
+        });
+        document.getElementById("notifyModal").addEventListener("click", (e) => {
+          if (e.target.id === "notifyModal") closeNotifyModal();
+        });
+
+        document.getElementById("btnNewOrder").addEventListener("click", async () => {
+          try{
+            toastShow("Preparando nuevo pedido...", "info");
+            await prepareCreateOrderModal();
+            openCreateOrderModal();
+            toastClear();
+          }catch(e){
+            console.error(e);
+            toastUpdate(e.message || "No pude abrir el nuevo pedido", "error", 2500);
+          }
+        });
+
+        document.getElementById("closeCreateOrderModal").addEventListener("click", closeCreateOrderModal);
+        document.getElementById("btnCreateOrderCancel").addEventListener("click", closeCreateOrderModal);
+        document.getElementById("createOrderModal").addEventListener("click", (e) => {
+          if (e.target.id === "createOrderModal") closeCreateOrderModal();
+        });
+        document.getElementById("closeCreateOrderConfigModal").addEventListener("click", closeCreateOrderConfigModal);
+        document.getElementById("btnCreateOrderConfigCancel").addEventListener("click", closeCreateOrderConfigModal);
+        document.getElementById("btnCreateOrderConfigConfirm").addEventListener("click", confirmCreateOrderConfigProduct);
+        document.getElementById("createOrderConfigModal").addEventListener("click", (e) => {
+          if (e.target.id === "createOrderConfigModal") closeCreateOrderConfigModal();
+        });
+
+
+        document.getElementById("coSearch").addEventListener("input", (e) => {
+          createOrderSearch = e.target.value || "";
+          renderCreateOrderProducts();
+        });
+
+        document.querySelectorAll("[data-payment]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            createOrderPaymentMethod = btn.getAttribute("data-payment");
+            syncCreateOrderPaymentBlocks();
+          });
+        });
+
+        document.getElementById("btnCreateOrderSave").addEventListener("click", async () => {
+          try{
+            toastShow("Creando pedido...", "info");
+            const created = await submitCreateOrder();
+            orderDetailCache.set(Number(created.id), created);
+            await refresh(true);
+            await checkNewOrders();
+            toastUpdate("Pedido creado", "success", 1800);
+          }catch(e){
+            console.error(e);
+            toastUpdate(e.message || "No pude crear el pedido", "error", 2500);
+          }
+        });
+
+        document.getElementById("btnCreateOrderAnother").addEventListener("click", () => {
+          resetCreateOrderState();
+        });
+
+        document.getElementById("btnCreateOrderPrint").addEventListener("click", () => {
+          printLastCreatedOrder();
+        });
+
+        await refresh(true);
+        await checkNewOrders();
+
+        setInterval(checkNewOrders, 10000);
+
+        async function syncMercadoPagoOrders(orders){
+    const mpPending = orders.filter(o =>
+        o.paymentMethod === "MercadoPago" &&
+        o.paymentStatus !== "Approved" &&
+        o.paymentId
+    );
+
+    for(const order of mpPending){
+
+        try{
+
+            await fetch(
+                `/api/payments/mercadopago/webhook/sync-payment-by-payment-id/${order.paymentId}?companySlug=${companySlug}`,
+                {
+                    method: "POST"
+                }
+            );
+
+        }catch(e){
+            console.warn("No se pudo sincronizar pago MP", order.id);
+        }
+
+    }
+}
+
+        setInterval(async () => {
+          const modalNewOpen = !document.getElementById("newModal").classList.contains("hidden");
+          const modalDetailOpen = !document.getElementById("detailModal").classList.contains("hidden");
+          const modalCancelOpen = !document.getElementById("cancelModal").classList.contains("hidden");
+          const modalCreateOpen = !document.getElementById("createOrderModal").classList.contains("hidden");
+
+          if (!modalNewOpen && !modalDetailOpen && !modalCancelOpen && !modalCreateOpen) {
+            await refresh(true);
+          }
+        }, 15000);
+
+      } catch (e) {
+        console.error(e);
+        toastShow("Error ❌ " + (e.message || e), "error");
+        toastAutoClose(3000);
+      }
+    })();
