@@ -24,7 +24,7 @@
       const raw = Number(localStorage.getItem(BUSINESS_TYPE_KEY));
       if(raw === BUSINESS_TYPES.OTROS) return BUSINESS_TYPES.OTROS;
       return BUSINESS_TYPES.GASTRONOMIA;
-    }
+    } 
 
     async function syncBusinessTypeFromApi(){
       try{
