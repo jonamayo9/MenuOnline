@@ -1,0 +1,2363 @@
+    const DEV_WHATSAPP = "5491140733436";
+    const MP_PENDING_KEY = "menuonline_mp_pending_order";
+    const MP_RETURN_HANDLED_KEY = "menuonline_mp_return_handled";
+    const PROMO_CATEGORY_NAME = "🔥 Promociones";
+
+function isLocalHost() {
+  const host = window.location.hostname;
+  return host === "localhost" || host === "127.0.0.1";
+}
+
+function getProductsSlugFromPath() {
+  const parts = window.location.pathname.split("/").filter(Boolean);
+
+  const productsIndex = parts.findIndex(x => String(x).toLowerCase() === "menu");
+  if (productsIndex === -1) return "";
+
+  return (parts[productsIndex + 1] || "").trim();
+}
+
+function getProductsSlugFromQuery() {
+  const qs = new URLSearchParams(window.location.search);
+  return (qs.get("companySlug") || qs.get("c") || "").trim();
+}
+
+function requireProductsSlug() {
+  const pathSlug = getProductsSlugFromPath();
+  if (pathSlug) return pathSlug;
+
+  if (isLocalHost()) {
+    const querySlug = getProductsSlugFromQuery();
+    if (querySlug) return querySlug;
+  }
+
+  location.replace("/404.html");
+  return "";
+}
+
+    let CFG = {};
+    let DTO = null;
+    let Company = { name:"", alias:"", whatsapp:"", logoUrl:"", turnos:[] };
+    let PublicFeatures = {
+      ordersEnabled: true,
+      menuOnlyEnabled: false,
+      mercadoPagoEnabled: false,
+      transferEnabled: false,
+      whatsappEnabled: false,
+      shiftsEnabled: true,
+      aliasEnabled: false,
+      transferSurchargeEnabled: false,
+      transferSurchargePercent: 0,
+      mercadoPagoSurchargeEnabled: false,
+      mercadoPagoSurchargePercent: 0
+    };
+    let Categories = [];
+    let Items = [];
+    let carrito = {};
+    let catActual = "";
+    let searchText = "";
+    let descExpanded = {};
+    let configState = null;
+    let cartSeq = 1;
+
+    const SLUG_KEY = "menuonline_companySlug";
+    //   PROD
+    //const CONFIG_PATH = "/MenuOnline/config.json";
+    //  DEV
+    const CONFIG_PATH = "/config.json";
+    const DEFAULT_PUBLIC_ROOT_DOMAIN = "pedidoclick.com.ar";
+    const DEFAULT_RESERVED_SUBDOMAINS = ["www", "app", "admin"];
+
+function getConfiguredPublicRootDomain(){
+  return String(CFG.publicRootDomain || DEFAULT_PUBLIC_ROOT_DOMAIN).trim().toLowerCase();
+}
+
+function getReservedSubdomains(){
+  const list = Array.isArray(CFG.publicReservedSubdomains)
+    ? CFG.publicReservedSubdomains
+    : DEFAULT_RESERVED_SUBDOMAINS;
+
+  return list.map(x => String(x || "").trim().toLowerCase()).filter(Boolean);
+}
+
+function getSlugFromHostname(){
+  const host = String(window.location.hostname || "").trim().toLowerCase();
+  if(!host) return "";
+  if(host === "localhost" || host === "127.0.0.1") return "";
+
+  const rootDomain = "pedidoclick.com.ar";
+  const reserved = ["www", "admin"];
+
+  if(host.endsWith("." + rootDomain)){
+    const sub = host.slice(0, host.length - rootDomain.length - 1).trim();
+    if(!sub) return "";
+    if(sub.includes(".")) return "";
+    if(reserved.includes(sub)) return "";
+    return sub;
+  }
+
+  return "";
+}
+
+function getSlugFromPath(){
+  const path = String(window.location.pathname || "").trim();
+  const match = path.match(/^\/menu\/([^\/]+)\/?$/i);
+  return match ? decodeURIComponent(match[1]).trim() : "";
+}
+
+function getCompanySlug(){
+  const fromPath = getSlugFromPath();
+  if(fromPath){
+    localStorage.setItem(SLUG_KEY, fromPath);
+    return fromPath;
+  }
+
+  const fromHost = getSlugFromHostname();
+  if(fromHost){
+    localStorage.setItem(SLUG_KEY, fromHost);
+    return fromHost;
+  }
+
+  const qs = new URLSearchParams(location.search);
+  const fromQuery = (qs.get("companySlug") || qs.get("c") || "").trim();
+  if(fromQuery){
+    localStorage.setItem(SLUG_KEY, fromQuery);
+    return fromQuery;
+  }
+
+  return (localStorage.getItem(SLUG_KEY) || "").trim();
+}
+
+    function apiUrl(path){
+      const base = String(CFG.apiBaseUrl || "").replace(/\/+$/,"");
+      return base + (String(path).startsWith("/") ? path : ("/" + path));
+    }
+
+    function imgUrl(path){
+      const s = String(path || "").trim();
+      if(!s) return "";
+      if(s.startsWith("http://") || s.startsWith("https://")) return s;
+      if(s.includes("localhost:5600")){
+        try{
+          const u = new URL(s);
+          return apiUrl(u.pathname);
+        }catch{}
+      }
+      return apiUrl(s.startsWith("/") ? s : ("/" + s));
+    }
+
+    function toBool(v){
+      if(typeof v === "boolean") return v;
+      if(typeof v === "number") return v !== 0;
+      if(typeof v === "string") return v.toLowerCase() === "true";
+      return !!v;
+    }
+
+    function normText(s){ return String(s ?? "").toLowerCase().trim(); }
+
+  function roundMoney(n){
+    return Math.round((Number(n || 0)) * 100) / 100;
+  }
+
+  function getLineUnitPrice(line){
+    if(!line) return 0;
+    return roundMoney(
+      line.unitPrice ??
+      line.price ??
+      0
+    );
+  }
+
+  function getLineQty(line){
+    return Number(line?.qty || 0);
+  }
+
+  function getLineTotal(line){
+    if(!line) return 0;
+
+    if(line.lineTotal !== undefined && line.lineTotal !== null){
+      return roundMoney(line.lineTotal);
+    }
+
+    return roundMoney(getLineUnitPrice(line) * getLineQty(line));
+  }
+
+  function getSelectionsExtraTotal(selections){
+    if(!Array.isArray(selections) || !selections.length) return 0;
+
+    return roundMoney(
+      selections.reduce((acc, s) => {
+        const extra = Number(s.extraPrice || 0);
+        const qty = Number(s.quantity || 0);
+        return acc + (extra * qty);
+      }, 0)
+    );
+  }
+
+  function recalculateCartLine(line){
+    if(!line) return line;
+
+    const qty = Number(line.qty || 0);
+    const basePrice = Number(line.basePrice ?? line.price ?? 0);
+    const extraTotal = Number(line.extraTotal ?? getSelectionsExtraTotal(line.selections) ?? 0);
+
+    line.basePrice = roundMoney(basePrice);
+    line.extraTotal = roundMoney(extraTotal);
+
+    if(Array.isArray(line.selections) && line.selections.length){
+      line.unitPrice = roundMoney(line.basePrice + line.extraTotal);
+    }else{
+      line.unitPrice = roundMoney(line.basePrice);
+    }
+
+    line.price = line.unitPrice;
+    line.lineTotal = roundMoney(line.unitPrice * qty);
+
+    return line;
+  }
+
+    function formatMoney(n){
+      const num = Number(n);
+      if(Number.isNaN(num)) return "0";
+      return num.toLocaleString("es-AR");
+    }
+
+    function sanitizePhone(v){ return String(v || "").replace(/\D/g, ""); }
+
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function escapeAttr(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function placeholderSvgDataUrl(){
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400">
+          <defs>
+            <linearGradient id="g" x1="0" x2="1">
+              <stop offset="0" stop-color="#f1f5f9"/>
+              <stop offset="1" stop-color="#e2e8f0"/>
+            </linearGradient>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#g)"/>
+          <circle cx="200" cy="160" r="54" fill="#cbd5e1"/>
+          <rect x="110" y="240" width="180" height="24" rx="12" fill="#cbd5e1"/>
+          <rect x="140" y="280" width="120" height="18" rx="9" fill="#e2e8f0"/>
+        </svg>`;
+      return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+    }
+
+
+
+    function getBackendErrorMessage(raw){
+      const fallback = "Ocurrió un error inesperado.";
+
+      if(raw === null || raw === undefined) return fallback;
+
+      if(typeof raw === "string") {
+        const trimmed = raw.trim();
+        if(!trimmed) return fallback;
+
+        try{
+          return getBackendErrorMessage(JSON.parse(trimmed));
+        }catch{
+          return trimmed;
+        }
+      }
+
+      if(Array.isArray(raw)) {
+        const first = raw.map(getBackendErrorMessage).find(Boolean);
+        return first || fallback;
+      }
+
+      if(typeof raw === "object") {
+        if(typeof raw.message === "string" && raw.message.trim()) return raw.message.trim();
+        if(typeof raw.title === "string" && raw.title.trim()) return raw.title.trim();
+        if(typeof raw.error === "string" && raw.error.trim()) return raw.error.trim();
+        if(typeof raw.detail === "string" && raw.detail.trim()) return raw.detail.trim();
+
+        if(raw.errors && typeof raw.errors === "object") {
+          for(const value of Object.values(raw.errors)) {
+            if(Array.isArray(value) && value.length) {
+              const msg = String(value[0] || "").trim();
+              if(msg) return msg;
+            }
+            if(typeof value === "string" && value.trim()) return value.trim();
+          }
+        }
+      }
+
+      return fallback;
+    }
+
+    async function readErrorResponse(resp, fallback){
+      try{
+        const text = await resp.text();
+        return getBackendErrorMessage(text) || fallback;
+      }catch{
+        return fallback;
+      }
+    }
+
+    function showAppModal(title, message, type = "error"){
+      const modal = document.getElementById("modal-app-message");
+      const titleEl = document.getElementById("app-message-title");
+      const textEl = document.getElementById("app-message-text");
+      const iconEl = document.getElementById("app-message-icon");
+      const barEl = document.getElementById("app-message-bar");
+
+      if(!modal || !titleEl || !textEl || !iconEl || !barEl){
+        window.alert(message || title || "Ocurrió un error.");
+        return;
+      }
+
+      const styles = {
+        error: {
+          bar: "bg-rose-500",
+          iconWrap: "bg-rose-50 text-rose-600",
+          icon: "fa-solid fa-circle-exclamation"
+        },
+        success: {
+          bar: "bg-emerald-500",
+          iconWrap: "bg-emerald-50 text-emerald-600",
+          icon: "fa-solid fa-circle-check"
+        },
+        info: {
+          bar: "bg-amber-500",
+          iconWrap: "bg-amber-50 text-amber-600",
+          icon: "fa-solid fa-circle-info"
+        }
+      };
+
+      const cfg = styles[type] || styles.error;
+
+      titleEl.textContent = title || "Atención";
+      textEl.textContent = message || "Ocurrió un error inesperado.";
+
+      barEl.className = `absolute top-0 left-0 w-full h-2 ${cfg.bar}`;
+      iconEl.className = `w-16 h-16 mx-auto rounded-2xl flex items-center justify-center text-2xl ${cfg.iconWrap}`;
+      iconEl.innerHTML = `<i class="${cfg.icon}"></i>`;
+
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function hideAppModal(){
+      const modal = document.getElementById("modal-app-message");
+      if(!modal) return;
+      modal.classList.remove("flex");
+      modal.classList.add("hidden");
+    }
+
+    function getPagoSeleccionado(){
+      const pagoEl = document.getElementById("pago-cliente");
+      return pagoEl ? pagoEl.value : "Efectivo";
+    }
+
+    function buildCheckoutItems(){
+      return Object.values(carrito).map(p => ({
+        menuItemId: p.id,
+        qty: p.qty,
+        note: p.note || "",
+        selections: Array.isArray(p.selections)
+          ? p.selections.map(s => ({
+              menuItemOptionId: s.menuItemOptionId,
+              menuItemOptionVariantId: s.menuItemOptionVariantId ?? null,
+              quantity: s.quantity
+            }))
+          : []
+      }));
+    }
+
+    function getPaymentAdjustmentPercent(paymentMethod){
+      const pago = String(paymentMethod || "").trim();
+
+      if (pago === "Transferencia" && PublicFeatures.transferSurchargeEnabled) {
+        return Number(PublicFeatures.transferSurchargePercent || 0);
+      }
+
+      if (pago === "MercadoPago" && PublicFeatures.mercadoPagoSurchargeEnabled) {
+        return Number(PublicFeatures.mercadoPagoSurchargePercent || 0);
+      }
+
+      return 0;
+    }
+
+function calculateOrderTotals(paymentMethod){
+  let subtotal = 0;
+
+  Object.values(carrito).forEach(line => {
+    subtotal += getLineTotal(line);
+  });
+
+  subtotal = roundMoney(subtotal);
+
+  const percent = getPaymentAdjustmentPercent(paymentMethod);
+  const adjustment = roundMoney(subtotal * (percent / 100));
+  const total = roundMoney(subtotal + adjustment);
+
+  return {
+    subtotal,
+    adjustmentPercent: percent,
+    adjustment,
+    total
+  };
+}
+
+    function getPaymentAdjustmentLabel(paymentMethod, percent){
+      if (paymentMethod === "Transferencia") {
+        return percent >= 0 ? "Ajuste transferencia / QR" : "Descuento transferencia / QR";
+      }
+
+      if (paymentMethod === "MercadoPago") {
+        return percent >= 0 ? "Ajuste Mercado Pago" : "Descuento Mercado Pago";
+      }
+
+      return "Ajuste por pago";
+    }
+
+    function buildSelectionSummaryFromSelections(productName, selections){
+      return (selections || []).map(s => {
+        const qty = Number(s.quantity || 0);
+        const optionName = s.optionName || "";
+        const variantName = s.variantName || "";
+
+        const normalized = String(productName || "").toLowerCase();
+        let unitText = qty === 1 ? "unidad" : "unidades";
+
+        if(normalized.includes("empanada")){
+          unitText = qty === 1 ? "empanada" : "empanadas";
+        }else if(normalized.includes("pizza")){
+          unitText = qty === 1 ? "mitad" : "mitades";
+        }
+
+        return variantName
+          ? `${qty} ${unitText} de ${optionName} - ${variantName}`
+          : `${qty} ${unitText} de ${optionName}`;
+      });
+    }
+
+    function buildWhatsAppMessage({ nombre, direccion, pago, createdOrderNumber }){
+      const totals = calculateOrderTotals(pago);
+
+      let msg = `*✅ PEDIDO RECIBIDO*`;
+      if(createdOrderNumber) msg += ` *#${createdOrderNumber}*`;
+
+      msg += `\n\n*Cliente:* ${nombre}\n*Dirección:* ${direccion}\n*Pago:* ${pago}\n`;
+      msg += `--------------------------\n`;
+
+      Object.values(carrito).forEach(p => {
+msg += `• ${p.qty} x ${p.name} ($${formatMoney(getLineTotal(p))})\n`;
+        if(Array.isArray(p.selectionSummary) && p.selectionSummary.length){
+          p.selectionSummary.forEach(line => {
+            msg += `  - ${line}\n`;
+          });
+        }
+        if(p.note) msg += `  _Nota: ${p.note}_\n`;
+      });
+
+      if (totals.adjustmentPercent !== 0) {
+        const adjustmentLabel = getPaymentAdjustmentLabel(pago, totals.adjustmentPercent);
+        msg += `--------------------------\n`;
+        msg += `*Subtotal:* $${formatMoney(totals.subtotal)}\n`;
+        msg += `*${adjustmentLabel}:* $${formatMoney(totals.adjustment)}\n`;
+      }
+
+      msg += `--------------------------\n*TOTAL: $${formatMoney(totals.total)}*`;
+
+      const alias = String(Company.alias || "").trim();
+      if(pago === "Transferencia" && alias && PublicFeatures.transferEnabled){
+        msg += `\n*Alias:* ${alias}`;
+      }
+
+      msg += `\n\nGracias 🙌`;
+      return msg;
+    }
+
+    function savePendingMercadoPagoOrder(data){
+      localStorage.setItem(MP_PENDING_KEY, JSON.stringify(data));
+      localStorage.removeItem(MP_RETURN_HANDLED_KEY);
+    }
+
+    function getPendingMercadoPagoOrder(){
+      try{
+        const raw = localStorage.getItem(MP_PENDING_KEY);
+        if(!raw) return null;
+        return JSON.parse(raw);
+      }catch{
+        return null;
+      }
+    }
+
+    function clearPendingMercadoPagoOrder(){
+      localStorage.removeItem(MP_PENDING_KEY);
+      localStorage.removeItem(MP_RETURN_HANDLED_KEY);
+    }
+
+    function markMercadoPagoReturnHandled(paymentId){
+      localStorage.setItem(MP_RETURN_HANDLED_KEY, paymentId || "1");
+    }
+
+    function wasMercadoPagoReturnHandled(paymentId){
+      const val = localStorage.getItem(MP_RETURN_HANDLED_KEY);
+      if(!val) return false;
+      if(!paymentId) return val === "1";
+      return val === paymentId;
+    }
+
+    function cleanMercadoPagoQueryParams(){
+      const url = new URL(window.location.href);
+      [
+        "collection_id","collection_status","payment_id","status","external_reference",
+        "merchant_order_id","preference_id","payment_type","site_id","processing_mode"
+      ].forEach(k => url.searchParams.delete(k));
+
+      window.history.replaceState({}, document.title, url.toString());
+    }
+
+    function updateCheckoutButton(){
+      const btn = document.getElementById("btn-confirmar-final");
+      if(!btn) return;
+
+      if(!PublicFeatures.ordersEnabled || PublicFeatures.menuOnlyEnabled){
+        btn.innerHTML = `NO DISPONIBLE`;
+        btn.disabled = true;
+        return;
+      }
+
+      const pago = getPagoSeleccionado();
+      btn.innerHTML = pago === "MercadoPago"
+        ? `IR A PAGAR <i class="fa-solid fa-credit-card ml-1"></i>`
+        : `ENVIAR PEDIDO <i class="fa-brands fa-whatsapp ml-1"></i>`;
+      btn.disabled = false;
+    }
+
+    async function handleMercadoPagoReturn(){
+      const qs = new URLSearchParams(window.location.search);
+      const collectionStatus = (qs.get("collection_status") || qs.get("status") || "").trim().toLowerCase();
+      const paymentId = (qs.get("payment_id") || qs.get("collection_id") || "").trim();
+
+      if(!collectionStatus) return;
+      if(wasMercadoPagoReturnHandled(paymentId)) return;
+
+      const pending = getPendingMercadoPagoOrder();
+      if(!pending){
+        markMercadoPagoReturnHandled(paymentId);
+        cleanMercadoPagoQueryParams();
+        return;
+      }
+
+      if(collectionStatus === "approved"){
+        const phone = sanitizePhone(Company.whatsapp || pending.companyWhatsapp);
+        if(!phone){
+          showAppModal("Pago aprobado", "El pago fue aprobado, pero no hay WhatsApp configurado en la empresa.", "info");
+          markMercadoPagoReturnHandled(paymentId);
+          cleanMercadoPagoQueryParams();
+          return;
+        }
+
+        const msg = pending.message || "";
+        markMercadoPagoReturnHandled(paymentId);
+        cleanMercadoPagoQueryParams();
+        localStorage.removeItem(MP_PENDING_KEY);
+        window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+        return;
+      }
+
+      if(collectionStatus === "pending" || collectionStatus === "in_process"){
+        showAppModal("Pago pendiente", "Tu pago quedó pendiente. Cuando se confirme, podés volver a intentar o contactar al local.", "info");
+        markMercadoPagoReturnHandled(paymentId);
+        cleanMercadoPagoQueryParams();
+        return;
+      }
+
+      if(collectionStatus === "rejected" || collectionStatus === "cancelled" || collectionStatus === "cancelled_by_user"){
+        showAppModal("Pago rechazado", "El pago no fue aprobado. Podés intentar nuevamente.");
+        clearPendingMercadoPagoOrder();
+        cleanMercadoPagoQueryParams();
+      }
+    }
+
+    function showNotFound(msg){
+      document.getElementById("notFoundView").classList.remove("hidden");
+      document.getElementById("notFoundMsg").textContent = msg || "Revisá el link o el companySlug.";
+      document.getElementById("heroInfo").classList.add("hidden");
+      document.getElementById("tabsWrap").classList.add("hidden");
+      document.getElementById("lista-platos").innerHTML = "";
+      document.getElementById("barra-carrito").style.display = "none";
+    }
+
+    function hideNotFound(){
+      document.getElementById("notFoundView").classList.add("hidden");
+      document.getElementById("heroInfo").classList.remove("hidden");
+      document.getElementById("tabsWrap").classList.remove("hidden");
+    }
+
+async function loadConfig(){
+  const res = await fetch(CONFIG_PATH, { cache:"no-store" });
+  if(!res.ok) throw new Error("No pude leer config.json");
+  CFG = await res.json();
+
+  if(!CFG.apiBaseUrl) throw new Error("config.json sin apiBaseUrl");
+
+  if(!CFG.publicRootDomain){
+    CFG.publicRootDomain = DEFAULT_PUBLIC_ROOT_DOMAIN;
+  }
+
+  if(!Array.isArray(CFG.publicReservedSubdomains)){
+    CFG.publicReservedSubdomains = [...DEFAULT_RESERVED_SUBDOMAINS];
+  }
+}
+async function loadPublicMenu(companySlug){
+  if(!companySlug){
+    showNotFound("No se pudo identificar la empresa desde el subdominio ni desde companySlug.");
+    throw new Error("Missing slug");
+  }
+
+  const res = await fetch(apiUrl(buildPublicApiPath("/menu", companySlug)), { cache:"no-store" });
+
+  if(res.status === 404){
+    showNotFound(`La empresa "${companySlug}" no existe.`);
+    throw new Error("Company not found");
+  }
+
+  if(!res.ok){
+    const t = await res.text().catch(()=> "");
+    console.error("API menu error:", res.status, t);
+    showNotFound("No se pudo cargar el menú. Probá más tarde.");
+    throw new Error("Menu load failed");
+  }
+
+  DTO = await res.json();
+}
+
+    function mapDto(dto){
+      const c = dto?.company ?? dto?.Company ?? dto?.negocio ?? dto?.Negocio ?? {};
+
+      Company = {
+        name: c.name ?? c.Name ?? c.nombre ?? c.Nombre ?? "",
+        alias: c.alias ?? c.Alias ?? "",
+        whatsapp: c.whatsapp ?? c.Whatsapp ?? c.telefono ?? c.Telefono ?? "",
+        logoUrl: c.logoUrl ?? c.LogoUrl ?? c.logo ?? c.Logo ?? "",
+        turnos: c.turnos ?? c.Turnos ?? []
+      };
+
+      const rawMenuOnly = toBool(
+        c.menuOnlyEnabled ??
+        c.MenuOnlyEnabled ??
+        c.featureMenuOnlyEnabled ??
+        c.FeatureMenuOnlyEnabled ??
+        false
+      );
+
+      const rawOrdersEnabled = toBool(
+        c.ordersEnabled ??
+        c.OrdersEnabled ??
+        c.featureOrdersEnabled ??
+        c.FeatureOrdersEnabled ??
+        true
+      );
+
+      PublicFeatures = {
+        menuOnlyEnabled: rawMenuOnly,
+        ordersEnabled: rawMenuOnly ? false : rawOrdersEnabled,
+        mercadoPagoEnabled: toBool(c.mercadoPagoEnabled ?? c.MercadoPagoEnabled ?? false),
+        transferEnabled: rawMenuOnly
+          ? false
+          : toBool(c.transferEnabled ?? c.TransferEnabled ?? false),
+        whatsappEnabled: rawMenuOnly
+          ? false
+          : toBool(
+              c.whatsappEnabled ??
+              c.WhatsappEnabled ??
+              !!sanitizePhone(c.whatsapp ?? c.Whatsapp ?? c.telefono ?? c.Telefono ?? "")
+            ),
+        shiftsEnabled: toBool(
+          c.shiftsEnabled ??
+          c.ShiftsEnabled ??
+          c.featureShiftsEnabled ??
+          c.FeatureShiftsEnabled ??
+          true
+        ),
+        aliasEnabled: rawMenuOnly
+          ? false
+          : toBool(
+              c.aliasEnabled ??
+              c.AliasEnabled ??
+              !!String(c.alias ?? c.Alias ?? "").trim()
+            ),
+
+        transferSurchargeEnabled: toBool(
+          c.transferSurchargeEnabled ??
+          c.TransferSurchargeEnabled ??
+          false
+        ),
+        transferSurchargePercent: Number(
+          c.transferSurchargePercent ??
+          c.TransferSurchargePercent ??
+          0
+        ),
+
+        mercadoPagoSurchargeEnabled: toBool(
+          c.mercadoPagoSurchargeEnabled ??
+          c.MercadoPagoSurchargeEnabled ??
+          false
+        ),
+        mercadoPagoSurchargePercent: Number(
+          c.mercadoPagoSurchargePercent ??
+          c.MercadoPagoSurchargePercent ??
+          0
+        )
+      };
+
+      const cats = dto?.categories ?? dto?.Categories ?? dto?.categorias ?? dto?.Categorias ?? [];
+      Categories = Array.isArray(cats) ? cats.map(x => ({
+        id: x.id ?? x.Id ?? 0,
+        name: x.name ?? x.Name ?? x.nombre ?? x.Nombre ?? String(x),
+        enabled: toBool(x.enabled ?? x.Enabled ?? true),
+        sortOrder: x.sortOrder ?? x.SortOrder ?? 0
+      })) : [];
+
+      const items = dto?.items ?? dto?.Items ?? dto?.menu ?? dto?.Menu ?? [];
+      Items = Array.isArray(items) ? items.map(x => ({
+        id: x.id ?? x.Id ?? 0,
+        name: x.name ?? x.Name ?? x.nombre ?? x.Nombre ?? "",
+        description: x.description ?? x.Description ?? x.descripcion ?? x.Descripcion ?? "",
+        price: x.price ?? x.Price ?? x.precio ?? x.Precio ?? 0,
+        finalPrice: x.finalPrice ?? x.FinalPrice ?? x.precioFinal ?? x.PrecioFinal ?? 0,
+        hasPromotion: toBool(x.hasPromotion ?? x.HasPromotion ?? false),
+        discountAmount: x.discountAmount ?? x.DiscountAmount ?? x.montoDescuento ?? x.MontoDescuento ?? 0,
+        discountPercentage: x.discountPercentage ?? x.DiscountPercentage ?? x.porcentajeDescuento ?? x.PorcentajeDescuento ?? 0,
+        promotionTitle: x.promotionTitle ?? x.PromotionTitle ?? x.tituloPromocion ?? x.TituloPromocion ?? "",
+        promotionBadgeText: x.promotionBadgeText ?? x.PromotionBadgeText ?? x.textoBadgePromocion ?? x.TextoBadgePromocion ?? "",
+        enabled: toBool(x.enabled ?? x.Enabled ?? true),
+        categoryId: x.categoryId ?? x.CategoryId ?? 0,
+        categoryName: x.categoryName ?? x.CategoryName ?? x.categoria ?? x.Categoria ?? "",
+        imageUrl: x.imageUrl ?? x.ImageUrl ?? x.img ?? x.Img ?? "",
+        hasConfiguration: toBool(x.hasConfiguration ?? x.HasConfiguration ?? false),
+        requiredSelectionUnits: Number(x.requiredSelectionUnits ?? x.RequiredSelectionUnits ?? 0),
+        configurationMode: Number(x.configurationMode ?? x.ConfigurationMode ?? 0),
+        options: Array.isArray(x.options ?? x.Options)
+          ? (x.options ?? x.Options).map(o => ({
+              id: o.id ?? o.Id ?? 0,
+              name: o.name ?? o.Name ?? "",
+              extraPrice: Number(o.extraPrice ?? o.ExtraPrice ?? 0),
+              variants: Array.isArray(o.variants ?? o.Variants)
+                ? (o.variants ?? o.Variants).map(v => ({
+                    id: v.id ?? v.Id ?? 0,
+                    name: v.name ?? v.Name ?? "",
+                    extraPrice: Number(v.extraPrice ?? v.ExtraPrice ?? 0)
+                  }))
+                : []
+            }))
+          : []
+      })) : [];
+
+      const map = new Map(Categories.map(cc => [cc.id, cc.name]));
+      Items.forEach(i => {
+        if(!i.categoryName && i.categoryId && map.has(i.categoryId)){
+          i.categoryName = map.get(i.categoryId);
+        }
+
+        if(!i.finalPrice && Number(i.finalPrice) !== 0){
+          i.finalPrice = i.price;
+        }
+      });
+    }
+
+    function setOpenBadge(type){
+      const el = document.getElementById("badgeOpen");
+      el.classList.remove("hidden");
+
+      if(type === "open"){
+        el.className = "pill bg-emerald-50 text-emerald-700 border-emerald-100";
+        el.innerHTML = "● Abierto";
+      } else {
+        el.className = "pill bg-rose-50 text-rose-700 border-rose-100";
+        el.innerHTML = "Cerrado";
+      }
+    }
+
+    function aplicarEmpresaEnHeader(){
+      document.title = Company.name ? `${Company.name} · Menú Online` : "Menú Online";
+      document.getElementById("companyName").textContent = Company.name || "Menú";
+
+      const logo = imgUrl(Company.logoUrl);
+      const imgEl = document.getElementById("companyLogo");
+      const phEl = document.getElementById("companyLogoPh");
+
+      if(logo){
+        imgEl.src = logo;
+        imgEl.classList.remove("hidden");
+        phEl.classList.add("hidden");
+      } else {
+        imgEl.classList.add("hidden");
+        phEl.classList.remove("hidden");
+      }
+
+      const phone = sanitizePhone(Company.whatsapp);
+      const btnW = document.getElementById("btnWhatsApp");
+      const btnWM = document.getElementById("btnWhatsAppMobile");
+      const showWhatsapp = !PublicFeatures.menuOnlyEnabled && PublicFeatures.whatsappEnabled && !!phone;
+
+      if(showWhatsapp){
+        btnW.classList.remove("hidden");
+        btnWM.classList.remove("hidden");
+        btnW.onclick = () => window.open(`https://wa.me/${phone}`, "_blank");
+        btnWM.onclick = () => window.open(`https://wa.me/${phone}`, "_blank");
+      } else {
+        btnW.classList.add("hidden");
+        btnWM.classList.add("hidden");
+      }
+
+      document.getElementById("heroItemsCount").textContent = String(Items.filter(x => x.enabled).length);
+      document.getElementById("heroCategoriesCount").textContent = String(Categories.filter(x => x.enabled).length + (Items.some(i => i.enabled && i.hasPromotion) ? 1 : 0));
+    }
+
+    function applyPublicMode(){
+      const cartBar = document.getElementById("barra-carrito");
+      const orderBadge = document.getElementById("orderModeBadge");
+
+      const isVisualOnly = PublicFeatures.menuOnlyEnabled || !PublicFeatures.ordersEnabled;
+
+      if(orderBadge){
+        orderBadge.textContent = isVisualOnly ? "Solo menú" : "Pedido online";
+        orderBadge.className = isVisualOnly
+          ? "pill text-slate-700 bg-slate-100 border-slate-200"
+          : "pill text-amber-700 bg-amber-50 border-amber-100";
+      }
+
+      if(isVisualOnly){
+        carrito = {};
+        if(cartBar) cartBar.style.display = "none";
+        actualizarBarra();
+      } else {
+        if(cartBar) cartBar.style.display = "";
+      }
+    }
+
+    function renderPaymentOptions(){
+      const sel = document.getElementById("pago-cliente");
+      if(!sel) return;
+
+      const isVisualOnly = PublicFeatures.menuOnlyEnabled || !PublicFeatures.ordersEnabled;
+      const options = [];
+
+      const fmtPct = (n) => {
+        const num = Number(n || 0);
+        return num > 0 ? `+${num}%` : `${num}%`;
+      };
+
+      if(!isVisualOnly){
+        options.push(`<option value="Efectivo">💵 Efectivo</option>`);
+
+        if(PublicFeatures.transferEnabled){
+          const tPct = Number(PublicFeatures.transferSurchargePercent || 0);
+          const tLabel = PublicFeatures.transferSurchargeEnabled && tPct !== 0
+            ? `💳 Transferencia / QR (${fmtPct(tPct)})`
+            : "💳 Transferencia / QR";
+          options.push(`<option value="Transferencia">${tLabel}</option>`);
+        }
+
+        if(PublicFeatures.mercadoPagoEnabled){
+          const mpPct = Number(PublicFeatures.mercadoPagoSurchargePercent || 0);
+          const mpLabel = PublicFeatures.mercadoPagoSurchargeEnabled && mpPct !== 0
+            ? `🟦 Mercado Pago (${fmtPct(mpPct)})`
+            : "🟦 Mercado Pago";
+          options.push(`<option value="MercadoPago">${mpLabel}</option>`);
+        }
+      }
+
+      if(!options.length){
+        sel.innerHTML = `<option value="">No disponible</option>`;
+        sel.disabled = true;
+      } else {
+        sel.innerHTML = options.join("");
+        sel.disabled = false;
+      }
+    }
+
+    function parseShiftLabel(t){
+      if(!t) return "";
+
+      const d = t.dia ?? t.Dia ?? t.dayOfWeek ?? t.DayOfWeek;
+      if(d !== null && d !== undefined && d !== ""){
+        const n = Number(d);
+        const map = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+        if(!Number.isNaN(n) && n >= 0 && n <= 6) return map[n];
+      }
+
+      const raw = String(t.day ?? t.Day ?? t.days ?? t.Days ?? "").trim();
+      if(!raw) return "";
+      if(raw.toLowerCase() === "todos") return "Lunes a Viernes";
+      return raw;
+    }
+
+    function parseShiftHours(t){
+      const a = t?.abre ?? t?.Abre ?? t?.from ?? t?.From ?? t?.open ?? t?.Open;
+      const c = t?.cierra ?? t?.Cierra ?? t?.to ?? t?.To ?? t?.close ?? t?.Close;
+
+      const fmt = (v) => {
+        if(v === null || v === undefined) return "";
+        if(typeof v === "number" && !Number.isNaN(v)) return String(v).padStart(2,"0") + ":00";
+        return String(v).trim();
+      };
+
+      return { abre: fmt(a), cierra: fmt(c) };
+    }
+
+    function wireScheduleToggle(){
+      const btn = document.getElementById("btnToggleSchedule");
+      const wrap = document.getElementById("scheduleWrap");
+      if(!btn || !wrap) return;
+
+      btn.onclick = () => {
+        const isHidden = wrap.classList.contains("hidden");
+        wrap.classList.toggle("hidden", !isHidden ? true : false);
+
+        const icon = btn.querySelector("i");
+        if(icon){
+          icon.classList.toggle("fa-chevron-down", isHidden);
+          icon.classList.toggle("fa-chevron-up", !isHidden);
+        }
+        btn.lastChild.textContent = isHidden ? " Ocultar horarios" : " Ver todos los horarios";
+      };
+    }
+
+    function renderHorarios(){
+      if(!PublicFeatures.shiftsEnabled){
+        document.getElementById("heroInfo").classList.add("hidden");
+        return;
+      } else {
+        document.getElementById("heroInfo").classList.remove("hidden");
+      }
+
+      const wrap = document.getElementById("scheduleWrap");
+      const hint = document.getElementById("scheduleHint");
+      const btn = document.getElementById("btnToggleSchedule");
+      const todayBox = document.getElementById("scheduleToday");
+      const todayTxt = document.getElementById("scheduleTodayTxt");
+
+      wrap.innerHTML = "";
+      hint.classList.add("hidden");
+      btn.classList.add("hidden");
+      wrap.classList.add("hidden");
+      todayBox.classList.add("hidden");
+
+      const turnos = Array.isArray(Company.turnos) ? Company.turnos : [];
+
+      if(!turnos.length){
+        hint.classList.remove("hidden");
+        wrap.classList.remove("hidden");
+        wrap.innerHTML = `
+          <div class="p-4 bg-white">
+            <div class="text-sm font-extrabold text-slate-900">Sin horarios cargados</div>
+            <div class="text-xs text-slate-500 mt-1">Se asume abierto.</div>
+          </div>
+        `;
+        return;
+      }
+
+      const anyHasDay = turnos.some(t => parseShiftLabel(t));
+
+      if(!anyHasDay){
+        const ranges = turnos.map(t => {
+          const h = parseShiftHours(t);
+          if(!h.abre || !h.cierra) return null;
+          return `${h.abre} - ${h.cierra}`;
+        }).filter(Boolean);
+
+        todayBox.classList.remove("hidden");
+        todayTxt.textContent = ranges.length ? ranges.join(" · ") : "—";
+
+        btn.classList.remove("hidden");
+        wrap.classList.add("hidden");
+
+        wrap.innerHTML = `
+          <div class="bg-white p-4">
+            <div class="text-xs text-slate-500 font-black uppercase tracking-widest mb-2">Horarios</div>
+            <div class="text-sm font-black text-slate-900">${escapeHtml(ranges.length ? ranges.join(" · ") : "—")}</div>
+          </div>
+        `;
+
+        wireScheduleToggle();
+        return;
+      }
+
+      const grouped = new Map();
+
+      for(const t of turnos){
+        const day = parseShiftLabel(t);
+        const h = parseShiftHours(t);
+        if(!day || !h.abre || !h.cierra) continue;
+
+        const range = `${h.abre} - ${h.cierra}`;
+
+        if(!grouped.has(day)){
+          grouped.set(day, []);
+        }
+
+        grouped.get(day).push(range);
+      }
+
+      const rows = Array.from(grouped.entries()).map(([day, ranges]) => ({
+        day,
+        hoursTxt: [...new Set(ranges)].join(" · ")
+      }));
+
+      if(!rows.length){
+        wrap.classList.remove("hidden");
+        wrap.innerHTML = `<div class="p-4 bg-white text-sm text-slate-500">No hay horarios válidos para mostrar.</div>`;
+        return;
+      }
+
+      try{
+        const map = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+        const hoy = map[new Date().getDay()];
+
+        const todayRows = rows.filter(r => {
+          const d = normText(r.day);
+          if(d.includes("lunes a viernes")) return (new Date().getDay() >= 1 && new Date().getDay() <= 5);
+          if(d.includes("lunes a domingo")) return true;
+          return d === normText(hoy);
+        });
+
+        const uniq = [...new Set(todayRows.map(x => x.hoursTxt).filter(Boolean))];
+
+        if(uniq.length){
+          todayBox.classList.remove("hidden");
+          todayTxt.textContent = uniq.join(" · ");
+        }
+      }catch{}
+
+      btn.classList.remove("hidden");
+      wrap.classList.add("hidden");
+
+      wrap.innerHTML = rows.map(r => `
+        <div class="bg-white px-4 py-3 flex items-center justify-between gap-4 border-b border-slate-100 last:border-b-0">
+          <div class="text-sm font-extrabold text-slate-900 truncate">${escapeHtml(r.day)}</div>
+          <div class="text-sm font-black text-slate-700 text-right">${escapeHtml(r.hoursTxt)}</div>
+        </div>
+      `).join("");
+
+      wireScheduleToggle();
+    }
+
+    function dayLabelMatchesToday(label, dayIndex){
+      const map = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+      const l = normText(label);
+      if(!l) return false;
+      if(l.includes("lunes a viernes")) return dayIndex >= 1 && dayIndex <= 5;
+      if(l.includes("lunes a domingo")) return true;
+      if(l === "todos") return true;
+      return l === map[dayIndex];
+    }
+
+    function validarHorario(){
+      const btn = document.getElementById("btn-confirmar-final");
+      const turnos = Array.isArray(Company.turnos) ? Company.turnos : [];
+
+      const setClosed = () => {
+        setOpenBadge("closed");
+        if(PublicFeatures.ordersEnabled && !PublicFeatures.menuOnlyEnabled){
+          btn.disabled = true;
+          btn.classList.remove("bg-amber-600");
+          btn.classList.add("bg-slate-100");
+          btn.innerText = "LOCAL CERRADO";
+        }
+      };
+
+      const setOpen = () => {
+        setOpenBadge("open");
+        if(PublicFeatures.ordersEnabled && !PublicFeatures.menuOnlyEnabled){
+          btn.disabled = false;
+          btn.classList.remove("bg-slate-100");
+          btn.classList.add("bg-amber-600");
+          updateCheckoutButton();
+        }
+      };
+
+      if(!PublicFeatures.shiftsEnabled){
+        setOpen();
+        return;
+      }
+
+      if(!turnos.length){ setOpen(); return; }
+
+      const ahora = new Date();
+      const dayIndex = ahora.getDay();
+      const minutos = ahora.getHours() * 60 + ahora.getMinutes();
+
+      const anyHasDay = turnos.some(t => parseShiftLabel(t));
+
+      if(!anyHasDay){
+        let abierto = false;
+        for(const t of turnos){
+          const abreH = Number(t.abre ?? t.Abre);
+          const cierraH = Number(t.cierra ?? t.Cierra);
+          if(Number.isNaN(abreH) || Number.isNaN(cierraH)) continue;
+
+          const abre = abreH * 60;
+          const cierra = cierraH * 60;
+
+          if(minutos >= abre && minutos < cierra){ abierto = true; break; }
+        }
+        if(abierto) setOpen(); else setClosed();
+        return;
+      }
+
+      const shiftsToday = turnos.filter(t => dayLabelMatchesToday(parseShiftLabel(t), dayIndex));
+      if(!shiftsToday.length){ setClosed(); return; }
+
+      let abierto = false;
+      let anyValidHours = false;
+
+      for(const t of shiftsToday){
+        const h = parseShiftHours(t);
+        if(!h.abre || !h.cierra) continue;
+
+        const abreH = Number(String(h.abre).split(":")[0]);
+        const cierraH = Number(String(h.cierra).split(":")[0]);
+        if(Number.isNaN(abreH) || Number.isNaN(cierraH)) continue;
+
+        anyValidHours = true;
+
+        const abre = abreH * 60;
+        const cierra = cierraH * 60;
+
+        if(minutos >= abre && minutos < cierra){ abierto = true; break; }
+      }
+
+      if(!anyValidHours){ setOpen(); return; }
+      if(abierto) setOpen(); else setClosed();
+    }
+
+    function wireSearch(){
+      const s1 = document.getElementById("search");
+      const s2 = document.getElementById("searchMobile");
+
+      const onChange = (val) => {
+        searchText = val ?? "";
+        const cats = buildCategorias();
+
+        if(catActual && !cats.includes(catActual)) catActual = cats[0] || "";
+        if(!catActual) catActual = cats[0] || "";
+
+        renderTabs(cats);
+        renderMenu();
+      };
+
+      if(s1) s1.addEventListener("input", e => onChange(e.target.value));
+      if(s2) s2.addEventListener("input", e => onChange(e.target.value));
+    }
+
+    function getVisibleFilteredItems(){
+      const enabledItems = Items.filter(x => x.enabled);
+      const q = normText(searchText);
+
+      return q
+        ? enabledItems.filter(p => normText(p.name).includes(q) || normText(p.description).includes(q))
+        : enabledItems;
+    }
+
+    function buildCategorias(){
+      const filtered = getVisibleFilteredItems();
+      const set = new Set(filtered.map(p => p.categoryName).filter(Boolean));
+
+      const ordered = Categories
+        .filter(c => c.enabled && set.has(c.name))
+        .sort((a,b) => (a.sortOrder||0) - (b.sortOrder||0))
+        .map(c => c.name);
+
+      const hasPromos = filtered.some(p => p.hasPromotion);
+      return hasPromos ? [PROMO_CATEGORY_NAME, ...ordered] : ordered;
+    }
+
+    function renderTabs(cats){
+      const el = document.getElementById("tabs-categorias");
+      el.innerHTML = "";
+
+      if(!cats.length){
+        el.innerHTML = `<div class="text-sm text-slate-400 font-semibold py-2">No hay categorías disponibles.</div>`;
+        return;
+      }
+
+      cats.forEach(c => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "tab-btn";
+        b.textContent = c;
+        b.dataset.cat = c;
+        b.onclick = () => cambiarCat(c);
+        if(c === catActual) b.classList.add("tab-active");
+        el.appendChild(b);
+      });
+    }
+
+    function cambiarCat(cat){
+      catActual = cat;
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("tab-active"));
+      document.querySelectorAll(`.tab-btn[data-cat="${CSS.escape(cat)}"]`).forEach(b => b.classList.add("tab-active"));
+      renderMenu();
+    }
+
+function isBadItemImage(raw){
+  const s = String(raw || "").trim().toLowerCase();
+  if(!s) return true;
+
+  const companyLogoRaw = String(Company.logoUrl || "").trim().toLowerCase();
+  if(companyLogoRaw && s === companyLogoRaw) return true;
+
+  if(s.includes("/uploads/companies/")) return true;
+
+  if(
+    s.endsWith(".html") ||
+    s.includes(".html?") ||
+    s.includes("admin-products.html") ||
+    s.includes("admin-categories.html") ||
+    s.includes("login.html") ||
+    s.includes("home.html")
+  ){
+    return true;
+  }
+
+  return false;
+}
+
+    function toggleDesc(id){
+      descExpanded[id] = !descExpanded[id];
+      renderMenu();
+    }
+
+    function getCartEntriesByMenuItem(id){
+      return Object.entries(carrito).filter(([,value]) => value.id === id);
+    }
+
+    function getCartDisplayQty(item){
+      const entries = getCartEntriesByMenuItem(item.id);
+      return entries.reduce((acc, [,value]) => acc + (Number(value.qty) || 0), 0);
+    }
+
+    function makeSimpleCartKey(id){
+      return `simple-${id}`;
+    }
+
+    function makeConfigCartKey(id){
+      const key = `cfg-${id}-${Date.now()}-${cartSeq}`;
+      cartSeq += 1;
+      return key;
+    }
+
+    function removeConfiguredCartLine(id){
+      const entries = getCartEntriesByMenuItem(id)
+        .filter(([,value]) => Array.isArray(value.selections) && value.selections.length)
+        .sort((a,b) => String(a[0]).localeCompare(String(b[0])));
+
+      if(entries.length){
+        const lastKey = entries[entries.length - 1][0];
+        delete carrito[lastKey];
+        return true;
+      }
+      return false;
+    }
+
+    function groupSelectionsByKey(rows){
+      const map = new Map();
+
+      (rows || []).forEach(r => {
+        const optionId = Number(r.menuItemOptionId || 0);
+        const variantId = Number(r.menuItemOptionVariantId || 0);
+        const key = `${optionId}-${variantId}`;
+
+        if(!map.has(key)){
+          map.set(key, {
+            menuItemOptionId: r.menuItemOptionId,
+            menuItemOptionVariantId: r.menuItemOptionVariantId ?? null,
+            optionName: r.optionName || "",
+            variantName: r.variantName || "",
+            quantity: 0,
+            extraPrice: Number(r.extraPrice || 0)
+          });
+        }
+
+        map.get(key).quantity += Number(r.quantity || 1);
+      });
+
+      return Array.from(map.values());
+    }
+
+    function getOptionSelectedQty(optionId){
+      if(!configState) return 0;
+
+      return configState.selectedItems
+        .filter(x => Number(x.menuItemOptionId) === Number(optionId))
+        .reduce((acc, x) => acc + Number(x.quantity || 1), 0);
+    }
+
+    function getSelectedVariantLabel(optionId){
+      if(!configState) return "";
+
+      const optionState = configState.optionStates.find(x => Number(x.optionId) === Number(optionId));
+      if(!optionState) return "";
+
+      const option = configState.options.find(x => Number(x.id) === Number(optionId));
+      if(!option) return "";
+
+      const variant = (option.variants || []).find(v => Number(v.id) === Number(optionState.selectedVariantId || 0));
+      return variant ? variant.name : "";
+    }
+
+    function toggleOptionExpand(optionId){
+      if(!configState) return;
+
+      configState.optionStates = configState.optionStates.map(x => ({
+        ...x,
+        expanded: Number(x.optionId) === Number(optionId) ? !x.expanded : x.expanded
+      }));
+
+      renderConfigProducto();
+    }
+
+    function selectConfigVariant(optionId, variantId){
+      if(!configState) return;
+
+      const target = configState.optionStates.find(x => Number(x.optionId) === Number(optionId));
+      if(!target) return;
+
+      target.selectedVariantId = Number(variantId);
+      target.expanded = true;
+      configState.validationMessage = "";
+      renderConfigProducto();
+    }
+
+    function addConfigSelection(optionId){
+      if(!configState) return;
+
+      const total = getConfigSelectedTotal();
+      if(total >= Number(configState.required || 0)) return;
+
+      const option = configState.options.find(x => Number(x.id) === Number(optionId));
+      if(!option) return;
+
+      const variants = Array.isArray(option.variants) ? option.variants : [];
+      const optionState = configState.optionStates.find(x => Number(x.optionId) === Number(optionId));
+
+      if(variants.length){
+        const selectedVariantId = Number(optionState?.selectedVariantId || 0);
+        const variant = variants.find(v => Number(v.id) === selectedVariantId);
+
+        if(!variant){
+          if(optionState) optionState.expanded = true;
+          configState.validationMessage = `Elegí una variante para ${option.name}.`;
+          renderConfigProducto();
+          return;
+        }
+        configState.validationMessage = "";
+        configState.selectedItems.push({
+          menuItemOptionId: option.id,
+          menuItemOptionVariantId: variant.id,
+          optionName: option.name,
+          variantName: variant.name,
+          quantity: 1,
+          extraPrice: Number(option.extraPrice || 0) + Number(variant.extraPrice || 0)
+        });
+      }else{
+        configState.validationMessage = "";
+        configState.selectedItems.push({
+          menuItemOptionId: option.id,
+          menuItemOptionVariantId: null,
+          optionName: option.name,
+          variantName: "",
+          quantity: 1,
+          extraPrice: Number(option.extraPrice || 0)
+        });
+      }
+
+      renderConfigProducto();
+    }
+
+    function removeConfigSelection(optionId){
+      if(!configState) return;
+
+      const option = configState.options.find(x => Number(x.id) === Number(optionId));
+      if(!option) return;
+
+      const variants = Array.isArray(option.variants) ? option.variants : [];
+      const optionState = configState.optionStates.find(x => Number(x.optionId) === Number(optionId));
+
+      let removeIndex = -1;
+
+      if(variants.length && Number(optionState?.selectedVariantId || 0) > 0){
+        for(let i = configState.selectedItems.length - 1; i >= 0; i--){
+          const row = configState.selectedItems[i];
+          if(
+            Number(row.menuItemOptionId) === Number(optionId) &&
+            Number(row.menuItemOptionVariantId || 0) === Number(optionState.selectedVariantId || 0)
+          ){
+            removeIndex = i;
+            break;
+          }
+        }
+      }
+
+      if(removeIndex === -1){
+        for(let i = configState.selectedItems.length - 1; i >= 0; i--){
+          const row = configState.selectedItems[i];
+          if(Number(row.menuItemOptionId) === Number(optionId)){
+            removeIndex = i;
+            break;
+          }
+        }
+      }
+
+      if(removeIndex >= 0){
+        configState.selectedItems.splice(removeIndex, 1);
+        renderConfigProducto();
+      }
+    }
+
+function openConfigProducto(menuItemId){
+  const item = Items.find(x => x.id === menuItemId);
+  if(!item) return;
+  if(!item.hasConfiguration) return;
+
+  const normalizedOptions = Array.isArray(item.options)
+    ? item.options.map(o => ({
+        id: o.id,
+        name: o.name,
+        extraPrice: Number(o.extraPrice || 0),
+        variants: Array.isArray(o.variants)
+          ? o.variants.map(v => ({
+              id: v.id,
+              name: v.name,
+              extraPrice: Number(v.extraPrice || 0)
+            }))
+          : []
+      }))
+    : [];
+
+  const firstOptionWithVariants = normalizedOptions.find(
+    o => Array.isArray(o.variants) && o.variants.length
+  );
+
+  configState = {
+    product: item,
+    required: Number(item.requiredSelectionUnits || 0),
+    options: normalizedOptions,
+    optionStates: normalizedOptions.map((o, index) => ({
+      optionId: o.id,
+      selectedVariantId: null,
+      expanded: firstOptionWithVariants
+        ? Number(o.id) === Number(firstOptionWithVariants.id)
+        : index === 0
+    })),
+    selectedItems: [],
+    note: "",
+    validationMessage: ""
+  };
+
+  document.getElementById("configProductName").textContent = item.name;
+  document.getElementById("configProductHelp").textContent =
+    item.configurationMode === 2
+      ? `Elegí exactamente ${item.requiredSelectionUnits || 0} mitades.`
+      : `Elegí exactamente ${item.requiredSelectionUnits || 0} unidades.`;
+
+  document.getElementById("configProductNote").value = "";
+  renderConfigProducto();
+  document.getElementById("modal-config-product").style.display = "flex";
+
+  requestAnimationFrame(() => {
+    const firstActiveVariants = document.querySelector("#configProductOptions .config-chip");
+    if(firstActiveVariants){
+      firstActiveVariants.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  });
+}
+
+    function cerrarModalConfigProducto(){
+      configState = null;
+      document.getElementById("modal-config-product").style.display = "none";
+    }
+
+    function getConfigSelectedTotal(){
+      if(!configState) return 0;
+      return configState.selectedItems.reduce((acc, row) => acc + Number(row.quantity || 1), 0);
+    }
+
+    function changeConfigQty(index, delta){
+      if(!configState) return;
+      const option = configState.options[index];
+      if(!option) return;
+
+      if(delta > 0){
+        addConfigSelection(option.id);
+      }else{
+        removeConfigSelection(option.id);
+      }
+    }
+
+
+function renderConfigProducto(){
+  if(!configState) return;
+
+  const total = getConfigSelectedTotal();
+  const required = Number(configState.required || 0);
+  const rowsWrap = document.getElementById("configProductOptions");
+  const progress = document.getElementById("configProgressText");
+  const summary = document.getElementById("configProductSummary");
+  const note = document.getElementById("configProductNote");
+
+  progress.textContent = `${total} / ${required}`;
+
+  rowsWrap.innerHTML = configState.options.map((option, idx) => {
+    const optionState = configState.optionStates.find(x => Number(x.optionId) === Number(option.id));
+    const variants = Array.isArray(option.variants) ? option.variants : [];
+    const qty = getOptionSelectedQty(option.id);
+    const selectedVariantLabel = getSelectedVariantLabel(option.id);
+    const hasVariants = variants.length > 0;
+    const showVariants = hasVariants && !!optionState?.expanded;
+
+    let variantsHtml = "";
+    if(showVariants){
+      variantsHtml = `
+        <div class="config-variants-wrap">
+          <div class="config-variants-label">Variantes</div>
+          <div class="flex flex-wrap gap-2">
+            ${variants.map(variant => `
+              <button type="button"
+                onclick="selectConfigVariant(${option.id}, ${variant.id})"
+                class="config-chip ${Number(optionState?.selectedVariantId || 0) === Number(variant.id) ? "active" : ""} px-3 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wider">
+                ${escapeHtml(variant.name)}
+              </button>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="config-option-card">
+        <div class="config-option-row">
+          <button type="button"
+            class="config-option-trigger"
+            onclick="${hasVariants ? `toggleOptionExpand(${option.id})` : `void(0)`}">
+            <div class="config-option-title">${escapeHtml(option.name)}</div>
+            <div class="config-option-sub">
+              ${
+                hasVariants
+                  ? escapeHtml(selectedVariantLabel || "Elegí variante")
+                  : "Sin variantes"
+              }
+            </div>
+          </button>
+
+          <div class="config-qty-shell shrink-0">
+            <button type="button"
+              class="mobile-qty-btn bg-white flex items-center justify-center text-slate-700 border border-slate-200 hover:bg-slate-100 transition text-lg"
+              onclick="changeConfigQty(${idx}, -1)">−</button>
+
+            <span class="config-qty-num">${Number(qty || 0)}</span>
+
+            <button type="button"
+              class="mobile-qty-btn bg-amber-600 text-white flex items-center justify-center font-black active:scale-90 shadow-md shadow-amber-100 transition text-lg"
+              onclick="changeConfigQty(${idx}, 1)">+</button>
+          </div>
+        </div>
+
+        ${variantsHtml}
+      </div>
+    `;
+  }).join("");
+
+  const groupedRows = groupSelectionsByKey(configState.selectedItems);
+
+  const basePrice = Number(
+    configState.product.hasPromotion
+      ? configState.product.finalPrice
+      : configState.product.price
+  ) || 0;
+
+  const extraTotal = getSelectionsExtraTotal(groupedRows);
+  const finalUnitPrice = roundMoney(basePrice + extraTotal);
+
+  const summaryInput = groupedRows.map(r => {
+    return {
+      quantity: r.quantity,
+      optionName: r.optionName,
+      variantName: r.variantName
+    };
+  });
+
+  const selectionSummary = summaryInput.length
+    ? buildSelectionSummaryFromSelections(configState.product.name, summaryInput)
+    : [];
+
+  const validationHtml = configState.validationMessage
+    ? `
+      <div class="mb-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl px-4 py-3 text-sm font-bold">
+        ${escapeHtml(configState.validationMessage)}
+      </div>
+    `
+    : "";
+
+  const summaryLinesHtml = selectionSummary.length
+    ? `
+      <div class="space-y-2 mb-4">
+        ${selectionSummary.map(line => `
+          <div class="font-bold text-slate-800">${escapeHtml(line)}</div>
+        `).join("")}
+      </div>
+    `
+    : `<div class="text-slate-500 mb-4">Todavía no elegiste combinaciones.</div>`;
+
+  summary.innerHTML = `
+    ${validationHtml}
+
+    <div class="text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Resumen</div>
+
+    ${summaryLinesHtml}
+
+    <div class="pt-4 border-t border-slate-200 space-y-2">
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-slate-500 font-semibold">Precio base</span>
+        <span class="font-black text-slate-900">$${formatMoney(basePrice)}</span>
+      </div>
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-slate-500 font-semibold">Extras</span>
+        <span class="font-black text-slate-900">$${formatMoney(extraTotal)}</span>
+      </div>
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-slate-900 font-extrabold">Precio final</span>
+        <span class="font-black text-amber-600">$${formatMoney(finalUnitPrice)}</span>
+      </div>
+    </div>
+  `;
+
+  const footerTotal = document.getElementById("configFooterTotal");
+  if(footerTotal){
+    footerTotal.textContent = `$${formatMoney(finalUnitPrice)}`;
+  }
+
+  note.oninput = e => {
+    if(configState){
+      configState.note = e.target.value || "";
+    }
+  };
+}
+
+    function confirmarConfigProducto(){
+  if(!configState) return;
+
+  const total = getConfigSelectedTotal();
+  const required = Number(configState.required || 0);
+
+  if(total !== required){
+    showAppModal("Configuración incompleta", `Tenés que seleccionar exactamente ${required} unidades.`);
+    return;
+  }
+
+  const groupedRows = groupSelectionsByKey(configState.selectedItems);
+  const note = document.getElementById("configProductNote").value.trim();
+
+  const basePrice = Number(
+    configState.product.hasPromotion
+      ? configState.product.finalPrice
+      : configState.product.price
+  ) || 0;
+
+  const extraTotal = getSelectionsExtraTotal(groupedRows);
+  const unitPrice = roundMoney(basePrice + extraTotal);
+
+  const key = makeConfigCartKey(configState.product.id);
+
+  carrito[key] = recalculateCartLine({
+    id: configState.product.id,
+    name: configState.product.name,
+    basePrice,
+    extraTotal,
+    unitPrice,
+    price: unitPrice,
+    qty: 1,
+    note,
+    selections: groupedRows.map(r => ({
+      menuItemOptionId: r.menuItemOptionId,
+      menuItemOptionVariantId: r.menuItemOptionVariantId,
+      quantity: Number(r.quantity || 0),
+      optionName: r.optionName,
+      variantName: r.variantName,
+      extraPrice: Number(r.extraPrice || 0)
+    })),
+    selectionSummary: buildSelectionSummaryFromSelections(
+      configState.product.name,
+      groupedRows.map(r => ({
+        quantity: r.quantity,
+        optionName: r.optionName,
+        variantName: r.variantName
+      }))
+    )
+  });
+
+  cerrarModalConfigProducto();
+  renderMenu();
+  actualizarBarra();
+}
+
+    function renderMenu(){
+      const container = document.getElementById("lista-platos");
+      container.innerHTML = "";
+
+      let items = getVisibleFilteredItems();
+
+      if(catActual === PROMO_CATEGORY_NAME){
+        items = items.filter(p => p.hasPromotion);
+      }else if(catActual){
+        items = items.filter(p => p.categoryName === catActual);
+      }
+
+      if(!items.length){
+        container.innerHTML = `
+          <div class="bg-white rounded-3xl border border-slate-200 p-8 text-center text-slate-500">
+            No hay productos para mostrar.
+          </div>
+        `;
+        return;
+      }
+
+      const ph = placeholderSvgDataUrl();
+      const isVisualOnly = PublicFeatures.menuOnlyEnabled || !PublicFeatures.ordersEnabled;
+
+      items.forEach(p => {
+        const inCart = getCartDisplayQty(p);
+
+        const raw = String(p.imageUrl || "").trim();
+        let img = ph;
+
+        if(!isBadItemImage(raw)){
+          const resolved = imgUrl(raw);
+          img = resolved + (resolved.includes("?") ? "&" : "?") + "v=" + (p.id || Date.now());
+        }
+
+        const isOpen = !!descExpanded[p.id];
+        const desc = String(p.description || "").trim();
+        const hasLong = desc.length > 70;
+        const hasPromotion = !!p.hasPromotion && Number(p.finalPrice || 0) > 0 && Number(p.finalPrice) < Number(p.price);
+        const effectivePrice = hasPromotion ? Number(p.finalPrice || 0) : Number(p.price || 0);
+        const discountAmount = Number(p.discountAmount || 0);
+        const discountPercentage = Number(p.discountPercentage || 0);
+        const badgeText = String(p.promotionBadgeText || "").trim();
+        const promotionTitle = String(p.promotionTitle || "").trim();
+
+        const promoBadgeHtml = hasPromotion
+          ? `
+            <div class="mt-2 flex flex-wrap gap-2">
+              <span class="promo-pill">
+                <i class="fa-solid fa-bolt text-[9px]"></i>
+                ${escapeHtml(badgeText || (discountPercentage > 0 ? `${formatMoney(discountPercentage)}% OFF` : "PROMO"))}
+              </span>
+              ${promotionTitle ? `
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-[0.14em] text-slate-600 bg-slate-100 border border-slate-200">
+                  ${escapeHtml(promotionTitle)}
+                </span>
+              ` : ``}
+              ${catActual === PROMO_CATEGORY_NAME && p.categoryName ? `
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-[0.14em] text-slate-600 bg-slate-100 border border-slate-200">
+                  ${escapeHtml(p.categoryName)}
+                </span>
+              ` : ``}
+            </div>
+          `
+          : `${catActual === PROMO_CATEGORY_NAME && p.categoryName ? `
+            <div class="mt-2 flex flex-wrap gap-2">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-[0.14em] text-slate-600 bg-slate-100 border border-slate-200">
+                ${escapeHtml(p.categoryName)}
+              </span>
+            </div>
+          ` : ``}`;
+
+        const priceHtml = hasPromotion
+          ? `
+            <div class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Promo</div>
+            <div class="promo-price-old">$${formatMoney(p.price)}</div>
+            <div class="mobile-price promo-price-new text-[1.85rem] sm:text-[2.1rem] font-black leading-none mt-1">
+              $${formatMoney(effectivePrice)}
+            </div>
+            <div class="promo-saving">
+              Ahorrás $${formatMoney(discountAmount)}
+            </div>
+          `
+          : `
+            <div class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Precio</div>
+            <div class="mobile-price text-[1.85rem] sm:text-[2.1rem] font-black text-slate-900 leading-none mt-1">
+              $${formatMoney(p.price)}
+            </div>
+          `;
+
+          const controls = !isVisualOnly
+            ? (p.hasConfiguration
+              ? `
+                <div class="mt-4 flex flex-col sm:flex-row sm:items-end sm:justify-end gap-4">
+                  <div class="qty-shell inline-flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-2 py-2 self-start sm:self-auto">
+                    <button class="mobile-qty-btn w-11 h-11 sm:w-11 sm:h-11 rounded-xl bg-white flex items-center justify-center text-slate-700 border border-slate-200 hover:bg-slate-100 transition text-lg"
+                      onclick="modificar(${p.id}, -1)">−</button>
+
+                    <span class="font-black text-lg sm:text-xl min-w-[28px] text-center text-slate-900">${inCart}</span>
+
+                    <button class="mobile-qty-btn w-11 h-11 sm:w-11 sm:h-11 rounded-xl bg-amber-600 text-white flex items-center justify-center font-black active:scale-90 shadow-md shadow-amber-100 transition text-lg"
+                      onclick="modificar(${p.id}, 1)">+</button>
+                  </div>
+                </div>
+              `
+            : `
+              <div class="mt-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                ${inCart > 0 ? `
+                  <div class="flex-1">
+                    <input type="text"
+                      placeholder="Aclaración..."
+                      value="${escapeAttr(getSimpleCartLine(p.id)?.note || "")}"
+                      class="w-full text-sm bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 outline-none text-slate-600 placeholder:text-slate-400 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+                      oninput="actualizarNota(${p.id}, this.value)" />
+                  </div>
+                ` : `<div class="flex-1"></div>`}
+
+                <div class="qty-shell inline-flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-2 py-2 self-start sm:self-auto">
+                  <button class="mobile-qty-btn w-11 h-11 sm:w-11 sm:h-11 rounded-xl bg-white flex items-center justify-center text-slate-700 border border-slate-200 hover:bg-slate-100 transition text-lg"
+                    onclick="modificar(${p.id}, -1)">−</button>
+
+                  <span class="font-black text-lg sm:text-xl min-w-[28px] text-center text-slate-900">${inCart}</span>
+
+                  <button class="mobile-qty-btn w-11 h-11 sm:w-11 sm:h-11 rounded-xl bg-amber-600 text-white flex items-center justify-center font-black active:scale-90 shadow-md shadow-amber-100 transition text-lg"
+                    onclick="modificar(${p.id}, 1)">+</button>
+                </div>
+              </div>
+            `)
+          : `
+            <div class="mt-4">
+              <div class="inline-flex items-center gap-2 text-xs font-extrabold text-slate-500 bg-slate-50 border border-slate-200 rounded-full px-4 py-2">
+                <i class="fa-regular fa-eye"></i>
+                Solo visualización
+              </div>
+            </div>
+          `;
+
+        const card = document.createElement("div");
+        card.className = "food-card p-4 sm:p-5";
+
+        card.innerHTML = `
+          <div class="flex gap-4 items-start">
+            <div class="mobile-img w-24 h-24 sm:w-28 sm:h-28 rounded-[1.15rem] sm:rounded-[1.4rem] overflow-hidden bg-slate-50 border border-slate-100 shadow-sm shrink-0">
+              <img src="${img}" class="w-full h-full object-cover" onerror="this.src='${ph}'" />
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-4">
+                <div class="min-w-0 flex-1">
+                  <h3 class="font-extrabold text-slate-900 text-[1.15rem] sm:text-[1.28rem] leading-tight tracking-tight break-words">
+                    ${escapeHtml(p.name)}
+                  </h3>
+
+                  ${promoBadgeHtml}
+
+                  ${desc ? `
+                    <p class="text-sm sm:text-sm text-slate-500 mt-1.5 leading-snug ${isOpen ? "" : "clamp-2"} break-words max-w-xl">
+                      ${escapeHtml(desc)}
+                    </p>
+                    ${hasLong ? `
+                      <button type="button"
+                        class="mt-1 text-xs sm:text-xs font-extrabold text-amber-700 hover:text-amber-800"
+                        onclick="toggleDesc(${p.id})">
+                        ${isOpen ? "Ver menos" : "Ver más"}
+                      </button>
+                    ` : ``}
+                  ` : ``}
+                </div>
+
+                <div class="text-right shrink-0 min-w-[92px] sm:min-w-[120px]">
+                  ${priceHtml}
+                </div>
+              </div>
+
+              ${controls}
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function getSimpleCartLine(id){
+      return carrito[makeSimpleCartKey(id)] || null;
+    }
+
+function modificar(id, delta){
+  if(!PublicFeatures.ordersEnabled || PublicFeatures.menuOnlyEnabled) return;
+
+  const item = Items.find(x => x.id === id);
+  if(!item) return;
+
+  if(item.hasConfiguration){
+    if(delta > 0){
+      openConfigProducto(id);
+    }else{
+      removeConfiguredCartLine(id);
+      renderMenu();
+      actualizarBarra();
+    }
+    return;
+  }
+
+  const key = makeSimpleCartKey(id);
+  const basePrice = Number(item.hasPromotion ? item.finalPrice : item.price) || 0;
+
+  if(!carrito[key]){
+    carrito[key] = {
+      id: item.id,
+      name: item.name,
+      basePrice,
+      extraTotal: 0,
+      unitPrice: basePrice,
+      price: basePrice,
+      qty: 0,
+      note: "",
+      selections: [],
+      selectionSummary: []
+    };
+  }
+
+  carrito[key].qty += delta;
+
+  if(carrito[key].qty <= 0){
+    delete carrito[key];
+  }else{
+    recalculateCartLine(carrito[key]);
+  }
+
+  renderMenu();
+  actualizarBarra();
+}
+
+    function actualizarNota(id, texto){
+      if(!PublicFeatures.ordersEnabled || PublicFeatures.menuOnlyEnabled) return;
+      const line = getSimpleCartLine(id);
+      if(line) line.note = texto || "";
+    }
+
+    function actualizarBarra(){
+      const barra = document.getElementById("barra-carrito");
+      const isVisualOnly = PublicFeatures.menuOnlyEnabled || !PublicFeatures.ordersEnabled;
+
+      if(isVisualOnly){
+        barra.style.transform = "translateY(200px)";
+        return;
+      }
+
+      const totals = calculateOrderTotals(getPagoSeleccionado());
+      let items = 0;
+
+      Object.values(carrito).forEach(p => {
+        items += Number(p.qty || 0);
+      });
+
+      document.getElementById("total-monto").innerText = formatMoney(totals.total);
+      barra.style.transform = items > 0 ? "translateY(0)" : "translateY(200px)";
+    }
+
+    function calcularTotalFinal(){
+      const pagoEl = document.getElementById("pago-cliente");
+      const pago = pagoEl ? pagoEl.value : "Efectivo";
+
+      const totals = calculateOrderTotals(pago);
+
+      const rowRec = document.getElementById("row-recargo");
+      const detSub = document.getElementById("det-subtotal");
+      const detRec = document.getElementById("det-recargo");
+      const detTot = document.getElementById("monto-final-checkout");
+      const detLabel = document.getElementById("det-ajuste-label");
+
+      if(rowRec) rowRec.classList.toggle("hidden", totals.adjustmentPercent === 0);
+
+      const alias = String(Company?.alias || "").trim();
+      const showAlias = (pago === "Transferencia" && alias.length > 0 && PublicFeatures.transferEnabled);
+
+      const aliasCard = document.getElementById("alias-card");
+      const aliasTxt = document.getElementById("txt-alias");
+
+      if(aliasCard) aliasCard.classList.toggle("hidden", !showAlias);
+      if(showAlias && aliasTxt) aliasTxt.textContent = alias;
+
+      if(detSub) detSub.innerText = "$" + formatMoney(totals.subtotal);
+      if(detRec) detRec.innerText = "$" + formatMoney(totals.adjustment);
+      if(detTot) detTot.innerText = "$" + formatMoney(totals.total);
+      if(detLabel) detLabel.textContent = getPaymentAdjustmentLabel(pago, totals.adjustmentPercent);
+
+      updateCheckoutButton();
+      actualizarBarra();
+    }
+
+    function abrirCheckout(){
+      if(!PublicFeatures.ordersEnabled || PublicFeatures.menuOnlyEnabled) return;
+
+      const resumen = document.getElementById("resumen-pedido");
+      resumen.innerHTML = "";
+
+      Object.values(carrito).forEach(p => {
+        const selectionHtml = Array.isArray(p.selectionSummary) && p.selectionSummary.length
+          ? `
+            <div class="mt-2 space-y-1">
+              ${p.selectionSummary.map(line => `<div class="text-xs text-slate-500 pl-3">- ${escapeHtml(line)}</div>`).join("")}
+            </div>
+          `
+          : "";
+
+        resumen.innerHTML += `
+          <div class="py-2 flex justify-between gap-4">
+            <div class="min-w-0">
+              <span class="truncate block">${p.qty}x ${escapeHtml(p.name)}${p.note ? ` <span class="text-slate-400">(${escapeHtml(p.note)})</span>` : ""}</span>
+              ${selectionHtml}
+            </div>
+            <b class="text-amber-600 font-black shrink-0">$${formatMoney(getLineTotal(p))}</b>
+          </div>`;
+      });
+
+      document.getElementById("modal-checkout").style.display = "flex";
+      calcularTotalFinal();
+    }
+
+    function cerrarModales(){
+      document.getElementById("modal-checkout").style.display = "none";
+      cerrarModalConfigProducto();
+    }
+
+    async function copiarAlias(){
+      const a = String(Company.alias || "").trim();
+      if(!a) return;
+
+      try{
+        if(navigator.clipboard && window.isSecureContext){
+          await navigator.clipboard.writeText(a);
+          showAppModal("Alias copiado", "¡Alias copiado!", "success");
+          return;
+        }
+      }catch{}
+
+      const ta = document.createElement("textarea");
+      ta.value = a;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.top = "-1000px";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+
+      try{
+        document.execCommand("copy");
+        showAppModal("Alias copiado", "¡Alias copiado!", "success");
+      }catch{
+        prompt("Copiá el alias:", a);
+      }finally{
+        document.body.removeChild(ta);
+      }
+    }
+
+async function enviarPedidoWhatsApp(){
+  const nombre = document.getElementById("nombre-cliente").value.trim();
+  const whatsappCliente = document.getElementById("whatsapp-cliente").value.trim();
+  const direccion = document.getElementById("direccion-cliente").value.trim();
+  const pago = getPagoSeleccionado();
+
+  if(!nombre || !direccion || !whatsappCliente){
+    showAppModal("Faltan datos", "Completá tu nombre, WhatsApp y dirección.");
+    return;
+  }
+
+  const items = buildCheckoutItems();
+
+  if(!items.length){
+    showAppModal("Pedido vacío", "Agregá al menos 1 producto.");
+    return;
+  }
+
+  const phone = sanitizePhone(Company.whatsapp);
+  if(!phone || !PublicFeatures.whatsappEnabled){
+    showAppModal("WhatsApp no disponible", "No hay WhatsApp configurado en la empresa.");
+    return;
+  }
+
+  const btn = document.getElementById("btn-confirmar-final");
+  btn.disabled = true;
+  btn.innerHTML = "ENVIANDO...";
+
+  try{
+    const msgBase = buildWhatsAppMessage({
+      nombre,
+      direccion,
+      pago,
+      createdOrderNumber: ""
+    });
+
+    if(!PublicFeatures.ordersEnabled){
+      carrito = {};
+      cerrarModales();
+      actualizarBarra();
+      renderMenu();
+
+      window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msgBase)}`;
+      return;
+    }
+
+    if(PublicFeatures.menuOnlyEnabled){
+      showAppModal("Pedidos deshabilitados", "Esta empresa no tiene pedidos habilitados.");
+      return;
+    }
+
+    const slug = getCompanySlug();
+
+    const resp = await fetch(apiUrl(buildPublicApiPath("/orders", slug)), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerName: nombre,
+        customerWhatsapp: whatsappCliente,
+        address: direccion,
+        paymentMethod: pago,
+        items
+      })
+    });
+
+    let data = null;
+
+    try{
+      data = await resp.json();
+    }catch{
+      data = null;
+    }
+
+    if(!resp.ok){
+      const errorMessage =
+        data?.message ||
+        data?.error ||
+        "No se pudo registrar el pedido. Probá de nuevo.";
+
+      console.error("API order error:", errorMessage);
+      showAppModal("No se pudo registrar el pedido", errorMessage);
+      return;
+    }
+
+    const msg = buildWhatsAppMessage({
+      nombre,
+      direccion,
+      pago,
+      createdOrderNumber: data?.orderNumber || ""
+    });
+
+    carrito = {};
+    cerrarModales();
+    actualizarBarra();
+    renderMenu();
+
+    window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+  }catch(e){
+    console.error(e);
+    showAppModal("Sin conexión", "No hay conexión con el servidor.");
+  }finally{
+    btn.disabled = false;
+    updateCheckoutButton();
+  }
+}
+
+function isUsingSubdomainMode(){
+  return false;
+}
+
+function buildPublicApiPath(path, companySlug){
+  const cleanPath = String(path || "").startsWith("/") ? path : `/${path}`;
+  return `/api/public/${encodeURIComponent(companySlug)}${cleanPath}`;
+}
+
+    async function iniciarPagoMercadoPago(){
+      if(!PublicFeatures.ordersEnabled || PublicFeatures.menuOnlyEnabled){
+        showAppModal("Pedidos deshabilitados", "Esta empresa no tiene pedidos habilitados.");
+        return;
+      }
+
+      if(!PublicFeatures.mercadoPagoEnabled){
+        showAppModal("Mercado Pago no disponible", "Mercado Pago no está habilitado en esta empresa.");
+        return;
+      }
+
+      const nombre = document.getElementById("nombre-cliente").value.trim();
+      const direccion = document.getElementById("direccion-cliente").value.trim();
+      const pago = getPagoSeleccionado();
+
+      if(!nombre || !direccion){
+        showAppModal("Faltan datos", "Completá tu nombre y dirección.");
+        return;
+      }
+
+      const items = buildCheckoutItems();
+
+      if(!items.length){
+        showAppModal("Pedido vacío", "Agregá al menos 1 producto.");
+        return;
+      }
+
+      const phone = sanitizePhone(Company.whatsapp);
+
+      const btn = document.getElementById("btn-confirmar-final");
+      btn.disabled = true;
+      btn.innerHTML = "REDIRIGIENDO...";
+
+      try{
+        const slug = getCompanySlug();
+
+        const msg = buildWhatsAppMessage({
+          nombre,
+          direccion,
+          pago,
+          createdOrderNumber: ""
+        });
+
+        savePendingMercadoPagoOrder({
+          companySlug: slug,
+          companyWhatsapp: phone,
+          customerName: nombre,
+          address: direccion,
+          paymentMethod: pago,
+          message: msg,
+          createdAt: new Date().toISOString()
+        });
+
+        const resp = await fetch(apiUrl(buildPublicApiPath("/payments/mercadopago", slug)), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customerName: nombre,
+            address: direccion,
+            items
+          })
+        });
+
+        if(!resp.ok){
+          const err = await resp.text().catch(() => "");
+          console.error("MercadoPago error:", err);
+          showAppModal("No se pudo iniciar el pago", "No se pudo iniciar el pago con Mercado Pago.");
+          return;
+        }
+
+        const data = await resp.json();
+
+        if(!data?.initPoint){
+          showAppModal("Link de pago no disponible", "No se recibió el link de pago.");
+          return;
+        }
+
+        const pending = getPendingMercadoPagoOrder();
+        if(pending){
+          pending.createdOrderNumber = data.orderNumber || "";
+          pending.message = buildWhatsAppMessage({
+            nombre,
+            direccion,
+            pago,
+            createdOrderNumber: data.orderNumber || ""
+          });
+          savePendingMercadoPagoOrder(pending);
+        }
+
+        window.location.href = data.initPoint;
+      }catch(e){
+        console.error(e);
+        showAppModal("Sin conexión", "No hay conexión con el servidor.");
+      }finally{
+        btn.disabled = false;
+        updateCheckoutButton();
+      }
+    }
+
+    async function confirmarCheckout(){
+      if(!PublicFeatures.ordersEnabled || PublicFeatures.menuOnlyEnabled){
+        showAppModal("Pedidos deshabilitados", "Esta empresa no tiene pedidos habilitados.");
+        return;
+      }
+
+      const pago = getPagoSeleccionado();
+
+      if(pago === "MercadoPago"){
+        await iniciarPagoMercadoPago();
+        return;
+      }
+
+      await enviarPedidoWhatsApp();
+    }
+
+    function initDevFooter(){
+      const devPhone = sanitizePhone(DEV_WHATSAPP);
+      const btn = document.getElementById("btnDevWpp");
+
+      if(!devPhone || devPhone.includes("XXXXXXXX")){
+        btn.onclick = () => showAppModal("Configurar WhatsApp", "Configurá tu WhatsApp en DEV_WHATSAPP dentro del index.html", "info");
+        return;
+      }
+
+      btn.onclick = () => {
+        const msg = "Hola! Quiero un menú online como este para mi negocio.";
+        window.open(`https://wa.me/${devPhone}?text=${encodeURIComponent(msg)}`, "_blank");
+      };
+    }
+
+    async function init(){
+      try{
+        hideNotFound();
+
+        await loadConfig();
+
+        const companySlug = requireProductsSlug();
+        if (!companySlug) return;
+
+        await loadPublicMenu(slug);
+        mapDto(DTO);
+
+        if(!Company?.name){
+          showNotFound(`No se encontró la empresa "${slug}".`);
+          return;
+        }
+
+        aplicarEmpresaEnHeader();
+        applyPublicMode();
+        renderPaymentOptions();
+        renderHorarios();
+        validarHorario();
+        wireSearch();
+
+        const cats = buildCategorias();
+        catActual = cats[0] || "";
+        renderTabs(cats);
+        renderMenu();
+
+        updateCheckoutButton();
+        await handleMercadoPagoReturn();
+        actualizarBarra();
+      }catch(e){
+        console.error(e);
+      }
+    }
+
+    document.getElementById("btnRefresh").addEventListener("click", init);
+    document.getElementById("btnTryAgain").addEventListener("click", init);
+
+    window.onload = () => {
+      initDevFooter();
+      init();
+    };

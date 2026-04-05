@@ -87,10 +87,9 @@
     }
 
     .brand-logo-shell {
-      width: 60px;
-      height: 60px;
+      width: 70px;
+      height: 70px;
       border-radius: 16px;
-      background: linear-gradient(135deg, #ffffff 0%, #f4f1ff 100%);
       border: none;
       display: flex;
       align-items: center;
@@ -102,7 +101,7 @@
     .brand-logo-shell img {
       width: 100%;
       height: 100%;
-      object-fit: contain; /* 🔥 importante */
+      object-fit: contain;
     }
 
     .brand-logo-fallback {
@@ -469,11 +468,11 @@
         opacity: 0.18;
       }
 
-.bg-animated {
-  background:
-    radial-gradient(ellipse 70% 55% at 12% 0%, rgba(109,40,217,0.05) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 35% at 100% 8%, rgba(139,92,246,0.04) 0%, transparent 60%);
-}
+      .bg-animated {
+        background:
+          radial-gradient(ellipse 70% 55% at 12% 0%, rgba(109,40,217,0.05) 0%, transparent 60%),
+          radial-gradient(ellipse 50% 35% at 100% 8%, rgba(139,92,246,0.04) 0%, transparent 60%);
+      }
 
       #toastContainer {
         top: 14px;
@@ -514,14 +513,12 @@
       }
 
       .brand-logo-shell {
-        width: 72px !important;    /* antes 60 */
-        height: 72px !important;  /* antes 60 */
+        width: 72px !important;
+        height: 72px !important;
         border-radius: 18px;
-
         background: linear-gradient(135deg, #ffffff 0%, #f4f1ff 100%);
         border: 1px solid rgba(109,40,217,0.10);
         box-shadow: 0 10px 24px rgba(109,40,217,0.10);
-
         display: flex;
         align-items: center;
         justify-content: center;
@@ -861,7 +858,7 @@
       <div class="brand-strip-inner">
         <div class="brand-left">
           <div class="brand-logo-shell">
-            <img src="../img/iniciales_1.png" alt="PedidoClick" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <img src="../img/iniciales_sf.png" alt="PedidoClick" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <div class="brand-logo-fallback" style="display:none;">PC</div>
           </div>
 
@@ -938,6 +935,8 @@
       </div>
 
       <div id="homeModules" class="modules-grid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">
+
+        <!-- 1 - Gestión de pedido -->
         <a id="cardOrders" href="./admin-order.html" class="module-card">
           <div class="card-accent" style="background:linear-gradient(90deg,#f59e0b,#fbbf24);"></div>
           <div class="module-top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
@@ -946,11 +945,11 @@
             </div>
             <span class="badge badge-op">Operación</span>
           </div>
-          <div class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Pedidos</div>
-          <div class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:0;">Ver, tomar, imprimir y cambiar estados.</div>
+          <div id="cardOrdersTitle" class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Gestión de pedido</div>
+          <div id="cardOrdersDesc" class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:0;">Ver, tomar, imprimir y cambiar estados.</div>
           <div class="card-hint">
             <div class="section-label" style="margin-bottom:4px;">Acceso rápido</div>
-            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">Gestión diaria de pedidos del local.</div>
+            <div id="cardOrdersHint" style="font-size:13px;color:var(--ink-3);font-weight:500;">Gestión diaria de pedidos del local.</div>
           </div>
           <div class="module-bottom" style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
             <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Abrir módulo</span>
@@ -958,19 +957,20 @@
           </div>
         </a>
 
+        <!-- 2 - Productos -->
         <a id="cardProducts" href="./admin-products.html" class="module-card">
           <div class="card-accent" style="background:linear-gradient(90deg,#10b981,#34d399);"></div>
           <div class="module-top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
             <div class="module-top-icon" style="width:44px;height:44px;background:#f0fdf4;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="6" rx="2" stroke="#166534" stroke-width="1.8"/><rect x="11" y="3" width="6" height="6" rx="2" stroke="#166534" stroke-width="1.8"/><rect x="3" y="11" width="6" height="6" rx="2" stroke="#166534" stroke-width="1.8"/><rect x="11" y="11" width="6" height="6" rx="2" stroke="#166534" stroke-width="1.8"/></svg>
             </div>
-            <span class="badge badge-menu">Menú</span>
+            <span id="badgeProducts" class="badge badge-menu">Menú</span>
           </div>
           <div class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Productos</div>
           <div class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">Altas, bajas, precios, fotos y disponibilidad.</div>
           <div class="card-hint">
             <div class="section-label" style="margin-bottom:4px;">Tip</div>
-            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">Ordená por categorías para que el menú quede más prolijo.</div>
+            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">Ordená por categorías para que el menú o catálogo quede más prolijo.</div>
           </div>
           <div class="module-bottom" style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
             <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Abrir módulo</span>
@@ -978,6 +978,28 @@
           </div>
         </a>
 
+        <!-- 3 - Categorías -->
+        <a id="cardCategories" href="./admin-categories.html" class="module-card">
+          <div class="card-accent" style="background:linear-gradient(90deg,#3b82f6,#60a5fa);"></div>
+          <div class="module-top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
+            <div class="module-top-icon" style="width:44px;height:44px;background:#eff6ff;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M4 10h8M4 14h5" stroke="#1e40af" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <span id="badgeCategories" class="badge badge-conf">Menú</span>
+          </div>
+          <div class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Categorías</div>
+          <div class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">Orden, nombres y habilitadas/deshabilitadas.</div>
+          <div class="card-hint">
+            <div class="section-label" style="margin-bottom:4px;">Pro tip</div>
+            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">Usá el orden para mostrar mejor el menú o catálogo.</div>
+          </div>
+          <div class="module-bottom" style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
+            <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Abrir módulo</span>
+            <div class="arrow-icon">→</div>
+          </div>
+        </a>
+
+        <!-- 4 - Ajustes de precios -->
         <a id="cardPriceAdjustments" href="./admin-price-adjustments.html" class="module-card">
           <div class="card-accent" style="background:linear-gradient(90deg,#6d28d9,#8b5cf6);"></div>
           <div class="module-top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
@@ -989,7 +1011,7 @@
             </div>
             <span class="badge" style="background:#f3e8ff;color:#6d28d9;">Precios</span>
           </div>
-          <div class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Ajuste de precios</div>
+          <div class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Ajustes de precios</div>
           <div class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">Aumentos y bajas masivas por categoría, selección manual o producto individual.</div>
           <div class="card-hint">
             <div class="section-label" style="margin-bottom:4px;">Actualización</div>
@@ -1001,42 +1023,22 @@
           </div>
         </a>
 
-        <a id="cardCategories" href="./admin-categories.html" class="module-card">
-          <div class="card-accent" style="background:linear-gradient(90deg,#3b82f6,#60a5fa);"></div>
+        <!-- 5 - Promociones -->
+        <a id="cardPromotions" href="./admin-promotions.html" class="module-card">
+          <div class="card-accent" style="background:linear-gradient(90deg,#ec4899,#f472b6);"></div>
           <div class="module-top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
-            <div class="module-top-icon" style="width:44px;height:44px;background:#eff6ff;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M4 10h8M4 14h5" stroke="#1e40af" stroke-width="1.8" stroke-linecap="round"/></svg>
-            </div>
-            <span class="badge badge-conf">Menú</span>
-          </div>
-          <div class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Categorías</div>
-          <div class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">Orden, nombres y habilitadas/deshabilitadas.</div>
-          <div class="card-hint">
-            <div class="section-label" style="margin-bottom:4px;">Pro tip</div>
-            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">Usá el orden para mostrar el menú de forma clara.</div>
-          </div>
-          <div class="module-bottom" style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
-            <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Abrir módulo</span>
-            <div class="arrow-icon">→</div>
-          </div>
-        </a>
-
-        <a id="cardConfig" href="./config-companie.html" class="module-card">
-          <div class="card-accent" style="background:linear-gradient(90deg,#10b981,#6ee7b7);"></div>
-          <div class="module-top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
-            <div class="module-top-icon" style="width:44px;height:44px;background:#f0fdf4;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <div class="module-top-icon" style="width:44px;height:44px;background:#fdf2f8;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <circle cx="10" cy="10" r="2.5" stroke="#166534" stroke-width="1.7"/>
-                <path d="M10 3v2M10 15v2M3 10h2M15 10h2M5.05 5.05l1.41 1.41M13.54 13.54l1.41 1.41M5.05 14.95l1.41-1.41M13.54 6.46l1.41-1.41" stroke="#166534" stroke-width="1.7" stroke-linecap="round"/>
+                <path d="M10 3l2.1 4.25L17 8l-3.5 3.4.82 4.85L10 14l-4.32 2.25.82-4.85L3 8l4.9-.75L10 3Z" stroke="#be185d" stroke-width="1.6" stroke-linejoin="round"/>
               </svg>
             </div>
-            <span class="badge badge-menu" style="background:#eff6ff;color:#1e40af;">Config</span>
+            <span class="badge" style="background:#fdf2f8;color:#be185d;">Promo</span>
           </div>
-          <div class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Configuración</div>
-          <div class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">Datos de la empresa, pagos habilitados y ajustes por método de pago.</div>
+          <div class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Promociones</div>
+          <div class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">Descuentos visuales por categoría, selección manual o producto individual con fechas y activación.</div>
           <div class="card-hint">
-            <div class="section-label" style="margin-bottom:4px;">Empresa</div>
-            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">Administrá la configuración visible y operativa del local.</div>
+            <div class="section-label" style="margin-bottom:4px;">Marketing</div>
+            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">No modifica el precio base real, solo el precio promocional visible y operativo.</div>
           </div>
           <div class="module-bottom" style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
             <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Abrir módulo</span>
@@ -1044,7 +1046,43 @@
           </div>
         </a>
 
-        <a id="cardDashboard" href="./admin-resumen.html" class="module-card">
+        <!-- 6 - Cupones -->
+        <a id="cardCoupons" href="./admin-coupons.html" class="hidden module-card">
+          <div class="card-accent" style="background:linear-gradient(90deg,#8b5cf6,#6366f1);"></div>
+          <div class="module-top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
+            <div class="module-top-icon" style="width:44px;height:44px;background:#f5f3ff;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M6 6.5h3M11 13.5h3M6.8 13.2l6.4-6.4" stroke="#6d28d9" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="7.2" cy="12.8" r="1.2" stroke="#6d28d9" stroke-width="1.4"/>
+                <circle cx="12.8" cy="7.2" r="1.2" stroke="#6d28d9" stroke-width="1.4"/>
+                <path d="M7 3h6a2 2 0 0 1 2 2v2.2a1.8 1.8 0 0 0 .53 1.27l.99.99a.75.75 0 0 1 0 1.06l-.99.99A1.8 1.8 0 0 0 15 12.8V15a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-2.2a1.8 1.8 0 0 0-.53-1.27l-.99-.99a.75.75 0 0 1 0-1.06l.99-.99A1.8 1.8 0 0 0 5 7.2V5a2 2 0 0 1 2-2Z" stroke="#6d28d9" stroke-width="1.4" stroke-linejoin="round"/>
+              </svg>
+            </div>
+
+            <span class="badge" style="background:#f5f3ff;color:#6d28d9;">Cupones</span>
+          </div>
+
+          <div class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Cupones</div>
+
+          <div class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">
+            Descuentos por código con vencimiento, usos máximos y aplicación global, por categoría o por producto.
+          </div>
+
+          <div class="card-hint">
+            <div class="section-label" style="margin-bottom:4px;">Ventas</div>
+            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">
+              Ideal para negocios tipo Otros, campañas puntuales y descuentos directos sobre la compra.
+            </div>
+          </div>
+
+          <div class="module-bottom" style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
+            <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Abrir módulo</span>
+            <div class="arrow-icon">→</div>
+          </div>
+        </a>
+
+        <!-- 7 - Centro de ventas -->
+        <a id="cardDashboard" href="./summary.html" class="module-card">
           <div class="card-accent" style="background:linear-gradient(90deg,#8b5cf6,#a78bfa);"></div>
           <div class="module-top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
             <div class="module-top-icon" style="width:44px;height:44px;background:#faf5ff;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -1052,31 +1090,11 @@
             </div>
             <span class="badge badge-rep">Reporte</span>
           </div>
-          <div class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Resumen diario</div>
-          <div class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">Totales del día y pedidos por estado.</div>
+          <div id="cardDashboardTitle" class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Centro de ventas</div>
+          <div id="cardDashboardDesc" class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">Ventas por período, promociones y medios de pago.</div>
           <div class="card-hint">
-            <div class="section-label" style="margin-bottom:4px;">Para cierre</div>
-            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">Ideal para caja, control diario y validación de turnos.</div>
-          </div>
-          <div class="module-bottom" style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
-            <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Abrir módulo</span>
-            <div class="arrow-icon">→</div>
-          </div>
-        </a>
-
-        <a id="cardTables" href="./tables/tables.html" class="hidden module-card">
-          <div class="card-accent" style="background:linear-gradient(90deg,#f59e0b,#fcd34d);"></div>
-          <div class="module-top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
-            <div class="module-top-icon" style="width:44px;height:44px;background:#fef3c7;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="7" width="16" height="2.5" rx="1.2" stroke="#78350f" stroke-width="1.6"/><path d="M5 9.5V15M15 9.5V15M7 15h6" stroke="#78350f" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="5" r="2" stroke="#78350f" stroke-width="1.6"/></svg>
-            </div>
-            <span class="badge badge-salon">Salón</span>
-          </div>
-          <div class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Gestión de mesas</div>
-          <div class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">Abrir mesas, cargar consumo, cobrar y cerrar.</div>
-          <div class="card-hint">
-            <div class="section-label" style="margin-bottom:4px;">Acceso</div>
-            <div style="font-size:13px;color:var(--ink-3);font-weight:500;" id="tablesCardHint">Operación de mesas y atención del salón.</div>
+            <div class="section-label" style="margin-bottom:4px;">Para análisis</div>
+            <div id="cardDashboardHint" style="font-size:13px;color:var(--ink-3);font-weight:500;">Vista comercial y operativa.</div>
           </div>
           <div class="module-bottom" style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
             <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Abrir módulo</span>
@@ -1104,41 +1122,23 @@
           </div>
         </a>
 
-        <a id="publicMenuLink" href="#" class="module-card">
-          <div class="card-accent" style="background:linear-gradient(90deg,var(--ink),var(--ink-3));"></div>
+                <!-- Configuración -->
+        <a id="cardConfig" href="./config-companie.html" class="module-card">
+          <div class="card-accent" style="background:linear-gradient(90deg,#10b981,#6ee7b7);"></div>
           <div class="module-top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
-            <div class="module-top-icon" style="width:44px;height:44px;background:var(--surface-2);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid var(--border);">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="var(--ink)" stroke-width="1.8"/><path d="M10 3C8 5.5 7 7.5 7 10s1 4.5 3 7" stroke="var(--ink)" stroke-width="1.5"/><path d="M10 3c2 2.5 3 4.5 3 7s-1 4.5-3 7" stroke="var(--ink)" stroke-width="1.5"/><path d="M3 10h14" stroke="var(--ink)" stroke-width="1.5"/></svg>
-            </div>
-            <span class="badge badge-pub">Público</span>
-          </div>
-          <div class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Menú público</div>
-          <div class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">Abrir la página visible para tus clientes.</div>
-          <div class="card-hint">
-            <div class="section-label" style="margin-bottom:4px;">Atajo</div>
-            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">Ideal para revisar cómo lo ve el cliente final.</div>
-          </div>
-          <div class="module-bottom" style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
-            <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Abrir módulo</span>
-            <div class="arrow-icon">→</div>
-          </div>
-        </a>
-
-        <a id="cardPromotions" href="./admin-promotions.html" class="module-card">
-          <div class="card-accent" style="background:linear-gradient(90deg,#ec4899,#f472b6);"></div>
-          <div class="module-top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
-            <div class="module-top-icon" style="width:44px;height:44px;background:#fdf2f8;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <div class="module-top-icon" style="width:44px;height:44px;background:#f0fdf4;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M10 3l2.1 4.25L17 8l-3.5 3.4.82 4.85L10 14l-4.32 2.25.82-4.85L3 8l4.9-.75L10 3Z" stroke="#be185d" stroke-width="1.6" stroke-linejoin="round"/>
+                <circle cx="10" cy="10" r="2.5" stroke="#166534" stroke-width="1.7"/>
+                <path d="M10 3v2M10 15v2M3 10h2M15 10h2M5.05 5.05l1.41 1.41M13.54 13.54l1.41 1.41M5.05 14.95l1.41-1.41M13.54 6.46l1.41-1.41" stroke="#166534" stroke-width="1.7" stroke-linecap="round"/>
               </svg>
             </div>
-            <span class="badge" style="background:#fdf2f8;color:#be185d;">Promo</span>
+            <span class="badge badge-menu" style="background:#eff6ff;color:#1e40af;">Config</span>
           </div>
-          <div class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Promociones</div>
-          <div class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">Descuentos visuales por categoría, selección manual o producto individual con fechas y activación.</div>
+          <div class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Configuración</div>
+          <div class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">Datos de la empresa, pagos habilitados y ajustes por método de pago.</div>
           <div class="card-hint">
-            <div class="section-label" style="margin-bottom:4px;">Marketing</div>
-            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">No modifica el precio base real, solo el precio promocional visible y operativo.</div>
+            <div class="section-label" style="margin-bottom:4px;">Empresa</div>
+            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">Administrá la configuración visible y operativa del local.</div>
           </div>
           <div class="module-bottom" style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
             <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Abrir módulo</span>
@@ -1146,6 +1146,7 @@
           </div>
         </a>
 
+        <!-- 8 - QR -->
         <button id="cardMenuQr" type="button" class="hidden module-card" style="text-align:left;width:100%;">
           <div class="card-accent" style="background:linear-gradient(90deg,#0ea5e9,#38bdf8);"></div>
           <div class="module-top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
@@ -1154,17 +1155,59 @@
             </div>
             <span class="badge badge-qr">QR</span>
           </div>
-          <div class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">QR del menú</div>
-          <div class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">Código QR para que tus clientes vean el menú.</div>
+          <div id="cardQrTitle" class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">QR del menú</div>
+          <div id="cardQrDesc" class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">Código QR para que tus clientes vean el menú.</div>
           <div class="card-hint">
             <div class="section-label" style="margin-bottom:4px;">Visual</div>
-            <div style="font-size:13px;color:var(--ink-3);font-weight:500;">Pantalla lista para que el cliente escanee desde el mostrador o mesa.</div>
+            <div id="cardQrHint" style="font-size:13px;color:var(--ink-3);font-weight:500;">Pantalla lista para que el cliente escanee desde el mostrador o mesa.</div>
           </div>
           <div class="module-bottom" style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
-            <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Ver QR</span>
+            <span id="cardQrAction" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Ver QR</span>
             <div class="arrow-icon">→</div>
           </div>
         </button>
+
+        <!-- 9 - Público -->
+        <a id="publicEntryLink" href="#" class="module-card">
+          <div class="card-accent" style="background:linear-gradient(90deg,var(--ink),var(--ink-3));"></div>
+          <div class="module-top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
+            <div class="module-top-icon" style="width:44px;height:44px;background:var(--surface-2);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid var(--border);">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="var(--ink)" stroke-width="1.8"/><path d="M10 3C8 5.5 7 7.5 7 10s1 4.5 3 7" stroke="var(--ink)" stroke-width="1.5"/><path d="M10 3c2 2.5 3 4.5 3 7s-1 4.5-3 7" stroke="var(--ink)" stroke-width="1.5"/><path d="M3 10h14" stroke="var(--ink)" stroke-width="1.5"/></svg>
+            </div>
+            <span class="badge badge-pub">Público</span>
+          </div>
+          <div id="publicEntryTitle" class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Menú público</div>
+          <div id="publicEntryDesc" class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">Abrir la página visible para tus clientes.</div>
+          <div class="card-hint">
+            <div class="section-label" style="margin-bottom:4px;">Atajo</div>
+            <div id="publicEntryHint" style="font-size:13px;color:var(--ink-3);font-weight:500;">Ideal para revisar cómo lo ve el cliente final.</div>
+          </div>
+          <div class="module-bottom" style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
+            <span id="publicEntryAction" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Abrir módulo</span>
+            <div class="arrow-icon">→</div>
+          </div>
+        </a>
+
+        <!-- Opcionales del salón -->
+        <a id="cardTables" href="./tables/tables.html" class="hidden module-card">
+          <div class="card-accent" style="background:linear-gradient(90deg,#f59e0b,#fcd34d);"></div>
+          <div class="module-top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;">
+            <div class="module-top-icon" style="width:44px;height:44px;background:#fef3c7;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="7" width="16" height="2.5" rx="1.2" stroke="#78350f" stroke-width="1.6"/><path d="M5 9.5V15M15 9.5V15M7 15h6" stroke="#78350f" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="5" r="2" stroke="#78350f" stroke-width="1.6"/></svg>
+            </div>
+            <span class="badge badge-salon">Salón</span>
+          </div>
+          <div class="module-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:6px;">Gestión de mesas</div>
+          <div class="module-desc" style="font-size:13px;color:var(--muted);line-height:1.5;">Abrir mesas, cargar consumo, cobrar y cerrar.</div>
+          <div class="card-hint">
+            <div class="section-label" style="margin-bottom:4px;">Acceso</div>
+            <div style="font-size:13px;color:var(--ink-3);font-weight:500;" id="tablesCardHint">Operación de mesas y atención del salón.</div>
+          </div>
+          <div class="module-bottom" style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;">
+            <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);">Abrir módulo</span>
+            <div class="arrow-icon">→</div>
+          </div>
+        </a>
       </div>
 
       <div class="footer-brand" style="margin-top:40px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted-2);">
@@ -1185,7 +1228,7 @@
         </div>
 
         <div id="menuQrCompanyTitle" style="margin-top:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;color:white;letter-spacing:-0.02em;line-height:1.15;word-break:break-word;padding:0 12px;">Mi Empresa</div>
-        <div style="margin-top:8px;font-size:14px;color:rgba(255,255,255,0.78);font-weight:500;">Escaneá el código para ver el menú</div>
+        <div id="menuQrCompanySubtitle" style="margin-top:8px;font-size:14px;color:rgba(255,255,255,0.78);font-weight:500;">Escaneá el código para ver el menú</div>
       </div>
 
       <div class="qr-modal-body">
@@ -1276,7 +1319,7 @@
           Mi Empresa
         </div>
 
-        <div style="
+        <div id="printCompanySubtitle" style="
           margin-top:4mm;
           font-size:5.4mm;
           line-height:1.3;
@@ -1328,9 +1371,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <script>
-    // PROD
-    // const CONFIG_PATH = "/MenuOnline/config.json";
-    // DEV
     const CONFIG_PATH = "/config.json";
 
     const TOKEN_KEY = "menuonline_token";
@@ -1340,6 +1380,9 @@
 
     const LOGIN_PAGE = "/Admin/login.html";
 
+    const BUSINESS_GASTRONOMIA = 1;
+    const BUSINESS_OTROS = 2;
+
     let activeToast = null;
     let currentPublicMenuUrl = "";
     let currentCompanyName = "";
@@ -1347,17 +1390,21 @@
     let qrCodeInstance = null;
     let printQrCodeInstance = null;
     let appConfig = null;
+    let currentBusinessType = BUSINESS_GASTRONOMIA;
 
-    function toast(message, type="info", ms=1600){
+    function toast(message, type = "info", ms = 1600){
       const container = document.getElementById("toastContainer");
-      if(activeToast){ activeToast.remove(); activeToast = null; }
+      if(activeToast){
+        activeToast.remove();
+        activeToast = null;
+      }
 
       const colors = {
         success: "background:#0f172a;border-left:3px solid #10b981;",
         error:   "background:#0f172a;border-left:3px solid #ef4444;",
         info:    "background:#0f172a;border-left:3px solid #6d28d9;"
       };
-      const icon = type==="success" ? "✓" : type==="error" ? "✕" : "·";
+      const icon = type === "success" ? "✓" : type === "error" ? "✕" : "·";
 
       const el = document.createElement("div");
       el.className = "toast-item";
@@ -1371,7 +1418,10 @@
       setTimeout(() => {
         if(activeToast !== el) return;
         el.classList.remove("show");
-        setTimeout(() => { if(activeToast===el) activeToast=null; el.remove(); }, 200);
+        setTimeout(() => {
+          if(activeToast === el) activeToast = null;
+          el.remove();
+        }, 200);
       }, ms);
     }
 
@@ -1404,6 +1454,116 @@
 
     function resolveCompanyDisplayName(slug){
       return currentCompanyName || slug || "Mi Empresa";
+    }
+
+    function normalizeTemplateValue(value, slug){
+      return String(value || "").replaceAll("{slug}", encodeURIComponent(slug));
+    }
+
+    function ensureAbsoluteBase(protocol, rootDomain){
+      const safeRoot = String(rootDomain || "").trim();
+      if(!safeRoot){
+        return window.location.origin.replace(/\/$/, "");
+      }
+
+      if(/^https?:\/\//i.test(safeRoot)){
+        return safeRoot.replace(/\/$/, "");
+      }
+
+      const safeProtocol = String(protocol || window.location.protocol.replace(":", "") || "https")
+        .replace(":", "")
+        .trim() || "https";
+
+      return `${safeProtocol}://${safeRoot}`.replace(/\/$/, "");
+    }
+
+    function buildPublicPathFromTemplate(template, slug, fallbackTemplate){
+      const rawTemplate = String(template || fallbackTemplate || "").trim();
+      if(!rawTemplate) return "";
+      const normalized = rawTemplate.startsWith("/") ? rawTemplate : `/${rawTemplate}`;
+      return normalizeTemplateValue(normalized, slug);
+    }
+
+    function buildPublicUrlFromConfig(mode, slug, pathTemplate, fallbackTemplate){
+      if(!slug || !appConfig) return "";
+
+      const safeMode = String(mode || "path").trim().toLowerCase();
+      const protocol = appConfig.publicMenuProtocol || "https";
+      const rootDomain = appConfig.publicMenuRootDomain || "";
+
+      if(safeMode === "subdomain"){
+        if(!rootDomain) return "";
+        const safeProtocol = String(protocol).replace(":", "").trim() || "https";
+        const safeSubPath = String(appConfig.publicMenuSubdomainPath || "/").trim() || "/";
+        const subPath = safeSubPath.startsWith("/") ? safeSubPath : `/${safeSubPath}`;
+        return `${safeProtocol}://${encodeURIComponent(slug)}.${rootDomain}${subPath}`;
+      }
+
+      const baseOrigin = ensureAbsoluteBase(protocol, rootDomain);
+      const safePath = buildPublicPathFromTemplate(pathTemplate, slug, fallbackTemplate);
+      if(!safePath) return "";
+      return new URL(safePath, `${baseOrigin}/`).toString();
+    }
+
+    function buildPublicMenuUrl(slug){
+      return buildPublicUrlFromConfig(
+        appConfig?.publicMenuMode,
+        slug,
+        appConfig?.publicMenuPathTemplate,
+        "/menu/{slug}"
+      );
+    }
+
+    function buildPublicProductsUrl(slug){
+      return buildPublicUrlFromConfig(
+        appConfig?.publicProductsMode || appConfig?.publicMenuMode,
+        slug,
+        appConfig?.publicProductsPathTemplate,
+        "/products/{slug}"
+      );
+    }
+
+    function buildCurrentPublicUrl(slug, businessType){
+      return Number(businessType) === BUSINESS_OTROS
+        ? buildPublicProductsUrl(slug)
+        : buildPublicMenuUrl(slug);
+    }
+
+    function setCardVisible(id, visible){
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.classList.toggle("hidden", !visible);
+    }
+
+    function setHomeModulesLoading(isReady){
+      const el = document.getElementById("homeModules");
+      if(!el) return;
+      el.style.display = isReady ? "grid" : "none";
+    }
+
+    function saveFeaturesInLocalStorage(features){ return; }
+    function saveUserPermissionsInLocalStorage(me){ return; }
+    function readFeaturesFromLocalStorage(){ return null; }
+    function readPermissionsFromLocalStorage(){ return null; }
+
+    function clearStoredAccessState(){
+      localStorage.removeItem("menuonline_featureOrdersEnabled");
+      localStorage.removeItem("menuonline_featureProductsEnabled");
+      localStorage.removeItem("menuonline_featureCategoriesEnabled");
+      localStorage.removeItem("menuonline_featureShiftsEnabled");
+      localStorage.removeItem("menuonline_featureDashboardEnabled");
+      localStorage.removeItem("menuonline_featureTableManagementEnabled");
+      localStorage.removeItem("menuonline_canAccessOrders");
+      localStorage.removeItem("menuonline_canAccessProducts");
+      localStorage.removeItem("menuonline_canAccessCategories");
+      localStorage.removeItem("menuonline_canAccessShifts");
+      localStorage.removeItem("menuonline_canAccessDashboard");
+      localStorage.removeItem("menuonline_canAccessTablesWaiter");
+      localStorage.removeItem("menuonline_canAccessTableConfig");
+      localStorage.removeItem("menuonline_canAccessTableDashboard");
+      localStorage.removeItem("menuonline_canAccessCompanySettings");
+      localStorage.removeItem("menuonline_canAccessPriceAdjustments");
+      localStorage.removeItem("menuonline_canAccessPromotions");
     }
 
     function setQrCompanyVisual(name, logoUrl){
@@ -1466,113 +1626,160 @@
       }
     }
 
-    function normalizeTemplateValue(value, slug){
-      return String(value || "").replaceAll("{slug}", encodeURIComponent(slug));
-    }
+    function setLinkOrToast(el, url, message){
+      if(!el) return;
 
-    function buildPublicMenuUrl(slug){
-      if(!slug) return "";
-      return `/menu/${encodeURIComponent(slug)}`;
-    }
-
-    function setPublicMenuLink(slug){
-      const a = document.getElementById("publicMenuLink");
-      const b = document.getElementById("publicMenuButton");
-      const publicUrl = buildPublicMenuUrl(slug);
-
-      if(!a) return;
-
-      if(!publicUrl){
-        currentPublicMenuUrl = "";
-        a.href = "#"; a.target = ""; a.rel = "";
-        a.onclick = (e) => { e.preventDefault(); toast("No hay URL pública configurada para esta empresa.", "error", 2200); };
-
-        if(b){
-          b.href = "#"; b.target = ""; b.rel = "";
-          b.onclick = (e) => { e.preventDefault(); toast("No hay URL pública configurada para esta empresa.", "error", 2200); };
+      if(!url){
+        if(el.tagName === "A"){
+          el.href = "#";
+          el.target = "";
+          el.rel = "";
         }
+        el.onclick = function(e){
+          e.preventDefault();
+          toast(message || "No hay URL pública configurada para esta empresa.", "error", 2200);
+        };
         return;
       }
 
-      currentPublicMenuUrl = publicUrl;
-
-      a.href = publicUrl;
-      a.target = "_blank";
-      a.rel = "noopener";
-      a.onclick = null;
-
-      if (b) {
-        b.href = publicUrl;
-        b.target = "_blank";
-        b.rel = "noopener";
-        b.onclick = null;
+      if(el.tagName === "A"){
+        el.href = url;
+        el.target = "_blank";
+        el.rel = "noopener";
       }
+      el.onclick = null;
     }
 
-    function setCardVisible(id, visible){
-      const el = document.getElementById(id);
-      if(!el) return;
-      el.classList.toggle("hidden", !visible);
+    function setOrdersCardByBusinessType(businessType){
+      const isOtros = Number(businessType) === BUSINESS_OTROS;
+      const card = document.getElementById("cardOrders");
+      const title = document.getElementById("cardOrdersTitle");
+      const desc = document.getElementById("cardOrdersDesc");
+      const hint = document.getElementById("cardOrdersHint");
+
+      if(card){
+        card.href = isOtros ? "../products/product-order.html" : "./admin-order.html";
+      }
+
+      if(title) title.textContent = "Gestión de pedido";
+      if(desc) desc.textContent = isOtros
+        ? "Ver, preparar y cambiar estados de los pedidos de productos."
+        : "Ver, tomar, imprimir y cambiar estados.";
+      if(hint) hint.textContent = isOtros
+        ? "Usa el flujo exclusivo de pedidos de productos."
+        : "Gestión diaria de pedidos del local.";
     }
 
-    function setHomeModulesLoading(isReady){
-  const el = document.getElementById("homeModules");
-  if(!el) return;
-  el.style.display = isReady ? "grid" : "none";
-}
+  function setDashboardCardByBusinessType(businessType){
+    const isOtros = Number(businessType) === BUSINESS_OTROS;
 
-function hideHomeModulesImmediately(){
-  setHomeModules({}, {});
-  setHomeModulesLoading(false);
-}
+    const card = document.getElementById("cardDashboard");
+    const title = document.getElementById("cardDashboardTitle");
+    const desc = document.getElementById("cardDashboardDesc");
+    const hint = document.getElementById("cardDashboardHint");
 
-function saveFeaturesInLocalStorage(features){
-  return;
-}
+    if (card) {
+      card.href = isOtros
+        ? "./summary.html"
+        : "./admin-resumen.html";
+    }
 
-function saveUserPermissionsInLocalStorage(me){
-  return;
-}
+    if (title) {
+      title.textContent = isOtros
+        ? "Centro de costos"
+        : "Resumen diario";
+    }
 
-function readFeaturesFromLocalStorage(){
-  return null;
-}
+    if (desc) {
+      desc.textContent = isOtros
+        ? "Ventas por período, cupones, promociones y medios de pago del catálogo."
+        : "Pedidos del día, estados y total vendido.";
+    }
 
-function clearStoredAccessState(){
-  localStorage.removeItem("menuonline_featureOrdersEnabled");
-  localStorage.removeItem("menuonline_featureProductsEnabled");
-  localStorage.removeItem("menuonline_featureCategoriesEnabled");
-  localStorage.removeItem("menuonline_featureShiftsEnabled");
-  localStorage.removeItem("menuonline_featureDashboardEnabled");
-  localStorage.removeItem("menuonline_featureTableManagementEnabled");
+    if (hint) {
+      hint.textContent = isOtros
+        ? "Vista comercial y operativa del catálogo."
+        : "Vista rápida de la operación diaria del local.";
+    }
+  }
 
-  localStorage.removeItem("menuonline_canAccessOrders");
-  localStorage.removeItem("menuonline_canAccessProducts");
-  localStorage.removeItem("menuonline_canAccessCategories");
-  localStorage.removeItem("menuonline_canAccessShifts");
-  localStorage.removeItem("menuonline_canAccessDashboard");
-  localStorage.removeItem("menuonline_canAccessTablesWaiter");
-  localStorage.removeItem("menuonline_canAccessTableConfig");
-  localStorage.removeItem("menuonline_canAccessTableDashboard");
-  localStorage.removeItem("menuonline_canAccessCompanySettings");
-  localStorage.removeItem("menuonline_canAccessPriceAdjustments");
-  localStorage.removeItem("menuonline_canAccessPromotions");
-}
+    function setPublicEntryCardByBusinessType(businessType){
+      const isOtros = Number(businessType) === BUSINESS_OTROS;
 
-function readPermissionsFromLocalStorage(){
-  return null;
-}
+      const publicEntryTitle = document.getElementById("publicEntryTitle");
+      const publicEntryDesc = document.getElementById("publicEntryDesc");
+      const publicEntryHint = document.getElementById("publicEntryHint");
+      const publicEntryAction = document.getElementById("publicEntryAction");
+      const publicButton = document.getElementById("publicMenuButton");
+
+      const qrTitle = document.getElementById("cardQrTitle");
+      const qrDesc = document.getElementById("cardQrDesc");
+      const qrHint = document.getElementById("cardQrHint");
+
+      const qrModalSubtitle = document.getElementById("menuQrCompanySubtitle");
+      const printSubtitle = document.getElementById("printCompanySubtitle");
+
+      const badgeProducts = document.getElementById("badgeProducts");
+      const badgeCategories = document.getElementById("badgeCategories");
+
+      if(publicEntryTitle) publicEntryTitle.textContent = isOtros ? "Catálogo público" : "Menú público";
+      if(publicEntryDesc) publicEntryDesc.textContent = isOtros
+        ? "Abrir la página pública visible para tus clientes."
+        : "Abrir la página pública visible para tus clientes.";
+      if(publicEntryHint) publicEntryHint.textContent = isOtros
+        ? "Ideal para revisar cómo lo ve el cliente final en el catálogo."
+        : "Ideal para revisar cómo lo ve el cliente final en el menú.";
+      if(publicEntryAction) publicEntryAction.textContent = isOtros ? "Abrir catálogo" : "Abrir menú";
+
+      if(publicButton) publicButton.textContent = isOtros ? "Ver catálogo público" : "Ver menú público";
+
+      if(qrTitle) qrTitle.textContent = isOtros ? "QR del catálogo" : "QR del menú";
+      if(qrDesc) qrDesc.textContent = isOtros
+        ? "Código QR para que tus clientes vean el catálogo."
+        : "Código QR para que tus clientes vean el menú.";
+      if(qrHint) qrHint.textContent = isOtros
+        ? "Pantalla lista para que el cliente escanee y abra el catálogo."
+        : "Pantalla lista para que el cliente escanee desde el mostrador o mesa.";
+
+      const subtitle = isOtros
+        ? "Escaneá el código para ver el catálogo"
+        : "Escaneá el código para ver el menú";
+
+      if(qrModalSubtitle) qrModalSubtitle.textContent = subtitle;
+      if(printSubtitle) printSubtitle.textContent = subtitle;
+
+      if(badgeProducts) badgeProducts.textContent = isOtros ? "Catálogo" : "Menú";
+      if(badgeCategories) badgeCategories.textContent = isOtros ? "Catálogo" : "Menú";
+    }
+
+    function setCurrentPublicAccess(slug, businessType){
+      currentPublicMenuUrl = buildCurrentPublicUrl(slug, businessType);
+
+      setLinkOrToast(
+        document.getElementById("publicEntryLink"),
+        currentPublicMenuUrl,
+        "No hay URL pública configurada para esta empresa."
+      );
+
+      setLinkOrToast(
+        document.getElementById("publicMenuButton"),
+        currentPublicMenuUrl,
+        "No hay URL pública configurada para esta empresa."
+      );
+    }
 
     function setTablesCards(features, permissions){
       const featureEnabled = !!features?.featureTableManagementEnabled;
       const canUseTables = !!permissions?.canAccessTablesWaiter || !!permissions?.canAccessTableConfig || !!permissions?.canAccessTableDashboard;
       const canConfigTables = !!permissions?.canAccessTableConfig || !!permissions?.canAccessTableDashboard;
+
       setCardVisible("cardTables", featureEnabled && canUseTables);
       setCardVisible("cardTablesConfig", featureEnabled && canConfigTables);
 
       if(featureEnabled && canUseTables){
         const hint = document.getElementById("tablesCardHint");
         const card = document.getElementById("cardTables");
+
         if(permissions?.canAccessTablesWaiter && !permissions?.canAccessTableConfig && !permissions?.canAccessTableDashboard){
           hint.textContent = "Acceso de mozo para operar mesas.";
           card.href = "./tables/tables.html";
@@ -1589,124 +1796,17 @@ function readPermissionsFromLocalStorage(){
       }
     }
 
-function setQrCardVisibility(features, permissions){
-  const canSeeQr =
-    features?.featureProductsEnabled === true &&
-    (permissions?.canAccessProducts === true || permissions?.canAccessCategories === true);
+    function setQrCardVisibility(features, permissions){
+      const canSeeQr =
+        features?.featureProductsEnabled === true &&
+        (permissions?.canAccessProducts === true || permissions?.canAccessCategories === true);
 
-  setCardVisible("cardMenuQr", canSeeQr);
-}
-
-   function setHomeModules(features, permissions){
-  const safeFeatures = {
-    featureOrdersEnabled: features?.featureOrdersEnabled === true,
-    featureProductsEnabled: features?.featureProductsEnabled === true,
-    featureCategoriesEnabled: features?.featureCategoriesEnabled === true,
-    featureShiftsEnabled: features?.featureShiftsEnabled === true,
-    featureDashboardEnabled: features?.featureDashboardEnabled === true,
-    featureTableManagementEnabled: features?.featureTableManagementEnabled === true
-  };
-
-  const safePermissions = {
-    canAccessOrders: permissions?.canAccessOrders === true,
-    canAccessProducts: permissions?.canAccessProducts === true,
-    canAccessCategories: permissions?.canAccessCategories === true,
-    canAccessShifts: permissions?.canAccessShifts === true,
-    canAccessDashboard: permissions?.canAccessDashboard === true,
-    canAccessTablesWaiter: permissions?.canAccessTablesWaiter === true,
-    canAccessTableConfig: permissions?.canAccessTableConfig === true,
-    canAccessTableDashboard: permissions?.canAccessTableDashboard === true,
-    canAccessCompanySettings: permissions?.canAccessCompanySettings === true,
-    canAccessPriceAdjustments: permissions?.canAccessPriceAdjustments === true,
-    canAccessPromotions: permissions?.canAccessPromotions === true
-  };
-
-  setCardVisible("cardOrders", safeFeatures.featureOrdersEnabled && safePermissions.canAccessOrders);
-  setCardVisible("cardProducts", safeFeatures.featureProductsEnabled && safePermissions.canAccessProducts);
-  setCardVisible("cardPriceAdjustments", safeFeatures.featureProductsEnabled && safePermissions.canAccessProducts && safePermissions.canAccessPriceAdjustments);
-  setCardVisible("cardCategories", safeFeatures.featureCategoriesEnabled && safePermissions.canAccessCategories);
-  setCardVisible("cardConfig", safePermissions.canAccessCompanySettings);
-  setCardVisible("cardDashboard", safeFeatures.featureDashboardEnabled && safePermissions.canAccessDashboard);
-  setCardVisible("cardPromotions", safeFeatures.featureProductsEnabled && safePermissions.canAccessProducts && safePermissions.canAccessPromotions);
-  setTablesCards(safeFeatures, safePermissions);
-  setQrCardVisibility(safeFeatures, safePermissions);
-}
-
-    function buildAbsoluteMenuUrl(){
-      if(!currentPublicMenuUrl) return "";
-      return new URL(currentPublicMenuUrl, window.location.origin).toString();
+      setCardVisible("cardMenuQr", canSeeQr);
     }
 
-    async function fetchAuth(url, options = {}){
-      const token = localStorage.getItem(TOKEN_KEY) || localStorage.getItem(AUTH_KEY);
-      if(!token){ location.replace(LOGIN_PAGE); return null; }
-      const res = await fetch(url, {
-        ...options,
-        headers: { ...(options.headers || {}), Authorization: token.startsWith("Bearer ") ? token : ("Bearer " + token) }
-      });
-      if(res.status === 401 || res.status === 403){ logout(); return null; }
-      return res;
-    }
+    function setHomeModules(features, permissions, businessType){
+  const safeBusinessType = Number(businessType || BUSINESS_GASTRONOMIA);
 
-    async function apiGetAdminMe(config){
-      const url = `${config.apiBaseUrl}/api/admin/me`;
-      const res = await fetchAuth(url);
-      if(!res || !res.ok) return null;
-      return await res.json().catch(() => null);
-    }
-
-    function buildQr(targetId, text, size){
-      const container = document.getElementById(targetId);
-      if(!container) return null;
-      container.innerHTML = "";
-      return new QRCode(container, { text, width: size, height: size, correctLevel: QRCode.CorrectLevel.H });
-    }
-
-    function syncPrintSheet(){
-      const absoluteMenuUrl = buildAbsoluteMenuUrl();
-      const safeName = resolveCompanyDisplayName(getCompanySlug());
-      const safeLogo = currentCompanyLogoUrl || "";
-      setPrintCompanyVisual(safeName, safeLogo);
-      printQrCodeInstance = buildQr("printQrCode", absoluteMenuUrl, 520);
-    }
-
-    function openMenuQrModal(){
-      if(!currentPublicMenuUrl){ toast("No hay URL pública configurada para esta empresa.", "error", 2200); return; }
-      const modal = document.getElementById("menuQrModal");
-      const absoluteMenuUrl = buildAbsoluteMenuUrl();
-      const safeName = resolveCompanyDisplayName(getCompanySlug());
-      setQrCompanyVisual(safeName, currentCompanyLogoUrl || "");
-      qrCodeInstance = buildQr("menuQrCode", absoluteMenuUrl, 380);
-      syncPrintSheet();
-      modal.classList.add("open");
-      document.body.classList.add("overflow-hidden");
-    }
-
-    function closeMenuQrModal(){
-      const modal = document.getElementById("menuQrModal");
-      modal.classList.remove("open");
-      document.body.classList.remove("overflow-hidden");
-    }
-
-    function printMenuQr(){
-      if(!currentPublicMenuUrl){ toast("No hay QR para imprimir.", "error", 1800); return; }
-      syncPrintSheet();
-      window.print();
-    }
-
-    (function bindQrModalEvents(){
-      const qrCard = document.getElementById("cardMenuQr");
-      const btnClose = document.getElementById("btnCloseQrModal");
-      const overlay = document.getElementById("menuQrOverlay");
-      const btnPrint = document.getElementById("btnPrintQrModal");
-      if(qrCard) qrCard.addEventListener("click", openMenuQrModal);
-      if(btnClose) btnClose.addEventListener("click", closeMenuQrModal);
-      if(overlay) overlay.addEventListener("click", closeMenuQrModal);
-      if(btnPrint) btnPrint.addEventListener("click", printMenuQr);
-      document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeMenuQrModal(); });
-    })();
-
-    function setHomeModules(features, permissions){
   const safeFeatures = {
     featureOrdersEnabled: features?.featureOrdersEnabled === true,
     featureProductsEnabled: features?.featureProductsEnabled === true,
@@ -1728,143 +1828,233 @@ function setQrCardVisibility(features, permissions){
     canAccessCompanySettings: permissions?.canAccessCompanySettings === true
   };
 
-  const canUseCatalog =
+  const canManageCatalog =
     safeFeatures.featureProductsEnabled &&
     safeFeatures.featureCategoriesEnabled &&
     safePermissions.canAccessProducts &&
     safePermissions.canAccessCategories;
 
-  setCardVisible("cardOrders",
-    safeFeatures.featureOrdersEnabled &&
-    safePermissions.canAccessOrders
-  );
+  setOrdersCardByBusinessType(safeBusinessType);
+  setDashboardCardByBusinessType(safeBusinessType);
+  setPublicEntryCardByBusinessType(safeBusinessType);
 
-  setCardVisible("cardProducts",
-    safeFeatures.featureProductsEnabled &&
-    safePermissions.canAccessProducts
-  );
+  setCardVisible("cardOrders", safeFeatures.featureOrdersEnabled && safePermissions.canAccessOrders);
+  setCardVisible("cardProducts", safeFeatures.featureProductsEnabled && safePermissions.canAccessProducts);
+  setCardVisible("cardCategories", safeFeatures.featureCategoriesEnabled && safePermissions.canAccessCategories);
 
-  setCardVisible("cardCategories",
-    safeFeatures.featureCategoriesEnabled &&
-    safePermissions.canAccessCategories
-  );
+  setCardVisible("cardPriceAdjustments", canManageCatalog);
+  setCardVisible("cardPromotions", canManageCatalog);
+  setCardVisible("cardCoupons", safeBusinessType === BUSINESS_OTROS && canManageCatalog);
 
-  setCardVisible("cardPriceAdjustments", canUseCatalog);
-  setCardVisible("cardPromotions", canUseCatalog);
-
-  setCardVisible("cardConfig",
-    safePermissions.canAccessCompanySettings
-  );
-
-  setCardVisible("cardDashboard",
-    safeFeatures.featureDashboardEnabled &&
-    safePermissions.canAccessDashboard
-  );
+  setCardVisible("cardDashboard", safeFeatures.featureDashboardEnabled && safePermissions.canAccessDashboard);
+  setCardVisible("publicEntryLink", true);
+  setCardVisible("cardConfig", safePermissions.canAccessCompanySettings);
 
   setTablesCards(safeFeatures, safePermissions);
   setQrCardVisibility(safeFeatures, safePermissions);
 }
 
-(async function init(){
-  const token = localStorage.getItem(TOKEN_KEY) || localStorage.getItem(AUTH_KEY);
-  if(!token){
-    location.replace(LOGIN_PAGE);
-    return;
-  }
-
-  document.getElementById("btnLogout").addEventListener("click", logout);
-
-  const homeModulesEl = document.getElementById("homeModules");
-  if(homeModulesEl){
-    homeModulesEl.style.display = "none";
-  }
-
-  setHomeModules({}, {});
-
-  const slug  = getCompanySlug() || "—";
-  const email = localStorage.getItem(EMAIL_KEY) || "—";
-  document.getElementById("companyLabel").textContent = slug;
-  document.getElementById("emailLabel").textContent = email;
-  currentCompanyName = slug === "—" ? "" : slug;
-
-  try{
-    appConfig = await loadConfig();
-    setPublicMenuLink(slug === "—" ? "" : slug);
-
-    const me = await apiGetAdminMe(appConfig);
-
-    if(me){
-      const features = {
-        featureOrdersEnabled: me?.featureOrdersEnabled === true,
-        featureProductsEnabled: me?.featureProductsEnabled === true,
-        featureCategoriesEnabled: me?.featureCategoriesEnabled === true,
-        featureShiftsEnabled: me?.featureShiftsEnabled === true,
-        featureDashboardEnabled: me?.featureDashboardEnabled === true,
-        featureTableManagementEnabled: me?.featureTableManagementEnabled === true
-      };
-
-      const permissions = {
-        canAccessOrders: me?.canAccessOrders === true,
-        canAccessProducts: me?.canAccessProducts === true,
-        canAccessCategories: me?.canAccessCategories === true,
-        canAccessShifts: me?.canAccessShifts === true,
-        canAccessDashboard: me?.canAccessDashboard === true,
-        canAccessTablesWaiter: me?.canAccessTablesWaiter === true,
-        canAccessTableConfig: me?.canAccessTableConfig === true,
-        canAccessTableDashboard: me?.canAccessTableDashboard === true,
-        canAccessCompanySettings: me?.canAccessCompanySettings === true
-      };
-
-      saveFeaturesInLocalStorage(features);
-      saveUserPermissionsInLocalStorage(me);
-
-      setHomeModules(features, permissions);
-
-      currentCompanyName =
-        me.companyName ||
-        me.companyDisplayName ||
-        me.companySlug ||
-        currentCompanyName ||
-        "";
-
-      currentCompanyLogoUrl =
-        me.companyLogoUrl ||
-        me.logoUrl ||
-        me.logo ||
-        "";
-
-      const effectiveSlug = me.companySlug || (slug === "—" ? "" : slug);
-
-      if(effectiveSlug){
-        setPublicMenuLink(effectiveSlug);
-      }
-
-      if(me.companySlug && me.companySlug !== slug && slug === "—"){
-        document.getElementById("companyLabel").textContent = me.companySlug;
-      }
-
-      if(me.email && email === "—"){
-        document.getElementById("emailLabel").textContent = me.email;
-      }
-
-      if(currentCompanyName){
-        document.getElementById("companyLabel").textContent = currentCompanyName;
-      }
-    } else {
-      setPublicMenuLink("");
-      setHomeModules({}, {});
+    function buildAbsoluteMenuUrl(){
+      return currentPublicMenuUrl || "";
     }
-  } catch(e){
-    console.error(e);
-    toast("No pude cargar config.json", "error", 2000);
-    setPublicMenuLink("");
-    setHomeModules({}, {});
-  } finally {
-    if(homeModulesEl){
-      homeModulesEl.style.display = "grid";
+
+    async function fetchAuth(url, options = {}){
+      const token = localStorage.getItem(TOKEN_KEY) || localStorage.getItem(AUTH_KEY);
+      if(!token){
+        location.replace(LOGIN_PAGE);
+        return null;
+      }
+
+      const res = await fetch(url, {
+        ...options,
+        headers: {
+          ...(options.headers || {}),
+          Authorization: token.startsWith("Bearer ") ? token : ("Bearer " + token)
+        }
+      });
+
+      if(res.status === 401 || res.status === 403){
+        logout();
+        return null;
+      }
+
+      return res;
     }
-  }
-})();
+
+    async function apiGetAdminMe(config){
+      const url = `${config.apiBaseUrl}/api/admin/me`;
+      const res = await fetchAuth(url);
+      if(!res || !res.ok) return null;
+      return await res.json().catch(() => null);
+    }
+
+    function buildQr(targetId, text, size){
+      const container = document.getElementById(targetId);
+      if(!container) return null;
+      container.innerHTML = "";
+      return new QRCode(container, {
+        text,
+        width: size,
+        height: size,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    function syncPrintSheet(){
+      const absoluteMenuUrl = buildAbsoluteMenuUrl();
+      const safeName = resolveCompanyDisplayName(getCompanySlug());
+      const safeLogo = currentCompanyLogoUrl || "";
+      setPrintCompanyVisual(safeName, safeLogo);
+      printQrCodeInstance = buildQr("printQrCode", absoluteMenuUrl, 520);
+    }
+
+    function openMenuQrModal(){
+      if(!currentPublicMenuUrl){
+        toast("No hay URL pública configurada para esta empresa.", "error", 2200);
+        return;
+      }
+
+      const modal = document.getElementById("menuQrModal");
+      const absoluteMenuUrl = buildAbsoluteMenuUrl();
+      const safeName = resolveCompanyDisplayName(getCompanySlug());
+
+      setQrCompanyVisual(safeName, currentCompanyLogoUrl || "");
+      qrCodeInstance = buildQr("menuQrCode", absoluteMenuUrl, 380);
+      syncPrintSheet();
+
+      modal.classList.add("open");
+      document.body.classList.add("overflow-hidden");
+    }
+
+    function closeMenuQrModal(){
+      const modal = document.getElementById("menuQrModal");
+      modal.classList.remove("open");
+      document.body.classList.remove("overflow-hidden");
+    }
+
+    function printMenuQr(){
+      if(!currentPublicMenuUrl){
+        toast("No hay QR para imprimir.", "error", 1800);
+        return;
+      }
+      syncPrintSheet();
+      window.print();
+    }
+
+    (function bindQrModalEvents(){
+      const qrCard = document.getElementById("cardMenuQr");
+      const btnClose = document.getElementById("btnCloseQrModal");
+      const overlay = document.getElementById("menuQrOverlay");
+      const btnPrint = document.getElementById("btnPrintQrModal");
+
+      if(qrCard) qrCard.addEventListener("click", openMenuQrModal);
+      if(btnClose) btnClose.addEventListener("click", closeMenuQrModal);
+      if(overlay) overlay.addEventListener("click", closeMenuQrModal);
+      if(btnPrint) btnPrint.addEventListener("click", printMenuQr);
+
+      document.addEventListener("keydown", (e) => {
+        if(e.key === "Escape") closeMenuQrModal();
+      });
+    })();
+
+    (async function init(){
+      const token = localStorage.getItem(TOKEN_KEY) || localStorage.getItem(AUTH_KEY);
+      if(!token){
+        location.replace(LOGIN_PAGE);
+        return;
+      }
+
+      const btnLogout = document.getElementById("btnLogout");
+      if(btnLogout){
+        btnLogout.addEventListener("click", logout);
+      }
+
+      setHomeModulesLoading(false);
+      setHomeModules({}, {}, currentBusinessType);
+
+      const slug = getCompanySlug() || "—";
+      const email = localStorage.getItem(EMAIL_KEY) || "—";
+
+      document.getElementById("companyLabel").textContent = slug;
+      document.getElementById("emailLabel").textContent = email;
+      currentCompanyName = slug === "—" ? "" : slug;
+
+      try{
+        appConfig = await loadConfig();
+
+        const me = await apiGetAdminMe(appConfig);
+
+        if(me){
+          currentBusinessType = Number(me.businessType || BUSINESS_GASTRONOMIA);
+
+          const features = {
+            featureOrdersEnabled: me?.featureOrdersEnabled === true,
+            featureProductsEnabled: me?.featureProductsEnabled === true,
+            featureCategoriesEnabled: me?.featureCategoriesEnabled === true,
+            featureShiftsEnabled: me?.featureShiftsEnabled === true,
+            featureDashboardEnabled: me?.featureDashboardEnabled === true,
+            featureTableManagementEnabled: me?.featureTableManagementEnabled === true
+          };
+
+          const permissions = {
+            canAccessOrders: me?.canAccessOrders === true,
+            canAccessProducts: me?.canAccessProducts === true,
+            canAccessCategories: me?.canAccessCategories === true,
+            canAccessShifts: me?.canAccessShifts === true,
+            canAccessDashboard: me?.canAccessDashboard === true,
+            canAccessTablesWaiter: me?.canAccessTablesWaiter === true,
+            canAccessTableConfig: me?.canAccessTableConfig === true,
+            canAccessTableDashboard: me?.canAccessTableDashboard === true,
+            canAccessCompanySettings: me?.canAccessCompanySettings === true,
+            canAccessPriceAdjustments: me?.canAccessPriceAdjustments === true,
+            canAccessPromotions: me?.canAccessPromotions === true
+          };
+
+          saveFeaturesInLocalStorage(features);
+          saveUserPermissionsInLocalStorage(me);
+
+          currentCompanyName =
+            me.companyName ||
+            me.companyDisplayName ||
+            me.companySlug ||
+            currentCompanyName ||
+            "";
+
+          currentCompanyLogoUrl =
+            me.companyLogoUrl ||
+            me.logoUrl ||
+            me.logo ||
+            "";
+
+          const effectiveSlug = me.companySlug || (slug === "—" ? "" : slug);
+
+          setCurrentPublicAccess(effectiveSlug, currentBusinessType);
+          setHomeModules(features, permissions, currentBusinessType);
+
+          if(me.companySlug && me.companySlug !== slug && slug === "—"){
+            document.getElementById("companyLabel").textContent = me.companySlug;
+          }
+
+          if(me.email && email === "—"){
+            document.getElementById("emailLabel").textContent = me.email;
+          }
+
+          if(currentCompanyName){
+            document.getElementById("companyLabel").textContent = currentCompanyName;
+          }
+        } else {
+          setCurrentPublicAccess("", currentBusinessType);
+          setHomeModules({}, {}, currentBusinessType);
+        }
+      } catch(e){
+        console.error(e);
+        toast("No pude cargar config.json", "error", 2000);
+        setCurrentPublicAccess("", currentBusinessType);
+        setHomeModules({}, {}, currentBusinessType);
+      } finally {
+        setHomeModulesLoading(true);
+      }
+    })();
   </script>
 </body>
 </html>

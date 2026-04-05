@@ -1,8 +1,10 @@
 {
   "apiBaseUrl": "https://gourmet-backend-1.onrender.com",
-  "publicMenuMode": "subdomain",
+  "publicMenuMode": "path",
   "publicMenuProtocol": "https",
   "publicMenuRootDomain": "pedidoclick.com.ar",
   "publicMenuSubdomainPath": "/",
-  "publicMenuPathTemplate": "/?companySlug={slug}"
+  "publicMenuPathTemplate": "/menu/{slug}",
+  "publicProductsMode": "path",
+  "publicProductsPathTemplate": "/products/{slug}"
 }

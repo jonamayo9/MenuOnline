@@ -89,8 +89,8 @@
     }
 
     .brand-logo-shell {
-      width: 64px;
-      height: 64px;
+      width: 70px;
+      height: 70px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -446,7 +446,7 @@
       <div class="brand-strip-inner">
         <div class="brand-left">
           <div class="brand-logo-shell">
-            <img src="../img/iniciales_1.png" alt="PedidoClick" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <img src="../img/iniciales_sf.png" alt="PedidoClick" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <div class="brand-logo-fallback" style="display:none;">PC</div>
           </div>
 
@@ -698,6 +698,76 @@ const isDeleted = (text) =>
     const token = localStorage.getItem(TOKEN_KEY);
     return { ...extra, "Authorization": "Bearer " + token };
   }
+
+  const BUSINESS_GASTRONOMIA = 1;
+const BUSINESS_OTROS = 2;
+
+async function loadConfig(){
+  const res = await fetch(CONFIG_PATH, { cache: "no-store" });
+  if(!res.ok) throw new Error("No pude leer config.json");
+  return await res.json();
+}
+
+async function fetchAuth(url, options = {}){
+  const token = localStorage.getItem(TOKEN_KEY);
+  if(!token){
+    logoutToLogin();
+    return null;
+  }
+
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      Authorization: "Bearer " + token
+    }
+  });
+
+  if(res.status === 401 || res.status === 403){
+    logoutToLogin();
+    return null;
+  }
+
+  return res;
+}
+
+async function apiGetAdminMe(){
+  const res = await fetchAuth(`${CONFIG.apiBaseUrl}/api/admin/me`);
+  if(!res || !res.ok) return null;
+  return await res.json().catch(() => null);
+}
+
+function redirectNotFound(){
+  location.replace("/404.html");
+}
+
+async function guardAdminResumenAccess(){
+  try{
+    CONFIG = await loadConfig();
+
+    const me = await apiGetAdminMe();
+    if(!me){
+      redirectNotFound();
+      return false;
+    }
+
+    if(Number(me.businessType) === BUSINESS_OTROS){
+      redirectNotFound();
+      return false;
+    }
+
+    if(me.featureDashboardEnabled !== true || me.canAccessDashboard !== true){
+      redirectNotFound();
+      return false;
+    }
+
+    return true;
+  }catch(err){
+    console.error(err);
+    redirectNotFound();
+    return false;
+  }
+}
 
   // ===== TOAST =====
   let activeToastEl = null;
@@ -1052,7 +1122,8 @@ const isDeleted = (text) =>
     try{
       if(!requireAuth()) return;
 
-      CONFIG = await loadConfig();
+    const allowed = await guardAdminResumenAccess();
+    if(!allowed) return;
       document.getElementById("date").value = fmtDateInputValue();
       await getOrders();
     }catch(e){

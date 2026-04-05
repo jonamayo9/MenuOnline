@@ -94,8 +94,8 @@
     }
 
     .brand-logo-shell {
-      width: 64px;
-      height: 64px;
+      width: 70px;
+      height: 70px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -613,7 +613,7 @@
       <div class="brand-strip-inner">
         <div class="brand-left">
           <div class="brand-logo-shell">
-            <img src="../img/iniciales_1.png" alt="PedidoClick" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <img src="../img/iniciales_sf.png" alt="PedidoClick" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <div class="brand-logo-fallback" style="display:none;">PC</div>
           </div>
 
@@ -1056,12 +1056,16 @@
       return res;
     }
 
-    async function apiGetAdminMe() {
-      const url = `${configData.apiBaseUrl}/api/admin/me`;
-      const res = await fetchAuth(url);
-      if (!res || !res.ok) return null;
-      return await res.json().catch(() => null);
+  async function apiGetAdminMe() {
+    const url = `${configData.apiBaseUrl}/api/admin/me`;
+    const res = await fetchAuth(url);
+    if (!res || !res.ok) return null;
+    const me = await res.json().catch(() => null);
+    if (me && window.BusinessTypeStore) {
+      window.BusinessTypeStore.set(me.businessType);
     }
+    return me;
+  }
 
     async function apiGetCategories(companySlug) {
       const url = `${configData.apiBaseUrl}/api/admin/${encodeURIComponent(companySlug)}/categories`;

@@ -92,10 +92,9 @@
 
 
     .brand-logo-shell {
-      width: 60px;
-      height: 60px;
+      width: 70px;
+      height: 70px;
       border-radius: 16px;
-      background: linear-gradient(135deg, #ffffff 0%, #f4f1ff 100%);
       border: none;
       display: flex;
       align-items: center;
@@ -1155,7 +1154,7 @@
       <div class="brand-strip-inner">
         <div class="brand-left">
           <div class="brand-logo-shell">
-            <img src="../img/iniciales_1.png" alt="PedidoClick" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <img src="../img/iniciales_sf.png" alt="PedidoClick" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <div class="brand-logo-fallback" style="display:none;">PC</div>
           </div>
 
@@ -1311,6 +1310,76 @@
         return null;
       }
     }
+
+    const BUSINESS_GASTRONOMIA = 1;
+const BUSINESS_OTROS = 2;
+
+async function loadConfig(){
+  const res = await fetch(CONFIG_PATH, { cache: "no-store" });
+  if(!res.ok) throw new Error("No pude leer config.json");
+  return await res.json();
+}
+
+async function fetchAuth(url, options = {}){
+  const token = localStorage.getItem(TOKEN_KEY);
+  if(!token){
+    logoutToLogin();
+    return null;
+  }
+
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      Authorization: "Bearer " + token
+    }
+  });
+
+  if(res.status === 401 || res.status === 403){
+    logoutToLogin();
+    return null;
+  }
+
+  return res;
+}
+
+async function apiGetAdminMe(){
+  const res = await fetchAuth(`${CONFIG.apiBaseUrl}/api/admin/me`);
+  if(!res || !res.ok) return null;
+  return await res.json().catch(() => null);
+}
+
+function redirectNotFound(){
+  location.replace("/404.html");
+}
+
+async function guardAdminOrderAccess(){
+  try{
+    CONFIG = await loadConfig();
+
+    const me = await apiGetAdminMe();
+    if(!me){
+      redirectNotFound();
+      return false;
+    }
+
+    if(Number(me.businessType) === BUSINESS_OTROS){
+      redirectNotFound();
+      return false;
+    }
+
+    if(me.featureOrdersEnabled !== true || me.canAccessOrders !== true){
+      redirectNotFound();
+      return false;
+    }
+
+    return true;
+  }catch(err){
+    console.error(err);
+    redirectNotFound();
+    return false;
+  }
+}
 
     async function loadCompanyNotificationConfig(){
       const slug = getSlug();
@@ -4022,8 +4091,11 @@ async function checkNewOrders() {
       try {
         if(!requireAuth()) return;
 
-        CONFIG = await loadConfig();
-        await loadCompanyNotificationConfig();
+      const allowed = await guardAdminOrderAccess();
+      if(!allowed) return;
+
+      await loadCompanyNotificationConfig();
+
 
         document.getElementById("date").value = getArgentinaDateInputValue();
 

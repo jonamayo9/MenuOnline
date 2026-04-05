@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PedidoClick | Centro de ventas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --ink: #0f172a;
+      --ink-2: #1e293b;
+      --ink-3: #334155;
+      --muted: #64748b;
+      --muted-2: #94a3b8;
+      --border: #e2e8f0;
+      --border-2: #f1f5f9;
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --surface-3: #eef2ff;
+      --accent: #6d28d9;
+      --accent-2: #8b5cf6;
+      --accent-glow: rgba(109,40,217,0.14);
+      --hero-a: #22113d;
+      --hero-b: #31165a;
+      --hero-c: #1d1033;
+      --shadow-soft: 0 20px 60px rgba(10,10,15,0.08), 0 4px 16px rgba(10,10,15,0.04);
+      --shadow-card: 0 22px 60px rgba(15,23,42,.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--surface-2);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    h1, h2, h3, h4, .font-display {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.35;
+    }
+
+    .bg-animated {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 10% 0%, rgba(109,40,217,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 100%, rgba(139,92,246,0.05) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 50% at 50% 50%, rgba(240,240,248,1) 0%, rgba(247,247,251,1) 100%);
+    }
+
+    .brand-strip {
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(22px);
+      box-shadow: 0 10px 30px rgba(15,23,42,0.05);
+    }
+
+    .brand-strip-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .brand-logo-shell {
+      width: 70px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .brand-logo-shell img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .brand-logo-fallback {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.04em;
+    }
+
+    .brand-copy {
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .brand-subtitle {
+      margin-top: 4px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted-2);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .brand-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(109,40,217,0.08);
+      border: 1px solid rgba(109,40,217,0.10);
+      color: var(--accent);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .hero-card {
+      background: linear-gradient(145deg, var(--hero-a) 0%, var(--hero-b) 50%, var(--hero-c) 100%);
+      border-radius: 30px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 30px 80px rgba(15,23,42,.16);
+    }
+
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: -80px;
+      right: -80px;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(255,255,255,0.09) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      bottom: -60px;
+      left: -40px;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(167,139,250,0.10) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-card);
+    }
+
+    .module-card{
+      position: relative;
+      overflow: hidden;
+      transition: all .22s ease;
+    }
+
+    .module-card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(109,40,217,.03) 100%);
+      pointer-events:none;
+    }
+
+    .module-card:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 28px 70px rgba(15,23,42,.10);
+      border-color: rgba(109,40,217,.18);
+    }
+
+    .hero-glow::before{
+      content:"";
+      position:absolute;
+      right:-40px;
+      top:-40px;
+      width:180px;
+      height:180px;
+      background: radial-gradient(circle, rgba(255,255,255,.08) 0%, rgba(255,255,255,0) 70%);
+      filter: blur(10px);
+      pointer-events:none;
+    }
+
+    .field-label{
+      display:block;
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      color:#94a3b8;
+      font-weight:800;
+      margin-bottom:8px;
+      font-family:'Plus Jakarta Sans', sans-serif;
+    }
+
+    .field-input{
+      width:100%;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.96);
+      border-radius:18px;
+      padding:12px 14px;
+      font-size:14px;
+      color:#0f172a;
+      outline:none;
+      transition:.18s ease;
+      font-family:'DM Sans', sans-serif;
+      box-shadow: 0 6px 18px rgba(15,23,42,.03);
+    }
+
+    .field-input:focus{
+      border-color:#a78bfa;
+      box-shadow:0 0 0 3px rgba(167,139,250,.18);
+    }
+
+    .soft-btn{
+      transition: all .18s ease;
+      font-family:'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+    }
+
+    .soft-btn:hover{
+      transform: translateY(-1px);
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      font-family:'Plus Jakarta Sans', sans-serif;
+    }
+
+    .modal-shell{
+      background: rgba(255,255,255,.98);
+      backdrop-filter: blur(18px);
+      border:1px solid rgba(255,255,255,.85);
+      box-shadow: 0 30px 90px rgba(15,23,42,.18);
+      border-radius: 30px;
+    }
+
+    .kpi-card{
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card{
+        min-height: 128px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        }
+
+    .kpi-card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(109,40,217,.04) 100%);
+    }
+
+    .table-scroll{
+      width:100%;
+      overflow-x:auto;
+    }
+
+.data-table{
+  width:100%;
+  min-width: 760px;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: auto;
+}
+
+.data-table thead th{
+  font-family:'Plus Jakarta Sans', sans-serif;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:#94a3b8;
+  padding:14px 16px;
+  background:#f8fafc;
+  border-bottom:1px solid #e2e8f0;
+  white-space:nowrap;
+  text-align:left;
+}
+
+.data-table tbody td{
+  padding:16px;
+  border-bottom:1px solid #eef2f7;
+  color:#334155;
+  vertical-align:middle;
+  text-align:left;
+}
+
+.data-table tbody tr:last-child td{
+  border-bottom:none;
+}
+
+.summary-table thead th:nth-child(n+2),
+.summary-table tbody td:nth-child(n+2){
+  text-align:center;
+}
+
+.summary-table thead th:first-child,
+.summary-table tbody td:first-child{
+  width:40%;
+}
+
+.orders-table thead th:nth-child(1){ width:14%; }
+.orders-table thead th:nth-child(2){ width:18%; }
+.orders-table thead th:nth-child(3){ width:22%; }
+.orders-table thead th:nth-child(4){ width:18%; }
+.orders-table thead th:nth-child(5){ width:12%; }
+.orders-table thead th:nth-child(6){ width:8%; }
+.orders-table thead th:nth-child(7){ width:8%; }
+
+.orders-table tbody td{
+  vertical-align:middle;
+}
+
+.orders-table tbody td:nth-child(1),
+.orders-table tbody td:nth-child(6),
+.orders-table tbody td:nth-child(7){
+  white-space:nowrap;
+}
+
+.orders-table tbody td:nth-child(2){
+  min-width:110px;
+}
+
+.orders-table tbody td:nth-child(4){
+  min-width:140px;
+}
+
+.orders-table tbody td:nth-child(5){
+  min-width:90px;
+}
+
+.orders-table .payment-stack{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:6px;
+}
+
+.orders-table .order-action{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:54px;
+}
+
+    .data-table thead th{
+      font-family:'Plus Jakarta Sans', sans-serif;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:#94a3b8;
+      padding:14px 16px;
+      background:#f8fafc;
+      border-bottom:1px solid #e2e8f0;
+      white-space:nowrap;
+    }
+
+    .data-table tbody td{
+      padding:16px;
+      border-bottom:1px solid #eef2f7;
+      color:#334155;
+      vertical-align:middle;
+    }
+
+    .data-table tbody tr:last-child td{
+      border-bottom:none;
+    }
+
+    .summary-table{
+  min-width: 1080px;
+}
+
+.summary-table thead th,
+.summary-table tbody td{
+  text-align: left;
+}
+
+.summary-table thead th:nth-child(2),
+.summary-table tbody td:nth-child(2),
+.summary-table thead th:nth-child(3),
+.summary-table tbody td:nth-child(3),
+.summary-table thead th:nth-child(4),
+.summary-table tbody td:nth-child(4),
+.summary-table thead th:nth-child(5),
+.summary-table tbody td:nth-child(5),
+.summary-table thead th:nth-child(6),
+.summary-table tbody td:nth-child(6){
+  text-align: center;
+}
+
+.summary-table thead th:first-child,
+.summary-table tbody td:first-child{
+  min-width: 220px;
+}
+
+.summary-table tbody td{
+  padding-top: 18px;
+  padding-bottom: 18px;
+  vertical-align: middle;
+}
+
+.summary-table .price-col{
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.summary-table .title-cell{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-table .title-main{
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.summary-table .title-sub{
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.summary-pill{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.summary-pill.promo{
+  background: #f3e8ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
+}
+
+.summary-pill.coupon{
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+    .badge-soft{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      line-height:1;
+      white-space:nowrap;
+    }
+
+    .empty-state{
+      padding:36px 20px;
+      text-align:center;
+      color:#64748b;
+    }
+
+    .summary-stack{
+      display:grid;
+      gap:12px;
+    }
+
+    @media (max-width: 860px) {
+      .brand-strip-inner {
+        min-height: 64px;
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .brand-right {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .brand-chip {
+        width: fit-content;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero-filters {
+        width: 100%;
+      }
+
+      .hero-filters > * {
+        width: 100%;
+      }
+
+      .data-table{
+        min-width: 680px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      :root {
+        --mobile-shell: 430px;
+      }
+
+      html, body {
+        overflow-x: hidden;
+      }
+
+      body {
+        background:
+          linear-gradient(180deg, #6d28d9 0%, #7c3aed 150px, #f4f7fb 150px, #f8fafc 100%);
+      }
+
+      body::before {
+        opacity: 0.18;
+      }
+
+      .bg-animated {
+        background:
+          radial-gradient(ellipse 70% 55% at 12% 0%, rgba(109,40,217,0.05) 0%, transparent 60%),
+          radial-gradient(ellipse 50% 35% at 100% 8%, rgba(139,92,246,0.04) 0%, transparent 60%);
+      }
+
+      .brand-strip {
+        background: transparent;
+        border-bottom: none;
+        backdrop-filter: none;
+        box-shadow: none;
+      }
+
+      .brand-strip-inner {
+        max-width: var(--mobile-shell) !important;
+        margin: 0 auto !important;
+        padding: 14px 16px 0 !important;
+        min-height: unset !important;
+        height: auto !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 12px !important;
+        flex-wrap: nowrap !important;
+      }
+
+      .brand-left {
+        min-width: 0 !important;
+        gap: 12px !important;
+      }
+
+      .brand-logo-shell {
+        width: 52px !important;
+        height: 52px !important;
+      }
+
+      .brand-title {
+        color: white !important;
+        font-size: 17px !important;
+      }
+
+      .brand-subtitle {
+        color: rgba(255,255,255,0.72) !important;
+        font-size: 9px !important;
+        letter-spacing: 0.14em !important;
+      }
+
+      .brand-right {
+        display: none !important;
+      }
+
+      .page-shell {
+        max-width: var(--mobile-shell) !important;
+        margin: 0 auto !important;
+        padding: 14px 16px 110px !important;
+      }
+
+      .hero-card {
+        border-radius: 28px !important;
+        border: 1px solid rgba(255,255,255,0.10) !important;
+        box-shadow: 0 18px 40px rgba(20, 20, 40, 0.20);
+        overflow: hidden;
+      }
+
+      .hero-card.hero-summary {
+        padding: 20px !important;
+        margin-bottom: 18px !important;
+      }
+
+      .hero-card h1 {
+        font-size: 28px !important;
+        line-height: 1.08 !important;
+        margin-bottom: 10px !important;
+      }
+
+      .hero-card p {
+        font-size: 13px !important;
+        line-height: 1.5 !important;
+        max-width: none !important;
+      }
+
+      .glass-card,
+      .kpi-card {
+        border-radius: 24px !important;
+      }
+
+      .modal-shell {
+        border-radius: 24px !important;
+      }
+    }
+
+    .summary-table thead th:first-child,
+.summary-table tbody td:first-child{
+  width: 34%;
+}
+
+.summary-table thead th:nth-child(2),
+.summary-table tbody td:nth-child(2){
+  width: 14%;
+  text-align:center;
+}
+
+.summary-table thead th:nth-child(3),
+.summary-table tbody td:nth-child(3){
+  width: 22%;
+  text-align:center;
+}
+
+.summary-table thead th:nth-child(4),
+.summary-table tbody td:nth-child(4){
+  width: 30%;
+  text-align:center;
+}
+
+.summary-table tbody td{
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+  </style>
+</head>
+
+<body class="text-slate-800 min-h-screen">
+  <div class="bg-animated"></div>
+
+  <div style="position:relative;z-index:1;min-height:100vh;">
+    <div class="brand-strip sticky top-0 z-50">
+      <div class="brand-strip-inner">
+        <div class="brand-left">
+          <div class="brand-logo-shell">
+            <img src="../img/iniciales_sf.png" alt="PedidoClick" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="brand-logo-fallback" style="display:none;">PC</div>
+          </div>
+
+          <div class="brand-copy">
+            <div class="brand-title">PedidoClick</div>
+            <div class="brand-subtitle">Panel administrativo</div>
+          </div>
+        </div>
+
+        <div class="brand-right">
+          <div class="brand-chip">
+            <span style="width:7px;height:7px;border-radius:999px;background:#10b981;display:inline-block;"></span>
+            Centro de ventas
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-shell" style="max-width:1200px;margin:0 auto;padding:32px 24px 48px;">
+      <div class="hero-card hero-glow hero-summary relative p-6 md:p-8 mb-6">
+        <div class="relative z-[1] flex flex-wrap items-start justify-between gap-6">
+          <div class="flex items-center gap-4">
+            <a href="./home.html"
+               class="h-12 w-12 shrink-0 grid place-items-center rounded-2xl bg-white/10 border border-white/15 text-white text-lg font-bold hover:bg-white/20 transition"
+               title="Volver">
+              ←
+            </a>
+
+            <div>
+              <div class="flex items-center gap-2 flex-wrap mb-3">
+                <div class="chip" style="background:rgba(139,92,246,0.20);border:1px solid rgba(167,139,250,0.25);color:#e9ddff;">
+                  PedidoClick
+                </div>
+                <div class="chip" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);">
+                  Centro de ventas
+                </div>
+              </div>
+
+              <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight text-white font-display">Centro de ventas</h1>
+              <p class="text-sm md:text-base text-white/70 mt-2">Análisis de pedidos, productos, cupones y medios de pago.</p>
+            </div>
+          </div>
+
+          <div class="hero-filters flex flex-wrap items-end gap-3">
+            <div>
+              <label class="field-label !text-white/45">Desde</label>
+              <input id="from" type="date" class="field-input" />
+            </div>
+
+            <div>
+              <label class="field-label !text-white/45">Hasta</label>
+              <input id="to" type="date" class="field-input" />
+            </div>
+
+            <div>
+            <label class="field-label !text-white/45">Medio de pago</label>
+            <select id="paymentMethod" class="field-input min-w-[180px]">
+                <option value="">Todos</option>
+                <option value="Efectivo">Efectivo</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Qr">QR</option>
+                <option value="MercadoPago">Mercado Pago</option>
+            </select>
+            </div>
+
+            <div>
+              <label class="field-label !text-white/45">Estado</label>
+              <select id="status" class="field-input min-w-[170px]">
+                <option value="">Todos</option>
+                <option value="0">Nuevo</option>
+                <option value="1">Preparando</option>
+                <option value="2">Listo</option>
+                <option value="3">Entregado</option>
+                <option value="4">Cancelado</option>
+                <option value="5">Finalizado</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="field-label !text-white/45">Estado pago</label>
+              <select id="paymentStatus" class="field-input min-w-[170px]">
+                <option value="">Todos</option>
+                <option value="0">Sin estado</option>
+                <option value="1">Pendiente</option>
+                <option value="2">Aprobado</option>
+                <option value="3">Rechazado</option>
+                <option value="4">Cancelado</option>
+              </select>
+            </div>
+
+            <div class="flex gap-2">
+              <button id="refresh"
+                class="soft-btn px-5 py-3 rounded-2xl bg-white text-slate-900 shadow-lg hover:bg-slate-100">
+                Actualizar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative z-[1] mt-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+          <label class="flex items-center gap-3 rounded-2xl bg-white/8 border border-white/10 px-4 py-3 text-white/90 cursor-pointer">
+            <input id="onlyWithPromotion" type="checkbox" class="h-4 w-4 accent-violet-500">
+            <span class="text-sm font-semibold">Solo con promoción</span>
+          </label>
+
+          <label class="flex items-center gap-3 rounded-2xl bg-white/8 border border-white/10 px-4 py-3 text-white/90 cursor-pointer">
+            <input id="onlyWithCoupon" type="checkbox" class="h-4 w-4 accent-violet-500">
+            <span class="text-sm font-semibold">Solo con cupón</span>
+          </label>
+
+          <label class="flex items-center gap-3 rounded-2xl bg-white/8 border border-white/10 px-4 py-3 text-white/90 cursor-pointer">
+            <input id="includeCanceled" type="checkbox" class="h-4 w-4 accent-violet-500">
+            <span class="text-sm font-semibold">Incluir cancelados</span>
+          </label>
+
+          <div class="rounded-2xl bg-white/8 border border-white/10 px-4 py-3 text-white/80">
+            <div class="text-[10px] font-bold uppercase tracking-[0.18em]">Rango actual</div>
+            <div id="rangeText" class="text-sm font-semibold mt-1">Hoy</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6 items-stretch">
+        <div class="kpi-card p-5">
+          <div class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] font-display">Ventas totales</div>
+          <div id="kpiTotalSales" class="text-3xl font-extrabold mt-2 text-slate-900 font-display">$ 0</div>
+          <div class="text-xs text-slate-400 mt-2">Monto total filtrado</div>
+        </div>
+
+        <div class="kpi-card p-5">
+          <div class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] font-display">Pedidos</div>
+          <div id="kpiOrders" class="text-3xl font-extrabold mt-2 text-slate-900 font-display">0</div>
+          <div id="kpiCancelled" class="text-xs text-slate-400 mt-2">0 cancelados</div>
+        </div>
+
+        <div class="kpi-card p-5">
+          <div class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] font-display">Con promoción</div>
+          <div id="kpiPromoSales" class="text-3xl font-extrabold mt-2 text-slate-900 font-display">$ 0</div>
+          <div id="kpiPromoCount" class="text-xs text-slate-400 mt-2">0 productos</div>
+        </div>
+
+        <div class="kpi-card p-5">
+          <div class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] font-display">Con cupón</div>
+          <div id="kpiCouponSales" class="text-3xl font-extrabold mt-2 text-slate-900 font-display">$ 0</div>
+          <div id="kpiCouponCount" class="text-xs text-slate-400 mt-2">0 productos</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-6 mb-10">
+        <div class="glass-card rounded-[2rem] overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <div class="text-lg font-extrabold text-slate-900 font-display tracking-tight">Ventas por medio de pago</div>
+              <div class="text-sm text-slate-500 mt-1">Distribución de ventas según el filtro aplicado.</div>
+            </div>
+          </div>
+          <div id="salesByPaymentMethod" class="p-5 space-y-3"></div>
+        </div>
+
+        <div class="glass-card rounded-[2rem] overflow-hidden">
+<div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between gap-3 flex-wrap">
+  <div>
+    <div class="text-lg font-extrabold text-slate-900 font-display tracking-tight">Ventas por período</div>
+    <div class="text-sm text-slate-500 mt-1">Agrupado por día, semana o mes.</div>
+  </div>
+
+  <div class="min-w-[150px]">
+    <select id="groupBy" class="field-input !bg-slate-50 !border-slate-200">
+      <option value="day">Día</option>
+      <option value="week">Semana</option>
+      <option value="month">Mes</option>
+    </select>
+  </div>
+</div>
+          <div id="salesByPeriod" class="p-5 space-y-3"></div>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-[2rem] overflow-hidden mb-6">
+        <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <div class="text-lg font-extrabold text-slate-900 font-display tracking-tight">Top productos</div>
+            <div class="text-sm text-slate-500 mt-1">Cantidad vendida, total y señales de promo o cupón.</div>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Total vendido</th>
+                <th>Promo</th>
+                <th>Cupón</th>
+              </tr>
+            </thead>
+            <tbody id="topProductsBody">
+              <tr><td colspan="5" class="empty-state">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-6 mb-6">
+            <div class="glass-card rounded-[2rem] overflow-hidden">
+                <div class="px-6 py-5 border-b border-slate-200">
+                    <div class="text-xl font-extrabold text-slate-900 font-display tracking-tight">Productos con promoción</div>
+                    <div class="text-sm text-slate-500 mt-1">Resumen de productos vendidos con promo.</div>
+                </div>
+
+                <div class="table-scroll">
+                    <table class="data-table summary-table promo-table">
+                    <thead>
+                        <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio original</th>
+                        <th>Precio final</th>
+                        <th>Total vendido</th>
+                        <th>Promoción aplicada</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsWithPromotionBody">
+                        <tr><td colspan="6" class="empty-state">Cargando...</td></tr>
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card rounded-[2rem] overflow-hidden">
+        <div class="px-6 py-5 border-b border-slate-200">
+            <div class="text-xl font-extrabold text-slate-900 font-display tracking-tight">Productos con cupón</div>
+            <div class="text-sm text-slate-500 mt-1">Resumen de productos afectados por cupones.</div>
+        </div>
+
+        <div class="table-scroll">
+            <table class="data-table summary-table coupon-table">
+            <thead>
+                <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio base</th>
+                <th>Precio final</th>
+                <th>Total vendido</th>
+                <th>Cupón aplicado</th>
+                </tr>
+            </thead>
+            <tbody id="productsWithCouponBody">
+                <tr><td colspan="6" class="empty-state">Cargando...</td></tr>
+            </tbody>
+            </table>
+        </div>
+        </div>
+
+      <div class="glass-card rounded-[2rem] overflow-hidden mb-6">
+        <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <div class="text-lg font-extrabold text-slate-900 font-display tracking-tight">Pedidos</div>
+            <div class="text-sm text-slate-500 mt-1">Vista histórica de pedidos. Solo lectura.</div>
+          </div>
+
+          <div id="ordersResume" class="text-sm font-semibold text-slate-500">0 resultados</div>
+        </div>
+
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Pedido</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Medio de pago</th>
+                <th>Estado</th>
+                <th>Total</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="ordersBody">
+              <tr><td colspan="7" class="empty-state">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal" class="hidden fixed inset-0 z-50 px-4 py-8 overflow-y-auto">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+    <div class="relative max-w-4xl mx-auto modal-shell overflow-hidden">
+      <div class="p-6 border-b border-slate-200 flex items-center justify-between gap-4">
+        <div>
+          <div id="mTitle" class="text-2xl font-extrabold tracking-tight text-slate-900 font-display">Pedido</div>
+          <div id="mSub" class="text-sm text-slate-500 mt-1"></div>
+        </div>
+        <button id="close" class="h-11 w-11 grid place-items-center rounded-2xl bg-slate-100 hover:bg-slate-200 transition text-slate-700 font-bold">✕</button>
+      </div>
+
+      <div class="p-6 space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div class="bg-slate-50 border border-slate-200 rounded-[1.4rem] p-4">
+            <div class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] font-display">Cliente</div>
+            <div id="mCustomer" class="font-extrabold mt-2 text-slate-900">—</div>
+            <div id="mAddress" class="text-sm text-slate-600 mt-1">—</div>
+          </div>
+
+          <div class="bg-slate-50 border border-slate-200 rounded-[1.4rem] p-4">
+            <div class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] font-display">Pago</div>
+            <div id="mPayment" class="font-extrabold mt-2 text-slate-900">—</div>
+            <div id="mPaymentStatus" class="text-sm text-slate-600 mt-1">—</div>
+          </div>
+
+          <div class="bg-slate-50 border border-slate-200 rounded-[1.4rem] p-4">
+            <div class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] font-display">Estado</div>
+            <div class="mt-2">
+              <span id="mStatusBadge" class="text-xs px-3 py-1 rounded-xl font-semibold bg-slate-100 text-slate-700">—</span>
+            </div>
+          </div>
+
+          <div class="bg-slate-50 border border-slate-200 rounded-[1.4rem] p-4">
+            <div class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] font-display">Total</div>
+            <div id="mTotal" class="text-2xl font-extrabold mt-2 text-slate-900 font-display">$ 0</div>
+            <div id="mCouponLine" class="text-sm text-slate-600 mt-1">—</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-[1.2fr_.8fr] gap-4">
+          <div class="bg-white border border-slate-200 rounded-[1.4rem] overflow-hidden">
+            <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 font-extrabold text-slate-900 font-display">Items</div>
+            <div id="mItems" class="p-4 space-y-3"></div>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-[1.4rem] overflow-hidden">
+            <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 font-extrabold text-slate-900 font-display">Resumen</div>
+            <div id="mSummary" class="p-4 summary-stack"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="fixed top-6 right-6 z-50"></div>
+
+<script>
+  let CONFIG = null;
+  let summaryCache = null;
+  let allOrdersCache = [];
+  let selectedOrderId = null;
+
+  const TOKEN_KEY = "menuonline_token";
+  const SLUG_KEY  = "menuonline_companySlug";
+  const LOGIN_PAGE = "/Admin/login.html";
+  const CONFIG_PATH = "/config.json";
+
+  function logoutToLogin(){
+    localStorage.removeItem(TOKEN_KEY);
+    location.replace(LOGIN_PAGE);
+  }
+
+  function parseJwt(token){
+    try{
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const json = decodeURIComponent(
+        atob(base64).split("").map(c => "%" + c.charCodeAt(0).toString(16).padStart(2,"0")).join("")
+      );
+      return JSON.parse(json);
+    }catch{
+      return null;
+    }
+  }
+
+  function isTokenValid(token){
+    const payload = parseJwt(token);
+    const exp = payload?.exp;
+    if(!exp) return false;
+    return exp > Math.floor(Date.now()/1000);
+  }
+
+  function requireAuth(){
+    const t = localStorage.getItem(TOKEN_KEY);
+    if(!t || !isTokenValid(t)){
+      logoutToLogin();
+      return false;
+    }
+    return true;
+  }
+
+  function authHeaders(extra = {}){
+    const token = localStorage.getItem(TOKEN_KEY);
+    return { ...extra, "Authorization": "Bearer " + token };
+  }
+
+  let activeToastEl = null;
+
+  function toastShow(message, type = "info") {
+    const container = document.getElementById("toastContainer");
+
+    if (activeToastEl) {
+      activeToastEl.remove();
+      activeToastEl = null;
+    }
+
+    const colors = {
+      success: "bg-emerald-500",
+      error: "bg-rose-500",
+      info: "bg-slate-900"
+    };
+
+    const icon = type === "success" ? "✓" : type === "error" ? "⚠" : "⏳";
+
+    const el = document.createElement("div");
+    el.className = `
+      ${colors[type]} text-white px-5 py-4 rounded-2xl shadow-2xl
+      flex items-center gap-3 min-w-[280px]
+      transform transition-all duration-200 translate-y-2 opacity-0
+    `;
+    el.innerHTML = `
+      <div class="text-lg font-bold leading-none">${icon}</div>
+      <div class="text-sm font-semibold">${message}</div>
+    `;
+
+    container.appendChild(el);
+    activeToastEl = el;
+
+    requestAnimationFrame(() => {
+      el.classList.remove("translate-y-2", "opacity-0");
+    });
+
+    return el;
+  }
+
+  function toastUpdate(message, type = "info", autoCloseMs = null) {
+    if (!activeToastEl) {
+      toastShow(message, type);
+      if (autoCloseMs) toastAutoClose(autoCloseMs);
+      return;
+    }
+
+    const colors = {
+      success: "bg-emerald-500",
+      error: "bg-rose-500",
+      info: "bg-slate-900"
+    };
+
+    const icon = type === "success" ? "✓" : type === "error" ? "⚠" : "⏳";
+
+    activeToastEl.className = `
+      ${colors[type]} text-white px-5 py-4 rounded-2xl shadow-2xl
+      flex items-center gap-3 min-w-[280px]
+      transform transition-all duration-200
+    `;
+    activeToastEl.innerHTML = `
+      <div class="text-lg font-bold leading-none">${icon}</div>
+      <div class="text-sm font-semibold">${message}</div>
+    `;
+
+    if (autoCloseMs) toastAutoClose(autoCloseMs);
+  }
+
+  function toastAutoClose(ms = 1800) {
+    const el = activeToastEl;
+    if (!el) return;
+
+    setTimeout(() => {
+      if (activeToastEl !== el) return;
+
+      el.classList.add("translate-y-2", "opacity-0");
+      setTimeout(() => {
+        if (activeToastEl === el) activeToastEl = null;
+        el.remove();
+      }, 200);
+    }, ms);
+  }
+
+  async function loadConfig(){
+    const r = await fetch(CONFIG_PATH, { cache:"no-store" });
+    if(!r.ok) throw new Error("No pude leer config.json");
+    return await r.json();
+  }
+
+
+let CURRENT_COMPANY_SLUG = null;
+
+function getSlug(){
+  return CURRENT_COMPANY_SLUG || CONFIG.companySlug || "";
+}
+  function fmtMoney(n){
+    const num = Number(n || 0);
+    return num.toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  }
+
+  function fmtDateInputValue(date){
+    const d = new Date(date);
+    const yyyy = d.getUTCFullYear();
+    const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+    const dd = String(d.getUTCDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  function fmtDateTime(iso){
+    if(!iso) return "—";
+    return new Date(iso).toLocaleString("es-AR");
+  }
+
+  function esc(v){
+    return String(v ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function normalizeText(v){
+    return String(v || "").trim().toLowerCase();
+  }
+
+  function paymentMethodLabel(value){
+    const v = normalizeText(value);
+    if(v === "cash" || v === "efectivo") return "Efectivo";
+    if(v === "transfer" || v === "transferencia") return "Transferencia";
+    if(v === "qr") return "QR";
+    if(v === "mercadopago" || v === "mercado pago" || v === "mp") return "Mercado Pago";
+    return value || "—";
+  }
+
+  function paymentBadgeClass(value){
+    const v = normalizeText(value);
+    if(v === "cash" || v === "efectivo") return "bg-emerald-50 text-emerald-800 border border-emerald-100";
+    if(v === "transfer" || v === "transferencia") return "bg-sky-50 text-sky-800 border border-sky-100";
+    if(v === "qr") return "bg-cyan-50 text-cyan-800 border border-cyan-100";
+    if(v === "mercadopago" || v === "mercado pago" || v === "mp") return "bg-violet-50 text-violet-800 border border-violet-100";
+    return "bg-slate-100 text-slate-700 border border-slate-200";
+  }
+
+  async function loadAdminContext(){
+  const r = await fetchAuth(`${CONFIG.apiBaseUrl}/api/admin/me`);
+  if(!r) return null;
+
+  if(!r.ok){
+    throw new Error("No pude cargar el contexto del administrador");
+  }
+
+  const me = await r.json();
+
+  CURRENT_COMPANY_SLUG =
+    me.companySlug ||
+    me.CompanySlug ||
+    me.slug ||
+    me.Slug ||
+    "";
+
+  if(!CURRENT_COMPANY_SLUG){
+    throw new Error("No se pudo resolver la empresa del administrador");
+  }
+
+  localStorage.setItem(SLUG_KEY, CURRENT_COMPANY_SLUG);
+
+  return me;
+}
+
+  function paymentStatusLabel(value){
+    const n = Number(value);
+    if(n === 0) return "Sin estado";
+    if(n === 1) return "Pendiente";
+    if(n === 2) return "Aprobado";
+    if(n === 3) return "Rechazado";
+    if(n === 4) return "Cancelado";
+    return value == null || value === "" ? "—" : `Estado ${value}`;
+  }
+
+  function paymentStatusBadgeClass(value){
+    const n = Number(value);
+    if(n === 2) return "bg-emerald-50 text-emerald-800 border border-emerald-100";
+    if(n === 1) return "bg-amber-50 text-amber-800 border border-amber-100";
+    if(n === 3) return "bg-rose-50 text-rose-800 border border-rose-100";
+    if(n === 4) return "bg-slate-100 text-slate-700 border border-slate-200";
+    return "bg-slate-50 text-slate-600 border border-slate-200";
+  }
+
+  function statusLabel(s){
+    const n = Number(s);
+    const map = {
+      0:{ t:"Nuevo", cls:"bg-slate-100 text-slate-700" },
+      1:{ t:"Preparando", cls:"bg-amber-100 text-amber-900" },
+      2:{ t:"Listo", cls:"bg-sky-100 text-sky-800" },
+      3:{ t:"Entregado", cls:"bg-emerald-100 text-emerald-900" },
+      4:{ t:"Cancelado", cls:"bg-rose-100 text-rose-800" },
+      5:{ t:"Finalizado", cls:"bg-violet-100 text-violet-800" }
+    };
+    return map[n] || { t:`Estado ${s ?? "—"}`, cls:"bg-slate-100 text-slate-700" };
+  }
+
+  function boolBadge(v, yesText = "Sí", noText = "No"){
+    if(v){
+      return `<span class="badge-soft bg-emerald-50 text-emerald-800 border border-emerald-100">${yesText}</span>`;
+    }
+    return `<span class="badge-soft bg-slate-100 text-slate-600 border border-slate-200">${noText}</span>`;
+  }
+
+  function isDeletedText(text){
+    const raw = String(text || "");
+    return raw.includes("(Producto eliminado)") || raw.includes("(Eliminada)") || raw.includes("(Eliminado)") || raw.includes("(Opción eliminada)") || raw.includes("(Variante eliminada)");
+  }
+
+  function getDateRangeDefault(){
+    const now = new Date();
+    const from = new Date(now);
+    from.setUTCDate(from.getUTCDate() - 6);
+    return {
+      from: fmtDateInputValue(from),
+      to: fmtDateInputValue(now)
+    };
+  }
+
+  function setDefaultDates(){
+    const range = getDateRangeDefault();
+    document.getElementById("from").value = range.from;
+    document.getElementById("to").value = range.to;
+  }
+
+  function updateRangeText(){
+    const from = document.getElementById("from").value;
+    const to = document.getElementById("to").value;
+    const groupBy = document.getElementById("groupBy").value;
+    const labelMap = { day:"día", week:"semana", month:"mes" };
+    document.getElementById("rangeText").textContent =
+      `${from || "—"} → ${to || "—"} · ${labelMap[groupBy] || groupBy}`;
+  }
+
+  function readFilters(){
+    return {
+      from: document.getElementById("from").value || "",
+      to: document.getElementById("to").value || "",
+      paymentMethod: document.getElementById("paymentMethod").value || "",
+      status: document.getElementById("status").value || "",
+      paymentStatus: document.getElementById("paymentStatus").value || "",
+      onlyWithPromotion: document.getElementById("onlyWithPromotion").checked,
+      onlyWithCoupon: document.getElementById("onlyWithCoupon").checked,
+      includeCanceled: document.getElementById("includeCanceled").checked,
+      groupBy: document.getElementById("groupBy").value || "day"
+    };
+  }
+
+  async function fetchAuth(url, options = {}){
+    if(!requireAuth()) return null;
+
+    const res = await fetch(url, {
+      ...options,
+      headers: authHeaders(options.headers || {})
+    });
+
+    if(res.status === 401 || res.status === 403){
+      logoutToLogin();
+      return null;
+    }
+
+    return res;
+  }
+
+  function buildSummaryQuery(filters){
+    const qs = new URLSearchParams();
+
+    if(filters.from) qs.set("from", filters.from);
+    if(filters.to) qs.set("to", filters.to);
+    if(filters.paymentMethod) qs.set("paymentMethod", filters.paymentMethod);
+    if(filters.status !== "") qs.set("status", filters.status);
+    if(filters.paymentStatus !== "") qs.set("paymentStatus", filters.paymentStatus);
+    if(filters.onlyWithPromotion) qs.set("onlyWithPromotion", "true");
+    if(filters.onlyWithCoupon) qs.set("onlyWithCoupon", "true");
+    if(filters.groupBy) qs.set("groupBy", filters.groupBy);
+
+    return qs.toString();
+  }
+
+  async function getSummary(){
+    const filters = readFilters();
+    updateRangeText();
+
+    const query = buildSummaryQuery(filters);
+    const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/summary${query ? `?${query}` : ""}`;
+    const r = await fetchAuth(url);
+    if(!r) return;
+
+    if(!r.ok){
+      let msg = "Error cargando centro de ventas";
+      try{
+        const txt = await r.text();
+        if(txt) msg = txt;
+      }catch{}
+      throw new Error(msg);
+    }
+
+    const data = await r.json();
+    summaryCache = data;
+    allOrdersCache = arr(pick(data, "orders", "Orders"));
+    renderAll();
+  }
+
+  async function getOrderDetail(id){
+    const url = `${CONFIG.apiBaseUrl}/api/admin/${getSlug()}/summary/orders/${id}`;
+    const r = await fetchAuth(url);
+    if(!r) return null;
+
+    if(!r.ok){
+      let msg = "No pude cargar el detalle";
+      try{
+        const txt = await r.text();
+        if(txt) msg = txt;
+      }catch{}
+      throw new Error(msg);
+    }
+
+    return await r.json();
+  }
+
+    function pick(obj, ...keys){
+    for(const key of keys){
+      if(obj && obj[key] !== undefined && obj[key] !== null){
+        return obj[key];
+      }
+    }
+    return undefined;
+  }
+
+  function arr(value){
+    return Array.isArray(value) ? value : [];
+  }
+
+  function num(value){
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function getVisibleOrders(){
+    const includeCanceled = document.getElementById("includeCanceled").checked;
+    const orders = arr(allOrdersCache).slice();
+
+    if(includeCanceled) return orders;
+
+    return orders.filter(o => num(pick(o, "status", "Status")) !== 4);
+  }
+
+  function renderAll(){
+    renderKpis();
+    renderSalesByPaymentMethod();
+    renderSalesByPeriod();
+    renderTopProducts();
+    renderProductsWithPromotion();
+    renderProductsWithCoupon();
+    renderOrders();
+  }
+
+  function renderKpis(){
+    const totals = pick(summaryCache, "totals", "Totals") || {};
+    const visibleOrders = getVisibleOrders();
+
+    const grossTotal = document.getElementById("includeCanceled").checked
+      ? visibleOrders.reduce((acc, o) => acc + num(pick(o, "total", "Total")), 0)
+      : num(pick(totals, "grossTotal", "GrossTotal"));
+
+    document.getElementById("kpiTotalSales").textContent = "$ " + fmtMoney(grossTotal);
+    document.getElementById("kpiOrders").textContent = String(visibleOrders.length);
+    document.getElementById("kpiCancelled").textContent = `${num(pick(totals, "cancelledCount", "CancelledCount"))} cancelados`;
+
+    const promoProducts = arr(pick(summaryCache, "productsWithPromotions", "ProductsWithPromotions"));
+    const couponProducts = arr(pick(summaryCache, "productsWithCoupons", "ProductsWithCoupons"));
+
+    const promoSales = promoProducts.reduce((acc, x) => acc + num(pick(x, "totalSold", "TotalSold")), 0);
+    const couponSales = couponProducts.reduce((acc, x) => acc + num(pick(x, "totalSold", "TotalSold")), 0);
+
+    document.getElementById("kpiPromoSales").textContent = "$ " + fmtMoney(promoSales);
+    document.getElementById("kpiPromoCount").textContent = `${promoProducts.length} productos`;
+
+    document.getElementById("kpiCouponSales").textContent = "$ " + fmtMoney(couponSales);
+    document.getElementById("kpiCouponCount").textContent = `${couponProducts.length} productos`;
+  }
+
+   function renderSalesByPaymentMethod(){
+    const container = document.getElementById("salesByPaymentMethod");
+    let rows = arr(pick(summaryCache, "salesByPaymentMethod", "SalesByPaymentMethod"));
+    const includeCanceled = document.getElementById("includeCanceled").checked;
+
+    if(includeCanceled){
+      const rebuilt = new Map();
+      for(const order of allOrdersCache){
+        const key = pick(order, "paymentMethod", "PaymentMethod") || "Sin definir";
+        if(!rebuilt.has(key)){
+          rebuilt.set(key, { paymentMethod: key, ordersCount: 0, total: 0 });
+        }
+        const row = rebuilt.get(key);
+        row.ordersCount += 1;
+        row.total += num(pick(order, "total", "Total"));
+      }
+      rows = Array.from(rebuilt.values());
+    }
+
+    const total = rows.reduce((acc, r) => acc + num(r.total), 0);
+
+    if(!rows.length){
+      container.innerHTML = `<div class="empty-state">No hay datos para mostrar.</div>`;
+      return;
+    }
+
+    rows.sort((a,b) => num(b.total) - num(a.total));
+
+    container.innerHTML = rows.map(r => {
+      const percent = total > 0 ? ((num(r.total) / total) * 100) : 0;
+      return `
+        <div class="rounded-[1.4rem] border border-slate-200 bg-slate-50 p-4">
+          <div class="flex items-center justify-between gap-3 mb-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="badge-soft ${paymentBadgeClass(r.paymentMethod)}">${esc(paymentMethodLabel(r.paymentMethod))}</span>
+              <span class="text-sm text-slate-500">${num(r.ordersCount)} pedidos</span>
+            </div>
+            <div class="text-lg font-extrabold text-slate-900 font-display">$ ${fmtMoney(r.total || 0)}</div>
+          </div>
+
+          <div class="h-2 rounded-full bg-slate-200 overflow-hidden">
+            <div class="h-full rounded-full bg-violet-500" style="width:${Math.max(4, Math.min(100, percent))}%"></div>
+          </div>
+          <div class="text-xs text-slate-400 mt-2">${percent.toFixed(1)}%</div>
+        </div>
+      `;
+    }).join("");
+  }
+
+    function renderSalesByPeriod(){
+    const container = document.getElementById("salesByPeriod");
+    const rows = arr(pick(summaryCache, "salesByPeriod", "SalesByPeriod"));
+
+    const max = Math.max(...rows.map(r => num(r.total)), 0);
+
+    if(!rows.length){
+      container.innerHTML = `<div class="empty-state">No hay datos para mostrar.</div>`;
+      return;
+    }
+
+    container.innerHTML = rows.map(r => {
+      const period = pick(r, "period", "Period") || "—";
+      const ordersCount = num(pick(r, "ordersCount", "OrdersCount"));
+      const total = num(pick(r, "total", "Total"));
+      const percent = max > 0 ? ((total / max) * 100) : 0;
+
+      return `
+        <div class="rounded-[1.4rem] border border-slate-200 bg-slate-50 p-4">
+          <div class="flex items-center justify-between gap-3 mb-2">
+            <div>
+              <div class="font-bold text-slate-900">${esc(period)}</div>
+              <div class="text-sm text-slate-500">${ordersCount} pedidos</div>
+            </div>
+            <div class="text-lg font-extrabold text-slate-900 font-display">$ ${fmtMoney(total)}</div>
+          </div>
+
+          <div class="h-2 rounded-full bg-slate-200 overflow-hidden">
+            <div class="h-full rounded-full bg-violet-500" style="width:${Math.max(4, Math.min(100, percent))}%"></div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+    function renderTopProducts(){
+    const body = document.getElementById("topProductsBody");
+    const rows = arr(pick(summaryCache, "topProducts", "TopProducts"));
+
+    if(!rows.length){
+      body.innerHTML = `<tr><td colspan="5" class="empty-state">No hay productos para mostrar.</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = rows.map(r => `
+      <tr>
+        <td><div class="font-bold text-slate-900">${esc(pick(r, "name", "Name") || "")}</div></td>
+        <td class="font-semibold text-slate-700">${num(pick(r, "quantity", "Quantity"))}</td>
+        <td class="font-extrabold text-slate-900">$ ${fmtMoney(pick(r, "totalSold", "TotalSold") || 0)}</td>
+        <td>${boolBadge(Boolean(pick(r, "hasPromotion", "HasPromotion")), "Sí", "No")}</td>
+        <td>${boolBadge(Boolean(pick(r, "hasCoupon", "HasCoupon")), "Sí", "No")}</td>
+      </tr>
+    `).join("");
+  }
+
+function renderProductsWithPromotion(){
+  const body = document.getElementById("productsWithPromotionBody");
+  const rows = Array.isArray(summaryCache?.productsWithPromotions)
+    ? summaryCache.productsWithPromotions
+    : Array.isArray(summaryCache?.ProductsWithPromotions)
+      ? summaryCache.ProductsWithPromotions
+      : [];
+
+  if(!rows.length){
+    body.innerHTML = `<tr><td colspan="6" class="empty-state">No hay productos con promoción.</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = rows.map(r => {
+    const name = r.name ?? r.Name ?? "";
+    const quantity = Number(r.quantity ?? r.Quantity ?? 0);
+    const totalSold = Number(r.totalSold ?? r.TotalSold ?? 0);
+    const originalUnitPrice = Number(r.originalUnitPrice ?? r.OriginalUnitPrice ?? 0);
+    const finalUnitPrice = Number(r.finalUnitPrice ?? r.FinalUnitPrice ?? 0);
+    const promotionTitle = String(r.promotionTitle ?? r.PromotionTitle ?? "").trim();
+
+    return `
+      <tr>
+        <td>
+          <div class="title-cell">
+            <div class="title-main">${esc(name)}</div>
+          </div>
+        </td>
+        <td class="font-semibold text-slate-700 tabular-nums">${quantity}</td>
+        <td class="font-extrabold text-slate-700 price-col">$ ${fmtMoney(originalUnitPrice)}</td>
+        <td class="font-extrabold text-violet-700 price-col">$ ${fmtMoney(finalUnitPrice)}</td>
+        <td class="font-extrabold text-slate-900 price-col">$ ${fmtMoney(totalSold)}</td>
+        <td>
+          ${
+            promotionTitle
+              ? `<span class="summary-pill promo">${esc(promotionTitle)}</span>`
+              : `<span class="text-slate-400 font-bold">—</span>`
+          }
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function renderProductsWithCoupon(){
+  const body = document.getElementById("productsWithCouponBody");
+  const rows = Array.isArray(summaryCache?.productsWithCoupons)
+    ? summaryCache.productsWithCoupons
+    : Array.isArray(summaryCache?.ProductsWithCoupons)
+      ? summaryCache.ProductsWithCoupons
+      : [];
+
+  if(!rows.length){
+    body.innerHTML = `<tr><td colspan="6" class="empty-state">No hay productos con cupón.</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = rows.map(r => {
+    const name = r.name ?? r.Name ?? "";
+    const quantity = Number(r.quantity ?? r.Quantity ?? 0);
+    const totalSold = Number(r.totalSold ?? r.TotalSold ?? 0);
+    const originalUnitPrice = Number(r.originalUnitPrice ?? r.OriginalUnitPrice ?? 0);
+    const finalUnitPrice = Number(r.finalUnitPrice ?? r.FinalUnitPrice ?? 0);
+    const couponCode = String(r.couponCode ?? r.CouponCode ?? "").trim();
+
+    return `
+      <tr>
+        <td>
+          <div class="title-cell">
+            <div class="title-main">${esc(name)}</div>
+          </div>
+        </td>
+        <td class="font-semibold text-slate-700 tabular-nums">${quantity}</td>
+        <td class="font-extrabold text-slate-700 price-col">$ ${fmtMoney(originalUnitPrice)}</td>
+        <td class="font-extrabold text-emerald-700 price-col">$ ${fmtMoney(finalUnitPrice)}</td>
+        <td class="font-extrabold text-slate-900 price-col">$ ${fmtMoney(totalSold)}</td>
+        <td>
+          ${
+            couponCode
+              ? `<span class="summary-pill coupon">${esc(couponCode)}</span>`
+              : `<span class="text-slate-400 font-bold">—</span>`
+          }
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+    function renderOrders(){
+    const body = document.getElementById("ordersBody");
+    const rows = getVisibleOrders();
+
+    document.getElementById("ordersResume").textContent = `${rows.length} resultados`;
+
+    if(!rows.length){
+      body.innerHTML = `<tr><td colspan="7" class="empty-state">No hay pedidos para mostrar.</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = rows.map(o => {
+      const id = pick(o, "id", "Id");
+      const orderCode = pick(o, "orderCode", "OrderCode");
+      const orderNumber = pick(o, "orderNumber", "OrderNumber");
+      const displayOrder = orderCode || orderNumber || "—";
+      const createdAt = pick(o, "createdAt", "CreatedAt");
+      const customerName = pick(o, "customerName", "CustomerName") || "Cliente sin nombre";
+      const paymentMethod = pick(o, "paymentMethod", "PaymentMethod");
+      const payStatusValue = pick(o, "paymentStatus", "PaymentStatus");
+      const total = pick(o, "total", "Total");
+      const status = statusLabel(pick(o, "status", "Status"));
+
+      return `
+        <tr>
+          <td><div class="font-extrabold text-slate-900 font-display">${esc(displayOrder)}</div></td>
+          <td><div class="text-slate-700">${esc(fmtDateTime(createdAt))}</div></td>
+          <td><div class="font-semibold text-slate-900">${esc(customerName)}</div></td>
+            <td>
+            <div class="flex flex-wrap gap-2">
+                <span class="badge-soft ${paymentBadgeClass(paymentMethod)}">${esc(paymentMethodLabel(paymentMethod))}</span>
+                ${
+                normalizeText(paymentMethod) === "mercadopago" ||
+                normalizeText(paymentMethod) === "mercado pago" ||
+                normalizeText(paymentMethod) === "mp"
+                    ? `<span class="badge-soft ${paymentStatusBadgeClass(payStatusValue)}">${esc(paymentStatusLabel(payStatusValue))}</span>`
+                    : ``
+                }
+            </div>
+            </td>
+          <td><span class="badge-soft ${status.cls.replaceAll(" ", " border border-transparent ")}">${esc(status.t)}</span></td>
+          <td class="font-extrabold text-slate-900">$ ${fmtMoney(total || 0)}</td>
+          <td>
+            <button data-open="${id}" class="soft-btn px-4 py-2 rounded-xl bg-slate-100 text-slate-800 hover:bg-slate-200 text-sm">
+              Ver detalle
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    body.querySelectorAll("[data-open]").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = Number(btn.getAttribute("data-open"));
+        await openModal(id);
+      });
+    });
+  }
+
+ function renderModalItem(item){
+  const selectionList = Array.isArray(item.selections) ? item.selections : [];
+  const configSummary = Array.isArray(item.configurationSummary) ? item.configurationSummary : [];
+  const nameDeleted = Boolean(item.isDeleted) || isDeletedText(item.name);
+
+  return `
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <div class="font-bold ${nameDeleted ? "text-rose-600" : "text-slate-900"}">
+            ${esc(item.name || "Item")}
+          </div>
+
+          <div class="text-xs text-slate-500 mt-1">
+            ${Number(item.quantity || 0)} x $${fmtMoney(item.unitPrice || 0)}
+          </div>
+
+          ${configSummary.length ? `
+            <div class="mt-3">
+              <div class="text-sm font-semibold text-slate-700 mb-1">Configuración:</div>
+              <div class="space-y-1">
+                ${configSummary.map(x => `<div class="text-sm text-slate-600">${esc(x)}</div>`).join("")}
+              </div>
+            </div>
+          ` : ``}
+
+          ${selectionList.length ? `
+            <div class="mt-3 space-y-2">
+              ${selectionList.map(sel => `
+                <div class="rounded-xl bg-white border border-slate-200 px-3 py-2">
+                  <div class="text-sm ${sel.isOptionDeleted ? "text-rose-600 font-bold" : "text-slate-700 font-semibold"}">
+                    ${esc(sel.optionName || "Opción")}
+                  </div>
+                  ${sel.variantName ? `
+                    <div class="text-sm ${sel.isVariantDeleted ? "text-rose-600" : "text-slate-500"} mt-1">
+                      ${esc(sel.variantName)}
+                    </div>
+                  ` : ``}
+                  ${Number(sel.extraPrice || 0) > 0 ? `
+                    <div class="text-xs text-slate-500 mt-1">Extra: $${fmtMoney(sel.extraPrice || 0)}</div>
+                  ` : ``}
+                </div>
+              `).join("")}
+            </div>
+          ` : ``}
+
+          ${item.note ? `
+            <div class="mt-3 text-sm text-slate-600">
+              <span class="font-semibold text-slate-700">Nota:</span> ${esc(item.note)}
+            </div>
+          ` : ``}
+
+          ${(item.hadPromotion || item.promotionTitle || Number(item.promotionDiscountAmount || 0) > 0) ? `
+            <div class="mt-3 flex flex-wrap gap-2">
+              <span class="badge-soft bg-violet-50 text-violet-800 border border-violet-100">
+                Promo${item.promotionTitle ? ` · ${esc(item.promotionTitle)}` : ``}
+              </span>
+              ${Number(item.promotionDiscountAmount || 0) > 0 ? `
+                <span class="badge-soft bg-emerald-50 text-emerald-800 border border-emerald-100">
+                  Descuento $${fmtMoney(item.promotionDiscountAmount || 0)}
+                </span>
+              ` : ``}
+            </div>
+          ` : ``}
+        </div>
+
+        <div class="font-extrabold text-slate-900 shrink-0">
+          $ ${fmtMoney(item.lineTotal || 0)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+  function renderSummaryBlock(detail){
+  const subtotalBase = Number(detail.subtotalBase || 0);
+  const surchargePercent = Number(detail.paymentSurchargePercent || 0);
+  const surchargeAmount = Number(detail.paymentSurchargeAmount || 0);
+  const discountAmount = Number(detail.discountAmount || 0);
+  const total = Number(detail.total || 0);
+  const couponLabel = detail.couponLabel || "Sin cupón";
+  const paymentMethod = paymentMethodLabel(detail.paymentMethod || "—");
+  const paymentStatus = paymentStatusLabel(detail.paymentStatus);
+  const status = statusLabel(detail.status);
+
+  return `
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] font-display mb-2">Medio de pago</div>
+      <div class="flex flex-wrap gap-2">
+        <span class="badge-soft ${paymentBadgeClass(paymentMethod)}">${esc(paymentMethod)}</span>
+        <span class="badge-soft ${paymentStatusBadgeClass(detail.paymentStatus)}">${esc(paymentStatus)}</span>
+      </div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] font-display mb-2">Estado</div>
+      <span class="badge-soft ${status.cls.replaceAll(" ", " border border-transparent ")}">${esc(status.t)}</span>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] font-display mb-2">Subtotal base</div>
+      <div class="font-extrabold text-slate-900">$ ${fmtMoney(subtotalBase)}</div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] font-display mb-2">Recargo</div>
+      <div class="font-extrabold text-slate-900">$ ${fmtMoney(surchargeAmount)}</div>
+      ${surchargePercent > 0 ? `<div class="text-xs text-slate-500 mt-1">${fmtMoney(surchargePercent)}%</div>` : ``}
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] font-display mb-2">Cupón</div>
+      <div class="font-semibold text-slate-900">${esc(couponLabel)}</div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] font-display mb-2">Descuento</div>
+      <div class="font-extrabold text-slate-900">$ ${fmtMoney(discountAmount)}</div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+      <div class="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] font-display mb-2">Total final</div>
+      <div class="text-2xl font-extrabold text-slate-900 font-display">$ ${fmtMoney(total)}</div>
+    </div>
+  `;
+}
+
+  async function openModal(id){
+  try{
+    toastShow("Cargando detalle...", "info");
+    const detail = await getOrderDetail(id);
+    if(!detail) return;
+
+    selectedOrderId = id;
+
+    const status = statusLabel(detail.status);
+
+    const displayOrder = detail.orderCode || detail.orderNumber || "—";
+  document.getElementById("mTitle").textContent = `Pedido ${displayOrder}`;
+    document.getElementById("mSub").textContent = fmtDateTime(detail.createdAt);
+    document.getElementById("mCustomer").textContent = detail.customerName || "—";
+    document.getElementById("mAddress").textContent = detail.address || "—";
+    document.getElementById("mPayment").textContent = paymentMethodLabel(detail.paymentMethod);
+    document.getElementById("mPaymentStatus").textContent = paymentStatusLabel(detail.paymentStatus);
+    document.getElementById("mTotal").textContent = "$ " + fmtMoney(detail.total || 0);
+    document.getElementById("mCouponLine").textContent = detail.couponLabel || "Sin cupón";
+
+    const badge = document.getElementById("mStatusBadge");
+    badge.className = `text-xs px-3 py-1 rounded-xl font-semibold ${status.cls}`;
+    badge.textContent = status.t;
+
+    const items = Array.isArray(detail.items) ? detail.items : [];
+    document.getElementById("mItems").innerHTML = items.length
+      ? items.map(renderModalItem).join("")
+      : `<div class="text-sm text-slate-400">(Sin items)</div>`;
+
+    document.getElementById("mSummary").innerHTML = renderSummaryBlock(detail);
+
+    document.getElementById("modal").classList.remove("hidden");
+    toastAutoClose(300);
+  } catch (e) {
+    console.error(e);
+    toastUpdate("No pude abrir el detalle", "error", 2500);
+  }
+}
+
+  function closeModal(){
+    document.getElementById("modal").classList.add("hidden");
+    selectedOrderId = null;
+  }
+
+  async function refreshAll(){
+    try{
+      toastShow("Actualizando centro de ventas...", "info");
+      await getSummary();
+      toastUpdate("Centro de ventas actualizado", "success", 1600);
+    }catch(e){
+      console.error(e);
+      toastUpdate(e.message || "Error actualizando", "error", 2600);
+    }
+  }
+
+  document.getElementById("refresh").addEventListener("click", refreshAll);
+
+  document.getElementById("from").addEventListener("change", refreshAll);
+  document.getElementById("to").addEventListener("change", refreshAll);
+  document.getElementById("groupBy").addEventListener("change", refreshAll);
+  document.getElementById("onlyWithPromotion").addEventListener("change", refreshAll);
+  document.getElementById("onlyWithCoupon").addEventListener("change", refreshAll);
+  document.getElementById("paymentMethod").addEventListener("change", refreshAll);
+  document.getElementById("status").addEventListener("change", refreshAll);
+  document.getElementById("paymentStatus").addEventListener("change", refreshAll);
+  document.getElementById("includeCanceled").addEventListener("change", renderAll);
+
+  document.getElementById("close").addEventListener("click", closeModal);
+  document.getElementById("modal").addEventListener("click", (e) => {
+    if(e.target.id === "modal") closeModal();
+  });
+
+(async function init(){
+  try{
+    if(!requireAuth()) return;
+
+    CONFIG = await loadConfig();
+    await loadAdminContext();
+
+    setDefaultDates();
+    updateRangeText();
+    await getSummary();
+  }catch(e){
+    console.error(e);
+    toastShow("Error ❌ " + (e.message || e), "error");
+    toastAutoClose(3000);
+  }
+})();
+</script>
+
+</body>
+</html>

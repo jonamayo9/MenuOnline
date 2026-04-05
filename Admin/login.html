@@ -292,11 +292,13 @@
     .right-panel{
       position:relative;
       display:flex;
-      align-items:center;
+      align-items:stretch;
     }
 
     .login-card{
       width:100%;
+      min-height:720px;
+      height:100%;
       position:relative;
       overflow:hidden;
       border-radius:40px;
@@ -305,6 +307,9 @@
       box-shadow:0 34px 90px rgba(15,23,42,.12);
       backdrop-filter:blur(20px);
       padding:34px 30px 26px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
     }
 
     .login-card::before{
@@ -333,8 +338,8 @@
     }
 
     .login-logo{
-      width:200px;
-      height:200px;
+      width:250px;
+      height:250px;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -420,31 +425,6 @@
       border:1px solid transparent;
       white-space:nowrap;
       font-family:'Plus Jakarta Sans',sans-serif;
-    }
-
-    .switch-row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      background:#f8fafc;
-      border:1px solid var(--line);
-      border-radius:24px;
-      padding:17px 16px;
-      margin-bottom:16px;
-    }
-
-    .switch-title{
-      font-size:15px;
-      font-weight:800;
-      color:var(--ink);
-      font-family:'Plus Jakarta Sans',sans-serif;
-    }
-
-    .switch-subtitle{
-      margin-top:3px;
-      font-size:12px;
-      color:var(--muted);
     }
 
     .field-block{
@@ -563,28 +543,33 @@
 
     @media (max-width: 640px){
       .page{
-        padding:14px 12px 24px;
+        padding:0;
+        align-items:stretch;
+        justify-content:stretch;
+      }
+
+      .shell{
+        max-width:none;
+        min-height:100vh;
+        display:block;
       }
 
       .left-panel{
-        border-radius:28px;
-        padding:24px 18px;
+        display:none;
+      }
+
+      .right-panel{
+        min-height:100vh;
+        display:flex;
+        align-items:stretch;
       }
 
       .login-card{
-        border-radius:30px;
+        min-height:100vh;
+        border-radius:0;
         padding:24px 18px 22px;
-      }
-
-      .top-brand-logo{
-        width:74px;
-        height:74px;
-      }
-
-      .top-brand-fallback{
-        width:74px;
-        height:74px;
-        font-size:26px;
+        box-shadow:none;
+        border:none;
       }
 
       .login-logo{
@@ -596,10 +581,6 @@
         width:170px;
         height:170px;
         font-size:54px;
-      }
-
-      .hero-stats{
-        grid-template-columns:1fr;
       }
 
       .section-head{
@@ -627,8 +608,6 @@
       <section class="left-panel">
         <div class="left-inner">
           <div class="top-brand">
-
-
             <div class="top-brand-copy">
               <div class="top-brand-title">PedidoClick</div>
               <div class="top-brand-sub">Panel administrativo</div>
@@ -680,7 +659,7 @@
                 <div class="hero-feature-dot"></div>
                 <div>
                   <div class="hero-feature-title">Acceso por perfil</div>
-                  <div class="hero-feature-text">Entrá como Admin o SuperAdmin según el nivel de gestión que necesites.</div>
+                  <div class="hero-feature-text">Entrá según el nivel de gestión que tengas asignado.</div>
                 </div>
               </div>
             </div>
@@ -700,7 +679,7 @@
             <div class="login-top">
               <div class="login-logo-wrap">
                 <div class="login-logo">
-                  <img src="../img/iniciales_1.png" alt="PedidoClick"
+                  <img src="../img/iniciales_sf.png" alt="PedidoClick"
                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                   <div class="login-logo-fallback">PC</div>
                 </div>
@@ -713,25 +692,12 @@
             <div class="section-head">
               <div>
                 <div class="section-title">Iniciar sesión</div>
-                <div class="section-subtitle" id="subtitle">Empresa + email + contraseña.</div>
+                <div class="section-subtitle" id="subtitle">Email + contraseña.</div>
               </div>
 
               <div class="mode-pill bg-amber-50 text-amber-800 border border-amber-100" id="pillMode">
-                Admin
+                Acceso
               </div>
-            </div>
-
-            <div class="switch-row">
-              <div>
-                <div class="switch-title">Soy SuperAdmin</div>
-                <div class="switch-subtitle">Ingresar sin empresa.</div>
-              </div>
-              <input id="isSuperAdmin" type="checkbox" class="w-5 h-5 accent-slate-900 cursor-pointer"/>
-            </div>
-
-            <div id="companyBox" class="field-block">
-              <label class="field-label">Empresa (slug)</label>
-              <input id="companySlug" type="text" placeholder="como-en-casa" class="field-input"/>
             </div>
 
             <div class="field-block">
@@ -865,8 +831,8 @@
       return p?.role || p?.Role || null;
     }
 
-    async function doLogin(apiBaseUrl, companySlugOrEmpty, email, password, isSuper){
-      const body = { email, password, companySlug: companySlugOrEmpty };
+    async function doLogin(apiBaseUrl, email, password){
+      const body = { email, password };
 
       const res = await fetch(`${apiBaseUrl}/api/auth/login`, {
         method: "POST",
@@ -892,12 +858,11 @@
       const role = String(data.role || "").toLowerCase();
       localStorage.setItem("menuonline_role", data.role || "");
 
-      const isSuperFinal = !!isSuper || role === "superadmin";
+      const isSuperFinal = role === "superadmin";
       localStorage.setItem(IS_SUPER_KEY, isSuperFinal ? "true" : "false");
 
       if(!isSuperFinal){
         if(data.companySlug) localStorage.setItem(SLUG_KEY, data.companySlug);
-        else localStorage.setItem(SLUG_KEY, companySlugOrEmpty || "");
       } else {
         localStorage.removeItem(SLUG_KEY);
       }
@@ -913,46 +878,13 @@
       return { isSuper: isSuperFinal };
     }
 
-    function applyMode(isSuper){
-      const companyBox = document.getElementById("companyBox");
-      const subtitle = document.getElementById("subtitle");
-      const pill = document.getElementById("pillMode");
-
-      if(isSuper){
-        companyBox.classList.add("hidden");
-        subtitle.textContent = "Email + contraseña (sin empresa).";
-        pill.textContent = "SuperAdmin";
-        pill.className = "mode-pill bg-purple-50 text-purple-800 border border-purple-100";
-      }else{
-        companyBox.classList.remove("hidden");
-        subtitle.textContent = "Empresa + email + contraseña.";
-        pill.textContent = "Admin";
-        pill.className = "mode-pill bg-amber-50 text-amber-800 border border-amber-100";
-      }
-    }
-
     (async function init(){
       try{
         const cfg = await loadConfig();
         const api = cfg.apiBaseUrl || "—";
         document.getElementById("pillApi").textContent = `API: ${api}`;
 
-        const lastIsSuper = localStorage.getItem(IS_SUPER_KEY) === "true";
-        document.getElementById("isSuperAdmin").checked = lastIsSuper;
-        applyMode(lastIsSuper);
-
-        document.getElementById("isSuperAdmin").addEventListener("change", (e) => {
-          const isSuper = e.target.checked;
-          applyMode(isSuper);
-          localStorage.setItem(IS_SUPER_KEY, isSuper ? "true" : "false");
-        });
-
-        if(cfg.companySlug) document.getElementById("companySlug").value = cfg.companySlug;
-
-        const lastSlug = localStorage.getItem(SLUG_KEY);
         const lastEmail = localStorage.getItem(EMAIL_KEY);
-
-        if(!document.getElementById("companySlug").value && lastSlug) document.getElementById("companySlug").value = lastSlug;
         if(lastEmail) document.getElementById("email").value = lastEmail;
 
         const t = localStorage.getItem(TOKEN_KEY);
@@ -974,8 +906,6 @@
         document.getElementById("btnLogin").addEventListener("click", async () => {
           setMessage(null);
 
-          const isSuper = document.getElementById("isSuperAdmin").checked;
-          const companySlug = document.getElementById("companySlug").value.trim();
           const email = document.getElementById("email").value.trim();
           const password = document.getElementById("password").value;
 
@@ -984,14 +914,8 @@
             return;
           }
 
-          if(!isSuper && !companySlug){
-            setMessage("Completá empresa, email y contraseña.");
-            return;
-          }
-
           try{
-            const slugOrEmpty = isSuper ? "" : companySlug;
-            await doLogin(cfg.apiBaseUrl, slugOrEmpty, email, password, isSuper);
+            await doLogin(cfg.apiBaseUrl, email, password);
             setMessage("Bienvenido al sistema ✅", "success");
           }catch(e){
             console.error(e);
@@ -999,7 +923,7 @@
           }
         });
 
-        ["companySlug","email","password"].forEach(id => {
+        ["email","password"].forEach(id => {
           const el = document.getElementById(id);
           if(!el) return;
           el.addEventListener("keydown", (e) => {

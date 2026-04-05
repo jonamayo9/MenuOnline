@@ -123,6 +123,31 @@
                   <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">&nbsp;</div>
                 </div>
 
+                <div class="md:col-span-3 flex flex-col">
+
+                  <label class="text-xs text-slate-400 mb-1 block">
+                    Tipo de negocio
+                  </label>
+
+                  <select id="m_businessType"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm">
+
+                    <option value="1">
+                      Gastronomía
+                    </option>
+
+                    <option value="2">
+                      Otros (kiosco, tienda, supermercado)
+                    </option>
+
+                  </select>
+
+                  <div class="text-[11px] text-slate-400 mt-1 min-h-[16px]">
+                    Define si usa menú gastronómico o catálogo de productos.
+                  </div>
+
+                </div>
+
                 <div class="md:col-span-2 flex flex-col">
                   <label class="text-xs text-slate-400 mb-1 block">WhatsApp</label>
                   <input id="m_whatsapp" placeholder="54911..."
@@ -916,6 +941,7 @@
       document.getElementById("m_manualNotificationTemplate").value = getDefaultManualTemplate();
       document.getElementById("m_automaticNotificationTemplate").value = getDefaultAutomaticTemplate();
       document.getElementById("m_enabled").value = "true";
+      document.getElementById("m_businessType").value = "1";
       document.getElementById("m_slug").value = "";
       document.getElementById("m_logoUrl_hidden").value = "";
       document.getElementById("m_logoFile").value = "";
@@ -935,6 +961,7 @@
 
       document.getElementById("m_mpSurchargeEnabled").value = "false";
       document.getElementById("m_mpSurchargePercent").value = "0";
+
 
       document.getElementById("m_featureOrdersEnabled").checked = true;
       document.getElementById("m_featureProductsEnabled").checked = true;
@@ -998,6 +1025,7 @@
       document.getElementById("m_automaticNotificationTemplate").value = c.automaticNotificationTemplate ?? getDefaultAutomaticTemplate();
       document.getElementById("m_enabled").value = String(toBool(c.enabled));
 
+      document.getElementById("m_businessType").value = String(c.businessType ?? 1);
       document.getElementById("m_logoUrl_hidden").value = c.logoUrl || "";
 
       document.getElementById("m_mpEnabled").value = String(toBool(c.mercadoPagoEnabled));
@@ -1250,7 +1278,8 @@
           tablesEnabled,
           enableGuestCount,
           enableAdultsChildrenSplit,
-          requireAdultsChildrenSplit
+          requireAdultsChildrenSplit,
+          businessType: Number(document.getElementById("m_businessType").value),
         };
 
         if (mode === "create") {
