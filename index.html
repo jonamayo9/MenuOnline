@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PedidoClick | Vendé sin comisiones</title>
-  <meta name="description" content="Menú digital con QR, pedidos directos y administración completa para restaurantes, pizzerías y comercios." />
+  <meta name="description" content="Menú digital y catálogo online con QR, pedidos directos, panel administrativo, promociones, cupones, stock y reportes para gastronomía y comercios." />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -27,9 +27,7 @@
       --soft: rgba(255,255,255,.82);
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
@@ -119,6 +117,58 @@
       filter: brightness(1.03);
     }
 
+    .cta-soft-violet {
+      background: #f5f3ff;
+      color: #6d28d9;
+      border: 1px solid #ddd6fe;
+      box-shadow: 0 14px 28px rgba(109,40,217,.08);
+      transition: all .2s ease;
+    }
+
+    .cta-soft-violet:hover {
+      transform: translateY(-2px);
+      background: #ede9fe;
+    }
+
+    .cta-soft-fuchsia {
+      background: #fdf2f8;
+      color: #be185d;
+      border: 1px solid #fbcfe8;
+      box-shadow: 0 14px 28px rgba(190,24,93,.08);
+      transition: all .2s ease;
+    }
+
+    .cta-soft-fuchsia:hover {
+      transform: translateY(-2px);
+      background: #fce7f3;
+    }
+
+    .cta-soft-blue {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      box-shadow: 0 14px 28px rgba(29,78,216,.08);
+      transition: all .2s ease;
+    }
+
+    .cta-soft-blue:hover {
+      transform: translateY(-2px);
+      background: #dbeafe;
+    }
+
+    .cta-soft-rose {
+      background: #fff1f2;
+      color: #be123c;
+      border: 1px solid #fecdd3;
+      box-shadow: 0 14px 28px rgba(190,18,60,.08);
+      transition: all .2s ease;
+    }
+
+    .cta-soft-rose:hover {
+      transform: translateY(-2px);
+      background: #ffe4e6;
+    }
+
     .soft-panel {
       background: linear-gradient(180deg, rgba(255,255,255,.94) 0%, rgba(255,255,255,.82) 100%);
       border: 1px solid rgba(226,232,240,.9);
@@ -148,14 +198,14 @@
     .mini-dot {
       width: 8px;
       height: 8px;
-      border-radius: 999px;
+      border-radius: 9999px;
       background: #22c55e;
       box-shadow: 0 0 0 6px rgba(34,197,94,.12);
     }
 
     .brand-logo-shell {
-      width: 54px;
-      height: 54px;
+      width: 70px;
+      height: 70px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -233,9 +283,7 @@
       transition: color .18s ease;
     }
 
-    .nav-link:hover {
-      color: var(--ink);
-    }
+    .nav-link:hover { color: var(--ink); }
 
     .nav-link::after {
       content: "";
@@ -249,14 +297,33 @@
       transition: width .2s ease;
     }
 
-    .nav-link:hover::after {
-      width: 100%;
+    .nav-link:hover::after { width: 100%; }
+
+    .social-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: .7rem;
+      padding: .9rem 1.1rem;
+      border-radius: 1rem;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      transition: all .2s ease;
+    }
+
+    .social-chip:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(15,23,42,.08);
+      border-color: #d8b4fe;
+    }
+
+    .wa-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
     }
 
     @media (max-width: 768px) {
-      .mobile-center {
-        text-align: center;
-      }
+      .mobile-center { text-align: center; }
 
       .brand-logo-shell,
       .brand-logo-fallback {
@@ -273,7 +340,7 @@
     <div class="max-w-7xl mx-auto px-6 lg:px-8 h-20 flex items-center justify-between">
       <a href="/index.html" class="flex items-center gap-3 min-w-0">
         <div class="brand-logo-shell">
-          <img src="/img/iniciales_1.png" alt="PedidoClick"
+          <img src="/img/iniciales_sf.png" alt="PedidoClick"
                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
           <div class="brand-logo-fallback">PC</div>
         </div>
@@ -287,6 +354,7 @@
       <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
         <a href="#beneficios" class="nav-link">Beneficios</a>
         <a href="#funciones" class="nav-link">Funciones</a>
+        <a href="#demos" class="nav-link">Demos</a>
         <a href="#rubros" class="nav-link">Rubros</a>
         <a href="#cta" class="nav-link">Contacto</a>
       </nav>
@@ -326,19 +394,63 @@
           </h1>
 
           <p class="mt-6 text-lg md:text-xl leading-8 text-slate-600 max-w-2xl lg:max-w-xl">
-            Menú digital con QR, pedidos por WhatsApp, control de productos, horarios,
-            extras, variantes, promociones y reportes. Todo en una sola solución para vender más y trabajar más simple.
+            Menú digital y catálogo online con QR, pedidos directos por WhatsApp, productos con extras y variantes,
+            promociones, cupones, stock, delivery o retiro, panel administrativo y centro de ventas.
+            Una solución pensada para gastronomía y también para negocios que venden productos.
           </p>
 
-          <div class="mt-10 flex flex-col sm:flex-row gap-4 lg:justify-start justify-center">
+          <div class="mt-10 flex flex-col sm:flex-row flex-wrap gap-4 lg:justify-start justify-center">
+            <a id="btnDemoMenu"
+               href="#"
+               target="_blank"
+               rel="noopener"
+               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl cta-soft-violet font-semibold">
+              Ver demo menú
+            </a>
+
+            <a id="btnDemoProducts"
+               href="#"
+               target="_blank"
+               rel="noopener"
+               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl cta-soft-fuchsia font-semibold">
+              Ver demo productos
+            </a>
+
             <a href="#funciones"
                class="inline-flex items-center justify-center px-7 py-4 rounded-2xl border border-slate-300 bg-white font-semibold text-slate-800 hover:bg-slate-50 transition">
               Ver funciones
             </a>
 
             <a href="#cta"
-               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl cta-accent font-semibold">
+               class="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl cta-accent font-semibold">
+              <svg class="wa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M20.52 3.48A11.91 11.91 0 0 0 12.05 0C5.46 0 .11 5.35.11 11.94c0 2.1.55 4.16 1.59 5.97L0 24l6.27-1.64a11.93 11.93 0 0 0 5.78 1.47h.01c6.59 0 11.94-5.35 11.94-11.94 0-3.19-1.24-6.19-3.48-8.41ZM12.06 21.3c-1.82 0-3.6-.49-5.15-1.42l-.37-.22-3.72.97.99-3.63-.24-.37a9.34 9.34 0 0 1-1.45-5.01c0-5.16 4.2-9.36 9.36-9.36 2.5 0 4.86.97 6.63 2.73a9.29 9.29 0 0 1 2.73 6.62c0 5.17-4.2 9.36-9.36 9.36Zm5.13-6.98c-.28-.14-1.66-.82-1.92-.91-.26-.09-.45-.14-.64.14-.19.28-.73.91-.9 1.1-.17.19-.33.21-.61.07-.28-.14-1.18-.43-2.24-1.37-.83-.74-1.38-1.66-1.54-1.94-.16-.28-.02-.43.12-.57.13-.13.28-.33.42-.49.14-.17.19-.28.28-.47.09-.19.05-.35-.02-.49-.07-.14-.64-1.54-.88-2.11-.23-.56-.47-.49-.64-.5-.17-.01-.35-.01-.54-.01-.19 0-.49.07-.74.35-.26.28-.98.96-.98 2.34 0 1.38 1 2.71 1.14 2.9.14.19 1.96 2.99 4.75 4.19.66.28 1.17.45 1.57.58.66.21 1.26.18 1.74.11.53-.08 1.66-.68 1.9-1.33.24-.66.24-1.22.17-1.33-.07-.11-.26-.17-.54-.31Z"/>
+              </svg>
               Hablar por WhatsApp
+            </a>
+          </div>
+
+          <div class="mt-6 flex flex-wrap gap-3 lg:justify-start justify-center">
+            <a id="btnFacebookHero"
+               href="#"
+               target="_blank"
+               rel="noopener"
+               class="social-chip text-sm font-semibold text-slate-700">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="text-blue-600">
+                <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073c0 6.019 4.388 11.009 10.125 11.927v-8.437H7.078v-3.49h3.047V9.413c0-3.017 1.792-4.683 4.533-4.683 1.313 0 2.686.235 2.686.235v2.963H15.83c-1.491 0-1.956.928-1.956 1.88v2.26h3.328l-.532 3.49h-2.796V24C19.612 23.082 24 18.092 24 12.073Z"/>
+              </svg>
+              Seguinos en Facebook
+            </a>
+
+            <a id="btnInstagramHero"
+               href="#"
+               target="_blank"
+               rel="noopener"
+               class="social-chip text-sm font-semibold text-slate-700">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="text-rose-500">
+                <path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5a4.25 4.25 0 0 0 4.25-4.25v-8.5A4.25 4.25 0 0 0 16.25 3.5h-8.5Zm8.875 1.125a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/>
+              </svg>
+              Seguinos en Instagram
             </a>
           </div>
 
@@ -349,7 +461,7 @@
             </div>
             <div class="rounded-2xl p-4 stat-card ring-soft">
               <div class="text-2xl font-extrabold text-slate-900">24/7</div>
-              <div class="text-sm text-slate-500 mt-1">Tu menú disponible</div>
+              <div class="text-sm text-slate-500 mt-1">Tu menú o catálogo disponible</div>
             </div>
             <div class="rounded-2xl p-4 stat-card ring-soft col-span-2 sm:col-span-1">
               <div class="text-2xl font-extrabold text-slate-900">+Control</div>
@@ -378,8 +490,10 @@
                 <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
                   <div class="flex items-center justify-between gap-4">
                     <div>
-                      <div class="font-bold text-slate-900">Menú con QR y link propio</div>
-                      <div class="text-sm text-slate-500">Acceso rápido desde celular, redes y mostrador</div>
+                      <div class="font-bold text-slate-900">Menú público y catálogo público</div>
+                      <div class="text-sm text-slate-500">
+                        Cada negocio puede tener su propia página pública con link directo, QR y acceso desde celular o redes.
+                      </div>
                     </div>
                     <div class="text-2xl">📱</div>
                   </div>
@@ -392,7 +506,7 @@
                   </div>
                   <div class="rounded-2xl border border-slate-200 p-4 bg-white">
                     <div class="text-sm text-slate-500">Cobros</div>
-                    <div class="mt-1 text-2xl font-extrabold text-slate-900">Con ajustes</div>
+                    <div class="mt-1 text-2xl font-extrabold text-slate-900">Con ajustes y control</div>
                   </div>
                 </div>
 
@@ -401,7 +515,7 @@
                     <div>
                       <div class="font-bold text-slate-900">Productos configurables</div>
                       <div class="text-sm text-slate-500 mt-1">
-                        Extras, variantes, promociones, horarios, categorías y más.
+                        Extras, variantes, horarios, categorías, promociones, cupones, stock y múltiples formas de venta.
                       </div>
                     </div>
                     <span class="text-xl">⚙️</span>
@@ -411,6 +525,8 @@
                     <span class="mock-badge">Extras</span>
                     <span class="mock-badge">Variantes</span>
                     <span class="mock-badge">Promos</span>
+                    <span class="mock-badge">Cupones</span>
+                    <span class="mock-badge">Stock</span>
                     <span class="mock-badge">WhatsApp</span>
                     <span class="mock-badge">QR</span>
                   </div>
@@ -443,8 +559,8 @@
           ¿Por qué elegir PedidoClick?
         </h2>
         <p class="mt-4 text-lg text-slate-600">
-          Una solución pensada para restaurantes, pizzerías, panaderías y comercios
-          que quieren vender más y depender menos de terceros.
+          Una solución pensada para negocios que quieren vender más, ordenar su operación
+          y depender menos de terceros.
         </p>
       </div>
 
@@ -455,7 +571,7 @@
           </div>
           <h3 class="mt-5 text-xl font-extrabold text-slate-900">Más ganancias</h3>
           <p class="mt-3 text-slate-600 leading-7">
-            Sin comisiones por pedido. Todo lo que vendés queda para vos.
+            Sin comisiones por pedido. Todo lo que vendés queda para vos y administrás tus precios como querés.
           </p>
         </div>
 
@@ -463,9 +579,9 @@
           <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-2xl border border-blue-100">
             📲
           </div>
-          <h3 class="mt-5 text-xl font-extrabold text-slate-900">Pedidos directos</h3>
+          <h3 class="mt-5 text-xl font-extrabold text-slate-900">Pedido directo</h3>
           <p class="mt-3 text-slate-600 leading-7">
-            Integración con WhatsApp y flujo simple para que el cliente compre rápido.
+            Integración con WhatsApp, acceso desde QR y links públicos para que el cliente compre rápido.
           </p>
         </div>
 
@@ -473,9 +589,9 @@
           <div class="w-14 h-14 rounded-2xl bg-violet-50 flex items-center justify-center text-2xl border border-violet-100">
             ⚙️
           </div>
-          <h3 class="mt-5 text-xl font-extrabold text-slate-900">Fácil de administrar</h3>
+          <h3 class="mt-5 text-xl font-extrabold text-slate-900">Todo centralizado</h3>
           <p class="mt-3 text-slate-600 leading-7">
-            Gestioná productos, precios, horarios, pedidos y reportes desde un solo lugar.
+            Gestioná productos, categorías, horarios, pedidos, stock, promociones, cupones y reportes desde un solo lugar.
           </p>
         </div>
       </div>
@@ -491,41 +607,158 @@
             Todo lo que necesitás para vender online
           </h2>
           <p class="mt-5 text-lg text-slate-600 leading-8">
-            Desde la carta digital hasta la recepción del pedido y el control del negocio.
+            Desde la carta digital o catálogo público hasta la recepción del pedido y el control completo del negocio.
           </p>
         </div>
 
         <div class="grid sm:grid-cols-2 gap-4">
           <div class="rounded-2xl border border-slate-200 bg-white p-5 card-hover">
-            <div class="text-lg font-bold text-slate-900">QR y menú digital</div>
-            <div class="text-sm text-slate-500 mt-2">Acceso rápido desde mesa, flyer, link o redes.</div>
+            <div class="text-lg font-bold text-slate-900">QR y página pública</div>
+            <div class="text-sm text-slate-500 mt-2">Cada empresa puede tener su menú o catálogo público con link propio.</div>
           </div>
           <div class="rounded-2xl border border-slate-200 bg-white p-5 card-hover">
             <div class="text-lg font-bold text-slate-900">Extras y variantes</div>
-            <div class="text-sm text-slate-500 mt-2">Configuraciones por producto sin desordenar el menú.</div>
+            <div class="text-sm text-slate-500 mt-2">Configuraciones por producto, sabores, tamaños, agregados y combinaciones.</div>
           </div>
           <div class="rounded-2xl border border-slate-200 bg-white p-5 card-hover">
-            <div class="text-lg font-bold text-slate-900">Horarios de atención</div>
-            <div class="text-sm text-slate-500 mt-2">Mostrá si el negocio está abierto o cerrado.</div>
+            <div class="text-lg font-bold text-slate-900">Horarios y disponibilidad</div>
+            <div class="text-sm text-slate-500 mt-2">Mostrá si el negocio está abierto, cerrado o qué productos están disponibles.</div>
           </div>
           <div class="rounded-2xl border border-slate-200 bg-white p-5 card-hover">
-            <div class="text-lg font-bold text-slate-900">Reporte diario</div>
-            <div class="text-sm text-slate-500 mt-2">Controlá ventas y pedidos del día.</div>
+            <div class="text-lg font-bold text-slate-900">Promociones y cupones</div>
+            <div class="text-sm text-slate-500 mt-2">Descuentos visibles, campañas por código y reglas por producto o categoría.</div>
           </div>
           <div class="rounded-2xl border border-slate-200 bg-white p-5 card-hover">
-            <div class="text-lg font-bold text-slate-900">Recargos por pago</div>
-            <div class="text-sm text-slate-500 mt-2">Aplicá reglas según efectivo, transferencia o tarjeta.</div>
+            <div class="text-lg font-bold text-slate-900">Stock y control</div>
+            <div class="text-sm text-slate-500 mt-2">Stock simple o por variantes para negocios que venden productos.</div>
           </div>
           <div class="rounded-2xl border border-slate-200 bg-white p-5 card-hover">
-            <div class="text-lg font-bold text-slate-900">Panel admin</div>
-            <div class="text-sm text-slate-500 mt-2">Todo centralizado y simple de usar.</div>
+            <div class="text-lg font-bold text-slate-900">Panel y centro de ventas</div>
+            <div class="text-sm text-slate-500 mt-2">Pedidos, estados, reportes, medios de pago y resumen comercial.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-12 grid lg:grid-cols-2 gap-6">
+        <div class="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm card-hover">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-violet-50 border border-violet-100 flex items-center justify-center text-xl">🍽️</div>
+            <div>
+              <div class="text-xl font-extrabold text-slate-900">Modo gastronomía</div>
+              <div class="text-sm text-slate-500">Pensado para restaurantes, pizzerías y panaderías</div>
+            </div>
+          </div>
+          <ul class="mt-5 space-y-3 text-slate-600">
+            <li>• Menú público con categorías, horarios y pedido directo.</li>
+            <li>• Productos con extras, variantes y promociones.</li>
+            <li>• QR por mesa o mostrador para acceso rápido.</li>
+            <li>• Gestión diaria de pedidos y resumen operativo.</li>
+          </ul>
+        </div>
+
+        <div class="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm card-hover">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-fuchsia-50 border border-fuchsia-100 flex items-center justify-center text-xl">🛍️</div>
+            <div>
+              <div class="text-xl font-extrabold text-slate-900">Modo catálogo de productos</div>
+              <div class="text-sm text-slate-500">Pensado para comercios y negocios que venden productos</div>
+            </div>
+          </div>
+          <ul class="mt-5 space-y-3 text-slate-600">
+            <li>• Catálogo público con búsqueda, categorías y detalle.</li>
+            <li>• Stock visible, variantes, promociones y cupones.</li>
+            <li>• Pedido con retiro o envío y control comercial.</li>
+            <li>• Gestión exclusiva de pedidos de productos y centro de ventas.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="demos" class="py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+      <div class="max-w-2xl mx-auto text-center">
+        <div class="section-pill">Demos</div>
+        <h2 class="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
+          Mirá ejemplos reales del sistema
+        </h2>
+        <p class="mt-4 text-lg text-slate-600">
+          Podés mostrar una demo distinta para menú y otra para catálogo de productos.
+          Después solo reemplazás las URLs por las empresas demo que vos elijas.
+        </p>
+      </div>
+
+      <div class="mt-14 grid lg:grid-cols-2 gap-6">
+        <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm card-hover">
+          <div class="flex items-center gap-3">
+            <div class="w-14 h-14 rounded-2xl bg-violet-50 border border-violet-100 flex items-center justify-center text-2xl">🍕</div>
+            <div>
+              <div class="text-2xl font-extrabold text-slate-900">Demo menú</div>
+              <div class="text-sm text-slate-500">Ideal para gastronomía</div>
+            </div>
+          </div>
+
+          <p class="mt-5 text-slate-600 leading-7">
+            Mostrá una experiencia completa de menú público con categorías, productos, extras, variantes,
+            promociones, horarios y pedido directo por WhatsApp.
+          </p>
+
+          <div class="mt-5 flex flex-wrap gap-2">
+            <span class="mock-badge">QR</span>
+            <span class="mock-badge">Categorías</span>
+            <span class="mock-badge">Extras</span>
+            <span class="mock-badge">Variantes</span>
+            <span class="mock-badge">Promociones</span>
+          </div>
+
+          <div class="mt-7">
+            <a id="btnDemoMenuCard"
+               href="#"
+               target="_blank"
+               rel="noopener"
+               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl cta-soft-violet font-bold">
+              Ver demo menú
+            </a>
+          </div>
+        </div>
+
+        <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm card-hover">
+          <div class="flex items-center gap-3">
+            <div class="w-14 h-14 rounded-2xl bg-fuchsia-50 border border-fuchsia-100 flex items-center justify-center text-2xl">🛒</div>
+            <div>
+              <div class="text-2xl font-extrabold text-slate-900">Demo productos</div>
+              <div class="text-sm text-slate-500">Ideal para catálogos y comercios</div>
+            </div>
+          </div>
+
+          <p class="mt-5 text-slate-600 leading-7">
+            Mostrá un catálogo público con productos, variantes, stock, promociones, cupones y
+            flujo de compra pensado para negocios que venden productos.
+          </p>
+
+          <div class="mt-5 flex flex-wrap gap-2">
+            <span class="mock-badge">Catálogo</span>
+            <span class="mock-badge">Stock</span>
+            <span class="mock-badge">Cupones</span>
+            <span class="mock-badge">Promos</span>
+            <span class="mock-badge">Pedidos</span>
+          </div>
+
+          <div class="mt-7">
+            <a id="btnDemoProductsCard"
+               href="#"
+               target="_blank"
+               rel="noopener"
+               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl cta-soft-fuchsia font-bold">
+              Ver demo productos
+            </a>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="rubros" class="py-24 bg-white">
+  <section id="rubros" class="py-24 bg-slate-50">
     <div class="max-w-7xl mx-auto px-6 lg:px-8">
       <div class="max-w-2xl">
         <div class="section-pill">Ideal para</div>
@@ -541,25 +774,25 @@
         <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm card-hover">
           <div class="text-3xl">🍕</div>
           <div class="mt-4 text-lg font-extrabold text-slate-900">Pizzerías</div>
-          <div class="mt-2 text-sm leading-6 text-slate-500">Promos, gustos, tamaños y extras.</div>
+          <div class="mt-2 text-sm leading-6 text-slate-500">Promos, gustos, tamaños, combos y extras.</div>
         </div>
 
         <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm card-hover">
           <div class="text-3xl">🍔</div>
           <div class="mt-4 text-lg font-extrabold text-slate-900">Restaurantes</div>
-          <div class="mt-2 text-sm leading-6 text-slate-500">Carta digital, combos y horarios.</div>
+          <div class="mt-2 text-sm leading-6 text-slate-500">Carta digital, QR, horarios y gestión de pedidos.</div>
         </div>
 
         <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm card-hover">
           <div class="text-3xl">🥐</div>
           <div class="mt-4 text-lg font-extrabold text-slate-900">Panaderías</div>
-          <div class="mt-2 text-sm leading-6 text-slate-500">Pedidos simples y catálogo por categorías.</div>
+          <div class="mt-2 text-sm leading-6 text-slate-500">Pedidos simples, promos y venta por catálogo.</div>
         </div>
 
         <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm card-hover">
-          <div class="text-3xl">🛒</div>
+          <div class="text-3xl">🛍️</div>
           <div class="mt-4 text-lg font-extrabold text-slate-900">Comercios</div>
-          <div class="mt-2 text-sm leading-6 text-slate-500">Productos, stock visible y venta directa.</div>
+          <div class="mt-2 text-sm leading-6 text-slate-500">Productos, stock visible, cupones y venta directa.</div>
         </div>
       </div>
     </div>
@@ -572,19 +805,23 @@
           <div class="section-pill">Contacto directo</div>
 
           <h2 class="mt-5 text-4xl md:text-5xl font-extrabold leading-tight text-slate-900">
-            ¿Querés tu menú online para tu negocio?
+            ¿Querés tu menú online o tu catálogo público?
           </h2>
 
           <p class="mt-5 text-slate-600 text-lg leading-8">
-            Escribime por WhatsApp y te muestro cómo quedaría tu sistema, tu menú y la forma de trabajo para tu rubro.
+            Escribime por WhatsApp y te muestro cómo quedaría tu sistema, tu página pública
+            y la forma de trabajo según tu rubro. Podés arrancar con gastronomía o con catálogo de productos.
           </p>
 
-          <div class="mt-8 flex flex-col sm:flex-row gap-4">
+          <div class="mt-8 flex flex-col sm:flex-row flex-wrap gap-4">
             <a id="btnWhatsAppMain"
                href="#"
                target="_blank"
                rel="noopener"
-               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl cta-accent font-bold">
+               class="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl cta-accent font-bold">
+              <svg class="wa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M20.52 3.48A11.91 11.91 0 0 0 12.05 0C5.46 0 .11 5.35.11 11.94c0 2.1.55 4.16 1.59 5.97L0 24l6.27-1.64a11.93 11.93 0 0 0 5.78 1.47h.01c6.59 0 11.94-5.35 11.94-11.94 0-3.19-1.24-6.19-3.48-8.41ZM12.06 21.3c-1.82 0-3.6-.49-5.15-1.42l-.37-.22-3.72.97.99-3.63-.24-.37a9.34 9.34 0 0 1-1.45-5.01c0-5.16 4.2-9.36 9.36-9.36 2.5 0 4.86.97 6.63 2.73a9.29 9.29 0 0 1 2.73 6.62c0 5.17-4.2 9.36-9.36 9.36Zm5.13-6.98c-.28-.14-1.66-.82-1.92-.91-.26-.09-.45-.14-.64.14-.19.28-.73.91-.9 1.1-.17.19-.33.21-.61.07-.28-.14-1.18-.43-2.24-1.37-.83-.74-1.38-1.66-1.54-1.94-.16-.28-.02-.43.12-.57.13-.13.28-.33.42-.49.14-.17.19-.28.28-.47.09-.19.05-.35-.02-.49-.07-.14-.64-1.54-.88-2.11-.23-.56-.47-.49-.64-.5-.17-.01-.35-.01-.54-.01-.19 0-.49.07-.74.35-.26.28-.98.96-.98 2.34 0 1.38 1 2.71 1.14 2.9.14.19 1.96 2.99 4.75 4.19.66.28 1.17.45 1.57.58.66.21 1.26.18 1.74.11.53-.08 1.66-.68 1.9-1.33.24-.66.24-1.22.17-1.33-.07-.11-.26-.17-.54-.31Z"/>
+              </svg>
               Hablar por WhatsApp
             </a>
 
@@ -592,13 +829,56 @@
                href="#"
                target="_blank"
                rel="noopener"
-               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl border border-slate-300 bg-white text-slate-800 font-bold hover:bg-slate-50 transition">
+               class="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl border border-slate-300 bg-white text-slate-800 font-bold hover:bg-slate-50 transition">
+              <svg class="wa-icon text-[#25D366]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M20.52 3.48A11.91 11.91 0 0 0 12.05 0C5.46 0 .11 5.35.11 11.94c0 2.1.55 4.16 1.59 5.97L0 24l6.27-1.64a11.93 11.93 0 0 0 5.78 1.47h.01c6.59 0 11.94-5.35 11.94-11.94 0-3.19-1.24-6.19-3.48-8.41ZM12.06 21.3c-1.82 0-3.6-.49-5.15-1.42l-.37-.22-3.72.97.99-3.63-.24-.37a9.34 9.34 0 0 1-1.45-5.01c0-5.16 4.2-9.36 9.36-9.36 2.5 0 4.86.97 6.63 2.73a9.29 9.29 0 0 1 2.73 6.62c0 5.17-4.2 9.36-9.36 9.36Zm5.13-6.98c-.28-.14-1.66-.82-1.92-.91-.26-.09-.45-.14-.64.14-.19.28-.73.91-.9 1.1-.17.19-.33.21-.61.07-.28-.14-1.18-.43-2.24-1.37-.83-.74-1.38-1.66-1.54-1.94-.16-.28-.02-.43.12-.57.13-.13.28-.33.42-.49.14-.17.19-.28.28-.47.09-.19.05-.35-.02-.49-.07-.14-.64-1.54-.88-2.11-.23-.56-.47-.49-.64-.5-.17-.01-.35-.01-.54-.01-.19 0-.49.07-.74.35-.26.28-.98.96-.98 2.34 0 1.38 1 2.71 1.14 2.9.14.19 1.96 2.99 4.75 4.19.66.28 1.17.45 1.57.58.66.21 1.26.18 1.74.11.53-.08 1.66-.68 1.9-1.33.24-.66.24-1.22.17-1.33-.07-.11-.26-.17-.54-.31Z"/>
+              </svg>
               Pedir demo
+            </a>
+
+            <a id="btnDemoMenuFooter"
+               href="#"
+               target="_blank"
+               rel="noopener"
+               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl cta-soft-violet font-bold">
+              Ver demo menú
+            </a>
+
+            <a id="btnDemoProductsFooter"
+               href="#"
+               target="_blank"
+               rel="noopener"
+               class="inline-flex items-center justify-center px-7 py-4 rounded-2xl cta-soft-fuchsia font-bold">
+              Ver demo productos
+            </a>
+          </div>
+
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a id="btnFacebookFooter"
+               href="#"
+               target="_blank"
+               rel="noopener"
+               class="social-chip text-sm font-semibold text-slate-700">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="text-blue-600">
+                <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073c0 6.019 4.388 11.009 10.125 11.927v-8.437H7.078v-3.49h3.047V9.413c0-3.017 1.792-4.683 4.533-4.683 1.313 0 2.686.235 2.686.235v2.963H15.83c-1.491 0-1.956.928-1.956 1.88v2.26h3.328l-.532 3.49h-2.796V24C19.612 23.082 24 18.092 24 12.073Z"/>
+              </svg>
+              Facebook
+            </a>
+
+            <a id="btnInstagramFooter"
+               href="#"
+               target="_blank"
+               rel="noopener"
+               class="social-chip text-sm font-semibold text-slate-700">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="text-rose-500">
+                <path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5a4.25 4.25 0 0 0 4.25-4.25v-8.5A4.25 4.25 0 0 0 16.25 3.5h-8.5Zm8.875 1.125a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/>
+              </svg>
+              Instagram
             </a>
           </div>
 
           <div class="mt-6 text-sm text-slate-500">
-            Respondemos consultas para restaurantes, pizzerías, panaderías y comercios.
+            Respondemos consultas para restaurantes, pizzerías, panaderías, locales y comercios.
           </div>
         </div>
       </div>
@@ -615,6 +895,7 @@
       <div class="flex items-center gap-5 text-sm font-semibold text-slate-500">
         <a href="#beneficios" class="hover:text-slate-800">Beneficios</a>
         <a href="#funciones" class="hover:text-slate-800">Funciones</a>
+        <a href="#demos" class="hover:text-slate-800">Demos</a>
         <a href="#cta" class="hover:text-slate-800">Contacto</a>
       </div>
     </div>
@@ -627,6 +908,11 @@
 
       const LANDING_WHATSAPP = "5491140733436";
       const WHATSAPP_MESSAGE = "Hola! Quiero información sobre PedidoClick para mi negocio.";
+
+      const DEMO_MENU_URL = "https://pedidoclick.com.ar/menu/tu-demo-menu";
+      const DEMO_PRODUCTS_URL = "https://pedidoclick.com.ar/products/tu-demo-productos";
+      const FACEBOOK_URL = "https://facebook.com/tu-pagina";
+      const INSTAGRAM_URL = "https://instagram.com/tu-cuenta";
 
       function sanitizePhone(value) {
         return String(value || "").replace(/\D/g, "");
@@ -654,6 +940,80 @@
             });
           } else {
             btn.href = url;
+          }
+        });
+      }
+
+      function wireDemoButtons() {
+        const menuButtons = [
+          document.getElementById("btnDemoMenu"),
+          document.getElementById("btnDemoMenuCard"),
+          document.getElementById("btnDemoMenuFooter")
+        ].filter(Boolean);
+
+        const productsButtons = [
+          document.getElementById("btnDemoProducts"),
+          document.getElementById("btnDemoProductsCard"),
+          document.getElementById("btnDemoProductsFooter")
+        ].filter(Boolean);
+
+        menuButtons.forEach(btn => {
+          if (!DEMO_MENU_URL || DEMO_MENU_URL === "#") {
+            btn.href = "#";
+            btn.addEventListener("click", function (e) {
+              e.preventDefault();
+              alert("Configurá DEMO_MENU_URL dentro del HTML.");
+            });
+          } else {
+            btn.href = DEMO_MENU_URL;
+          }
+        });
+
+        productsButtons.forEach(btn => {
+          if (!DEMO_PRODUCTS_URL || DEMO_PRODUCTS_URL === "#") {
+            btn.href = "#";
+            btn.addEventListener("click", function (e) {
+              e.preventDefault();
+              alert("Configurá DEMO_PRODUCTS_URL dentro del HTML.");
+            });
+          } else {
+            btn.href = DEMO_PRODUCTS_URL;
+          }
+        });
+      }
+
+      function wireSocialButtons() {
+        const facebookButtons = [
+          document.getElementById("btnFacebookHero"),
+          document.getElementById("btnFacebookFooter")
+        ].filter(Boolean);
+
+        const instagramButtons = [
+          document.getElementById("btnInstagramHero"),
+          document.getElementById("btnInstagramFooter")
+        ].filter(Boolean);
+
+        facebookButtons.forEach(btn => {
+          if (!FACEBOOK_URL || FACEBOOK_URL === "#") {
+            btn.href = "#";
+            btn.addEventListener("click", function (e) {
+              e.preventDefault();
+              alert("Configurá FACEBOOK_URL dentro del HTML.");
+            });
+          } else {
+            btn.href = FACEBOOK_URL;
+          }
+        });
+
+        instagramButtons.forEach(btn => {
+          if (!INSTAGRAM_URL || INSTAGRAM_URL === "#") {
+            btn.href = "#";
+            btn.addEventListener("click", function (e) {
+              e.preventDefault();
+              alert("Configurá INSTAGRAM_URL dentro del HTML.");
+            });
+          } else {
+            btn.href = INSTAGRAM_URL;
           }
         });
       }
@@ -724,6 +1084,8 @@
       });
 
       wireWhatsAppButtons();
+      wireDemoButtons();
+      wireSocialButtons();
     });
   </script>
 
