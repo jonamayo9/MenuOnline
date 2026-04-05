@@ -6,5 +6,5 @@
   "publicMenuSubdomainPath": "/",
   "publicMenuPathTemplate": "/menu/{slug}",
   "publicProductsMode": "path",
-  "publicProductsPathTemplate": "/products/{slug}"
+  "publicProductsPathTemplate": "/catalogo/{slug}"
 }
