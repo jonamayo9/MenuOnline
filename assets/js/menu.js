@@ -2326,11 +2326,11 @@ function buildPublicApiPath(path, companySlug){
         const companySlug = requireProductsSlug();
         if (!companySlug) return;
 
-        await loadPublicMenu(slug);
+        await loadPublicMenu(companySlug);
         mapDto(DTO);
 
         if(!Company?.name){
-          showNotFound(`No se encontró la empresa "${slug}".`);
+          showNotFound(`No se encontró la empresa "${companySlug}".`);
           return;
         }
 

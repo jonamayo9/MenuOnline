@@ -649,6 +649,12 @@
         justify-content: space-between;
       }
 
+      .module-card.hidden,
+      button.module-card.hidden,
+      a.module-card.hidden {
+        display: none !important;
+      }
+
       .module-card::before {
         opacity: 1;
         background: linear-gradient(180deg, rgba(109,40,217,0.04) 0%, transparent 45%);
@@ -2030,6 +2036,15 @@
 
           setCurrentPublicAccess(effectiveSlug, currentBusinessType);
           setHomeModules(features, permissions, currentBusinessType);
+          console.log({
+          businessType: currentBusinessType,
+          meCompanySlug: me?.companySlug,
+          localSlug: slug,
+          effectiveSlug,
+          publicMenuPathTemplate: appConfig?.publicMenuPathTemplate,
+          publicProductsPathTemplate: appConfig?.publicProductsPathTemplate,
+          finalPublicUrl: buildCurrentPublicUrl(effectiveSlug, currentBusinessType)
+        });
 
           if(me.companySlug && me.companySlug !== slug && slug === "—"){
             document.getElementById("companyLabel").textContent = me.companySlug;

@@ -992,6 +992,46 @@
     let pendingDeleteCouponId = null;
     let pendingDeleteCouponTitle = "";
 
+    const BUSINESS_GASTRONOMIA = 1;
+const BUSINESS_OTROS = 2;
+
+function redirectNotFound() {
+  location.replace("/404.html");
+}
+
+async function guardAdminCouponsAccess() {
+  try {
+    configData = await loadConfig();
+
+    const me = await apiGetAdminMe();
+    if (!me) {
+      redirectNotFound();
+      return false;
+    }
+
+    if (Number(me.businessType) !== BUSINESS_OTROS) {
+      redirectNotFound();
+      return false;
+    }
+
+    if (me.featureProductsEnabled !== true || me.featureCategoriesEnabled !== true) {
+      redirectNotFound();
+      return false;
+    }
+
+    if (me.canAccessProducts !== true || me.canAccessCategories !== true) {
+      redirectNotFound();
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    console.error(err);
+    redirectNotFound();
+    return false;
+  }
+}
+
     function toast(message, type = "info", ms = 1800) {
       const container = document.getElementById("toastContainer");
       if (activeToast) {
@@ -1709,66 +1749,62 @@
     }
 
     async function init() {
-      const token = localStorage.getItem(TOKEN_KEY) || localStorage.getItem(AUTH_KEY);
-      if (!token) {
-        location.replace(LOGIN_PAGE);
-        return;
-      }
+  const token = localStorage.getItem(TOKEN_KEY) || localStorage.getItem(AUTH_KEY);
+  if (!token) {
+    location.replace(LOGIN_PAGE);
+    return;
+  }
 
-      bindEvents();
-      updateSummary();
-      updateSelectedProductChip();
+  const allowed = await guardAdminCouponsAccess();
+  if (!allowed) return;
 
-      const companySlug = getCompanySlug();
-      const email = localStorage.getItem(EMAIL_KEY) || "—";
+  bindEvents();
+  updateSummary();
+  updateSelectedProductChip();
 
-      document.getElementById("companyLabel").textContent = companySlug || "—";
-      document.getElementById("emailLabel").textContent = email;
+  const companySlug = getCompanySlug();
+  const email = localStorage.getItem(EMAIL_KEY) || "—";
 
-      try {
-        configData = await loadConfig();
+  document.getElementById("companyLabel").textContent = companySlug || "—";
+  document.getElementById("emailLabel").textContent = email;
 
-        const me = await apiGetAdminMe();
-        if (me) {
-          document.getElementById("companyLabel").textContent =
-            me.companyName ||
-            me.companyDisplayName ||
-            me.companySlug ||
-            companySlug ||
-            "—";
+  try {
+    const me = await apiGetAdminMe();
+    if (me) {
+      document.getElementById("companyLabel").textContent =
+        me.companyName ||
+        me.companyDisplayName ||
+        me.companySlug ||
+        companySlug ||
+        "—";
 
-          if (me.email) {
-            document.getElementById("emailLabel").textContent = me.email;
-          }
-
-          if (Number(me.businessType) !== 2) {
-            throw new Error("Esta pantalla solo está disponible para empresas con BusinessType = Otros.");
-          }
-        }
-
-        if (!companySlug) {
-          throw new Error("No encontré companySlug.");
-        }
-
-        categories = await apiGetCategories(companySlug);
-        allItems = await apiGetItems(companySlug);
-
-        renderCategories();
-        renderItemsList();
-        await loadCoupons();
-
-        showStatus(
-          "Pantalla lista",
-          "Ya podés crear, editar y eliminar cupones.",
-          "info"
-        );
-      } catch (error) {
-        console.error(error);
-        showStatus("No pude cargar la pantalla", error.message || "Ocurrió un error.", "error");
-        toast(error.message || "No pude cargar la pantalla", "error", 2400);
+      if (me.email) {
+        document.getElementById("emailLabel").textContent = me.email;
       }
     }
 
+    if (!companySlug) {
+      throw new Error("No encontré companySlug.");
+    }
+
+    categories = await apiGetCategories(companySlug);
+    allItems = await apiGetItems(companySlug);
+
+    renderCategories();
+    renderItemsList();
+    await loadCoupons();
+
+    showStatus(
+      "Pantalla lista",
+      "Ya podés crear, editar y eliminar cupones.",
+      "info"
+    );
+  } catch (error) {
+    console.error(error);
+    showStatus("No pude cargar la pantalla", error.message || "Ocurrió un error.", "error");
+    toast(error.message || "No pude cargar la pantalla", "error", 2400);
+  }
+}
     init();
   </script>
 </body>
