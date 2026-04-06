@@ -1,2 +1,2 @@
-/menu/*      /menu/__route.html      200
-/products/*  /products/__route.html  200
+/menu/*      /__menu_route.html      200
+/products/*  /__products_route.html  200

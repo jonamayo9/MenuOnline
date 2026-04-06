@@ -113,17 +113,17 @@ async function main() {
       copyRecursive(src, path.join(DIST, item));
     }
   }
+  
+const distMenuIndex = path.join(DIST, "menu", "index.html");
+const distProductsIndex = path.join(DIST, "products", "index.html");
 
-  const distMenuIndex = path.join(DIST, "menu", "index.html");
-  const distProductsIndex = path.join(DIST, "products", "index.html");
+if (fs.existsSync(distMenuIndex)) {
+  fs.copyFileSync(distMenuIndex, path.join(DIST, "__menu_route.html"));
+}
 
-  if (fs.existsSync(distMenuIndex)) {
-    fs.copyFileSync(distMenuIndex, path.join(DIST, "menu", "__route.html"));
-  }
-
-  if (fs.existsSync(distProductsIndex)) {
-    fs.copyFileSync(distProductsIndex, path.join(DIST, "products", "__route.html"));
-  }
+if (fs.existsSync(distProductsIndex)) {
+  fs.copyFileSync(distProductsIndex, path.join(DIST, "__products_route.html"));
+}
 
   await minifyHtmlFiles();
   obfuscateJsFiles();
