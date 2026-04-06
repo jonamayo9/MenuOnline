@@ -285,7 +285,7 @@ const CONFIG_PATH = "/config.json";
       const hint = document.getElementById("cardOrdersHint");
 
       if(card){
-        card.href = isOtros ? "../products/product-order.html" : "./admin-order.html";
+        card.href = isOtros ? "../Admin/product-order.html" : "./admin-order.html";
       }
 
       if(title) title.textContent = "Gestión de pedido";

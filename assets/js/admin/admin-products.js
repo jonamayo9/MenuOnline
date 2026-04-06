@@ -7,6 +7,10 @@ let CONFIG = null;
   let filterCategoryId = "";
   let tableManagementEnabled = false;
   let variantGroupsCache = [];
+  let deleteModalItemId = 0;
+let deleteModalItemName = "";
+let isCreatingProduct = false;
+let isUpdatingProduct = false;
 
   let currentVariantStockConfig = {
     menuItemId: 0,
@@ -237,16 +241,49 @@ let CONFIG = null;
       .replaceAll("'", "&#039;");
   }
 
-  function toast(msg, type="info", ms=1800){
-    const c = document.getElementById("toastContainer");
-    c.innerHTML = "";
-    const colors = { info:"bg-slate-900", success:"bg-emerald-600", error:"bg-rose-600" };
-    const el = document.createElement("div");
-    el.className = `${colors[type]} text-white px-5 py-4 rounded-2xl shadow-2xl font-semibold text-sm`;
-    el.innerText = msg;
-    c.appendChild(el);
-    if(ms) setTimeout(() => el.remove(), ms);
+function toast(msg, type = "info", ms = 1800){
+  const c = document.getElementById("toastContainer");
+  if(!c){
+    console.warn("No existe #toastContainer");
+    return;
   }
+
+  c.innerHTML = "";
+
+  const colors = {
+    info: "bg-slate-900",
+    success: "bg-emerald-600",
+    error: "bg-rose-600"
+  };
+
+  const el = document.createElement("div");
+  el.className = `${colors[type] || colors.info} text-white px-5 py-4 rounded-2xl shadow-2xl font-semibold text-sm`;
+  el.innerText = msg;
+
+  c.appendChild(el);
+
+  if(ms){
+    setTimeout(() => {
+      el.remove();
+    }, ms);
+  }
+}
+
+function setButtonLoading(buttonId, loadingText, normalText, isLoading){
+  const btn = document.getElementById(buttonId);
+  if(!btn) return;
+
+  if(isLoading){
+    btn.disabled = true;
+    btn.dataset.originalText = btn.innerHTML;
+    btn.innerHTML = loadingText;
+    btn.classList.add("opacity-60", "cursor-not-allowed", "pointer-events-none");
+  }else{
+    btn.disabled = false;
+    btn.innerHTML = btn.dataset.originalText || normalText;
+    btn.classList.remove("opacity-60", "cursor-not-allowed", "pointer-events-none");
+  }
+}
 
   function parsePriceToNumber(raw){
     const cleaned = String(raw ?? "")
@@ -2056,31 +2093,65 @@ document.querySelectorAll("[data-edit]").forEach(b => {
     await openEdit(Number(b.dataset.edit));
   };
 });
-    document.querySelectorAll("[data-del]").forEach(b => b.onclick = () => removeItem(Number(b.dataset.del)));
+document.querySelectorAll("[data-del]").forEach(b => {
+  b.onclick = () => openDeleteModal(Number(b.dataset.del));
+});
     document.querySelectorAll("[data-toggle]").forEach(b => b.onclick = () => toggleEnabled(Number(b.dataset.toggle)));
   }
 
-  async function removeItem(id){
-    if(!confirm("¿Eliminar producto?")) return;
+function openDeleteModal(id){
+  const item = itemsCache.find(x => x.id === id);
+  if(!item) return;
 
-    try{
-      const r = await deleteItem(id);
-      if(!r) return;
+  deleteModalItemId = id;
+  deleteModalItemName = item.name || "este producto";
 
-      if(r.status === 409){
-        toast("No se puede eliminar: está en pedidos", "error", 2500);
-        return;
-      }
-      if(!r.ok){
-        toast("Error eliminando", "error");
-        return;
-      }
-      toast("Producto eliminado", "success");
-      await refresh();
-    }catch{
-      toast("Error eliminando", "error");
+  document.getElementById("deleteProductName").textContent = deleteModalItemName;
+  document.getElementById("deleteProductModal").classList.remove("hidden");
+  document.body.classList.add("modal-open");
+}
+
+function closeDeleteModal(){
+  deleteModalItemId = 0;
+  deleteModalItemName = "";
+  document.getElementById("deleteProductModal").classList.add("hidden");
+  document.body.classList.remove("modal-open");
+}
+
+async function confirmDeleteItem(){
+  if(!deleteModalItemId) return;
+
+  const deletedId = Number(deleteModalItemId);
+
+  try{
+    const r = await deleteItem(deletedId);
+    if(!r) return;
+
+    if(r.status === 409){
+      toast("No se puede eliminar: está en pedidos", "error", 2500);
+      return;
     }
+
+    if(!r.ok){
+      const t = await r.text().catch(() => "");
+      console.error(t);
+      toast("Error eliminando", "error");
+      return;
+    }
+
+    closeDeleteModal();
+
+    itemsCache = itemsCache.filter(x => Number(x.id) !== deletedId);
+    render();
+
+    toast("Producto eliminado", "success");
+
+    await refresh();
+  }catch(e){
+    console.error(e);
+    toast("Error eliminando", "error");
   }
+}
 
   function buildItemDetail(item){
 
@@ -2365,6 +2436,13 @@ document.getElementById("variantStockModal").addEventListener("click", (e) => {
 
 
   async function saveEditProduct({ closeAfterSave = true, openStockAfterSave = false } = {}){
+  if(isUpdatingProduct) return false;
+
+  try{
+    isUpdatingProduct = true;
+    setButtonLoading("update", "Guardando...", "Guardar cambios", true);
+    setButtonLoading("saveConfigOnly", "Guardando...", "Guardar configuración", true);
+
     if(!requireAuth()) return false;
 
     const id = Number(document.getElementById("editId").value);
@@ -2412,37 +2490,37 @@ document.getElementById("variantStockModal").addEventListener("click", (e) => {
       return false;
     }
 
-    toast("Guardando...");
+    toast("Guardando...", "info", 1200);
 
     const existingUrls = existingEditImages.map(x => x.url).filter(Boolean);
-const uploadedNewUrls = await uploadMany(selectedEditImages);
-const finalUrls = [...new Set([...existingUrls, ...uploadedNewUrls])];
+    const uploadedNewUrls = await uploadMany(selectedEditImages);
+    const finalUrls = [...new Set([...existingUrls, ...uploadedNewUrls])];
 
-const images = buildImagesPayloadFromUrls(finalUrls);
-const imageUrl = images.length ? images[0].url : null;
+    const images = buildImagesPayloadFromUrls(finalUrls);
+    const imageUrl = images.length ? images[0].url : null;
 
-const payload = {
-  name,
-  description: desc,
-  price,
-  categoryId: Number(cat),
-  enabled,
-  imageUrl,
-  images,
-  visibleInPublicMenu,
-  visibleInTables,
-  isInternalForTables,
-  hasConfiguration,
-  requiredSelectionUnits: hasConfiguration ? requiredSelectionUnits : null,
-  configurationMode: hasConfiguration ? configurationMode : 0,
-  options: hasConfiguration ? options : [],
-  productChannel: getFixedProductChannel(),
-  hasStock: stockMode === 1,
-  stockCurrent: stockMode === 1 && stockCurrentRaw !== "" ? Number(stockCurrentRaw) : null,
-  lowStockThreshold: stockMode === 1 && lowStockThresholdRaw !== "" ? Number(lowStockThresholdRaw) : null,
-  hasVariantStock: isProductsMode() && (stockMode === 2 || stockMode === 3),
-  stockMode: isProductsMode() ? stockMode : (stockMode === 1 ? 1 : 0),
-};
+    const payload = {
+      name,
+      description: desc,
+      price,
+      categoryId: Number(cat),
+      enabled,
+      imageUrl,
+      images,
+      visibleInPublicMenu,
+      visibleInTables,
+      isInternalForTables,
+      hasConfiguration,
+      requiredSelectionUnits: hasConfiguration ? requiredSelectionUnits : null,
+      configurationMode: hasConfiguration ? configurationMode : 0,
+      options: hasConfiguration ? options : [],
+      productChannel: getFixedProductChannel(),
+      hasStock: stockMode === 1,
+      stockCurrent: stockMode === 1 && stockCurrentRaw !== "" ? Number(stockCurrentRaw) : null,
+      lowStockThreshold: stockMode === 1 && lowStockThresholdRaw !== "" ? Number(lowStockThresholdRaw) : null,
+      hasVariantStock: isProductsMode() && (stockMode === 2 || stockMode === 3),
+      stockMode: isProductsMode() ? stockMode : (stockMode === 1 ? 1 : 0),
+    };
 
     const r = await updateItem(id, payload);
     if(!r) return false;
@@ -2468,7 +2546,16 @@ const payload = {
     }
 
     return true;
+  }catch(e){
+    console.error(e);
+    toast("Error guardando", "error", 2500);
+    return false;
+  }finally{
+    isUpdatingProduct = false;
+    setButtonLoading("update", "Guardando...", "Guardar cambios", false);
+    setButtonLoading("saveConfigOnly", "Guardando...", "Guardar configuración", false);
   }
+}
 
   document.getElementById("saveConfigOnly")?.addEventListener("click", async () => {
     try{
@@ -2480,119 +2567,130 @@ const payload = {
   });
 
   document.getElementById("save").addEventListener("click", async () => {
-    try{
-      if(!requireAuth()) return;
+  if(isCreatingProduct) return;
 
-      const name = document.getElementById("name").value.trim();
-      const desc = document.getElementById("description").value.trim();
-      const cat = document.getElementById("category").value;
-      const enabled = document.getElementById("enabled").value === "true";
-      const price = parsePriceToNumber(document.getElementById("price").value);
-      const visibleInPublicMenu = document.getElementById("visibleInPublicMenu").checked;
-      const visibleInTables = tableManagementEnabled ? document.getElementById("visibleInTables").checked : false;
-      const isInternalForTables = tableManagementEnabled ? document.getElementById("isInternalForTables").checked : false;
+  try{
+    isCreatingProduct = true;
+    setButtonLoading("save", "Creando...", "Crear producto", true);
 
-      const hasConfiguration = document.getElementById("hasConfiguration").checked;
-      const requiredSelectionUnitsRaw = document.getElementById("requiredSelectionUnits").value;
-      const requiredSelectionUnits = requiredSelectionUnitsRaw ? Number(requiredSelectionUnitsRaw) : null;
-      const configurationMode = Number(document.getElementById("configurationMode").value || 0);
-      const options = hasConfiguration ? sanitizeOptionsForPayload(getNewOptionsState()) : [];
+    if(!requireAuth()) return;
 
-      if(!name){ toast("Escribí un nombre", "error"); return; }
-      if(!cat){ toast("Seleccioná categoría", "error"); return; }
-      if(!desc){ toast("La descripción es obligatoria", "error"); return; }
-      if(Number.isNaN(price) || price <= 0){ toast("Precio inválido", "error"); return; }
+    const name = document.getElementById("name").value.trim();
+    const desc = document.getElementById("description").value.trim();
+    const cat = document.getElementById("category").value;
+    const enabled = document.getElementById("enabled").value === "true";
+    const price = parsePriceToNumber(document.getElementById("price").value);
+    const visibleInPublicMenu = document.getElementById("visibleInPublicMenu").checked;
+    const visibleInTables = tableManagementEnabled ? document.getElementById("visibleInTables").checked : false;
+    const isInternalForTables = tableManagementEnabled ? document.getElementById("isInternalForTables").checked : false;
 
-      if(hasConfiguration){
-        if(!requiredSelectionUnits || requiredSelectionUnits <= 0){
-          toast("Completá las unidades requeridas", "error");
-          return;
-        }
-        if(configurationMode === 0){
-          toast("Seleccioná un modo de configuración", "error");
-          return;
-        }
-        if(!options.length){
-          toast("Agregá al menos una opción", "error");
-          return;
-        }
-      }
+    const hasConfiguration = document.getElementById("hasConfiguration").checked;
+    const requiredSelectionUnitsRaw = document.getElementById("requiredSelectionUnits").value;
+    const requiredSelectionUnits = requiredSelectionUnitsRaw ? Number(requiredSelectionUnitsRaw) : null;
+    const configurationMode = Number(document.getElementById("configurationMode").value || 0);
+    const options = hasConfiguration ? sanitizeOptionsForPayload(getNewOptionsState()) : [];
 
-      toast("Creando producto...");
+    if(!name){ toast("Escribí un nombre", "error"); return; }
+    if(!cat){ toast("Seleccioná categoría", "error"); return; }
+    if(!desc){ toast("La descripción es obligatoria", "error"); return; }
+    if(Number.isNaN(price) || price <= 0){ toast("Precio inválido", "error"); return; }
 
-      const uploadedImageUrls = await uploadMany(selectedImages);
-      const images = buildImagesPayloadFromUrls(uploadedImageUrls);
-      const imageUrl = images.length ? images[0].url : null;
-      const stockMode = Number(document.getElementById("stockMode").value || 0);
-
-if(isProductsMode() && stockMode === 2 && !hasConfiguration){
-  toast("Para usar stock por variantes, el producto debe ser configurable", "error");
-  return;
-}
-const stockCurrentRaw = document.getElementById("stockCurrent").value;
-const lowStockThresholdRaw = document.getElementById("lowStockThreshold").value;
-
-      const payload = {
-        name,
-        description: desc,
-        price,
-        categoryId: Number(cat),
-        enabled,
-        imageUrl,
-        images,
-        visibleInPublicMenu,
-        visibleInTables,
-        isInternalForTables,
-        hasConfiguration,
-        requiredSelectionUnits: hasConfiguration ? requiredSelectionUnits : null,
-        configurationMode: hasConfiguration ? configurationMode : 0,
-        options: hasConfiguration ? options : [],
-        productChannel: getFixedProductChannel(),
-        hasStock: stockMode === 1,
-stockCurrent: stockMode === 1 && stockCurrentRaw !== "" ? Number(stockCurrentRaw) : null,
-lowStockThreshold: stockMode === 1 && lowStockThresholdRaw !== "" ? Number(lowStockThresholdRaw) : null,
-hasVariantStock: isProductsMode() && stockMode === 2,
-stockMode: isProductsMode() ? stockMode : (stockMode === 1 ? 1 : 0),
-      };
-
-      const r = await createItem(payload);
-      if(!r) return;
-
-      if(!r.ok){
-        const t = await r.text().catch(()=> "");
-        console.error(t);
-        toast("Error creando (mirá consola)", "error", 2500);
+    if(hasConfiguration){
+      if(!requiredSelectionUnits || requiredSelectionUnits <= 0){
+        toast("Completá las unidades requeridas", "error");
         return;
       }
-
-      toast("Producto creado", "success");
-
-      document.getElementById("name").value = "";
-      document.getElementById("description").value = "";
-      document.getElementById("price").value = "";
-      document.getElementById("category").value = "";
-      document.getElementById("enabled").value = "true";
-      document.getElementById("visibleInPublicMenu").checked = true;
-      document.getElementById("visibleInTables").checked = true;
-      document.getElementById("isInternalForTables").checked = false;
-      document.getElementById("imageFile").value = "";
-      clearImageArray(selectedImages);
-      selectedImages = [];
-      renderNewImages();
-
-      document.getElementById("hasConfiguration").checked = false;
-      document.getElementById("requiredSelectionUnits").value = "";
-      document.getElementById("configurationMode").value = "0";
-      window.__newOptionsState = [];
-      renderOptionsBuilder();
-
-      applyTableManagementVisibility();
-      await refresh();
-    }catch(e){
-      console.error(e);
-      toast("Error creando", "error", 2500);
+      if(configurationMode === 0){
+        toast("Seleccioná un modo de configuración", "error");
+        return;
+      }
+      if(!options.length){
+        toast("Agregá al menos una opción", "error");
+        return;
+      }
     }
-  });
+
+    const stockMode = Number(document.getElementById("stockMode").value || 0);
+
+    if(isProductsMode() && stockMode === 2 && !hasConfiguration){
+      toast("Para usar stock por variantes, el producto debe ser configurable", "error");
+      return;
+    }
+
+    toast("Creando producto...", "info", 1200);
+
+    const uploadedImageUrls = await uploadMany(selectedImages);
+    const images = buildImagesPayloadFromUrls(uploadedImageUrls);
+    const imageUrl = images.length ? images[0].url : null;
+
+    const stockCurrentRaw = document.getElementById("stockCurrent").value;
+    const lowStockThresholdRaw = document.getElementById("lowStockThreshold").value;
+
+    const payload = {
+      name,
+      description: desc,
+      price,
+      categoryId: Number(cat),
+      enabled,
+      imageUrl,
+      images,
+      visibleInPublicMenu,
+      visibleInTables,
+      isInternalForTables,
+      hasConfiguration,
+      requiredSelectionUnits: hasConfiguration ? requiredSelectionUnits : null,
+      configurationMode: hasConfiguration ? configurationMode : 0,
+      options: hasConfiguration ? options : [],
+      productChannel: getFixedProductChannel(),
+      hasStock: stockMode === 1,
+      stockCurrent: stockMode === 1 && stockCurrentRaw !== "" ? Number(stockCurrentRaw) : null,
+      lowStockThreshold: stockMode === 1 && lowStockThresholdRaw !== "" ? Number(lowStockThresholdRaw) : null,
+      hasVariantStock: isProductsMode() && stockMode === 2,
+      stockMode: isProductsMode() ? stockMode : (stockMode === 1 ? 1 : 0),
+    };
+
+    const r = await createItem(payload);
+    if(!r) return;
+
+    if(!r.ok){
+      const t = await r.text().catch(()=> "");
+      console.error(t);
+      toast("Error creando (mirá consola)", "error", 2500);
+      return;
+    }
+
+    toast("Producto creado", "success");
+
+    document.getElementById("name").value = "";
+    document.getElementById("description").value = "";
+    document.getElementById("price").value = "";
+    document.getElementById("category").value = "";
+    document.getElementById("enabled").value = "true";
+    document.getElementById("visibleInPublicMenu").checked = true;
+    document.getElementById("visibleInTables").checked = true;
+    document.getElementById("isInternalForTables").checked = false;
+    document.getElementById("imageFile").value = "";
+
+    clearImageArray(selectedImages);
+    selectedImages = [];
+    renderNewImages();
+
+    document.getElementById("hasConfiguration").checked = false;
+    document.getElementById("requiredSelectionUnits").value = "";
+    document.getElementById("configurationMode").value = "0";
+    window.__newOptionsState = [];
+    renderOptionsBuilder();
+
+    applyTableManagementVisibility();
+    await refresh();
+  }catch(e){
+    console.error(e);
+    toast("Error creando", "error", 2500);
+  }finally{
+    isCreatingProduct = false;
+    setButtonLoading("save", "Creando...", "Crear producto", false);
+  }
+});
 
   document.getElementById("update").addEventListener("click", async () => {
     try{
@@ -2606,27 +2704,51 @@ stockMode: isProductsMode() ? stockMode : (stockMode === 1 ? 1 : 0),
   guardPriceInput(document.getElementById("price"));
   guardPriceInput(document.getElementById("editPrice"));
 
-  (async function init(){
-    try{
-      if(!requireAuth()) return;
-      CONFIG = await loadConfig();
-      await syncBusinessTypeFromApi();
-      applyBusinessTypeTexts();
-      applyStockVisibilityByBusinessType();
-      tableManagementEnabled = resolveTableManagementEnabled();
-      applyTableManagementVisibility();
-      window.__newOptionsState = [];
-      window.__editOptionsState = [];
-      renderOptionsBuilder();
-      renderEditOptionsBuilder();
-      renderNewImages();
-      renderEditImages();
-      toggleSimpleStockVisibility("");
-      toggleSimpleStockVisibility("edit");
-      await loadCategories();
-      await refresh();
-    }catch(e){
-      console.error(e);
-      toast("Error cargando", "error", 2500);
-    }
-  })();
+(async function init(){
+  try{
+    if(!requireAuth()) return;
+
+    CONFIG = await loadConfig();
+
+    await syncBusinessTypeFromApi();
+
+    applyBusinessTypeTexts();
+
+    applyStockVisibilityByBusinessType();
+
+    tableManagementEnabled = resolveTableManagementEnabled();
+
+    applyTableManagementVisibility();
+
+    window.__newOptionsState = [];
+    window.__editOptionsState = [];
+
+    renderOptionsBuilder();
+    renderEditOptionsBuilder();
+
+    renderNewImages();
+    renderEditImages();
+
+    toggleSimpleStockVisibility("");
+    toggleSimpleStockVisibility("edit");
+
+    await loadCategories();
+
+    await refresh();
+
+    // 🔴 LISTENERS DEL MODAL
+    document.getElementById("cancelDeleteProduct")?.addEventListener("click", closeDeleteModal);
+
+    document.getElementById("confirmDeleteProduct")?.addEventListener("click", confirmDeleteItem);
+
+    document.getElementById("deleteProductModal")?.addEventListener("click", (e) => {
+      if(e.target.id === "deleteProductModal"){
+        closeDeleteModal();
+      }
+    });
+
+  }catch(e){
+    console.error(e);
+    toast("Error cargando", "error", 2500);
+  }
+})();

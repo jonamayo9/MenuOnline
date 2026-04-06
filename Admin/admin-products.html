@@ -574,8 +574,50 @@
     </div>
   </div>
 </div>
-<div id="toastContainer" class="fixed top-6 right-6 z-50"></div>
+<div id="deleteProductModal" class="fixed inset-0 z-[9999] hidden">
+  <div class="absolute inset-0 bg-slate-950/50"></div>
 
+  <div class="absolute inset-0 flex items-center justify-center p-4">
+    <div class="w-full max-w-md rounded-[28px] border border-slate-200 bg-white p-6 shadow-2xl">
+      <div class="flex items-start gap-4">
+        <div class="h-12 w-12 shrink-0 rounded-2xl bg-rose-100 flex items-center justify-center">
+          <span class="text-rose-600 font-extrabold text-lg">!</span>
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <div class="text-xl font-extrabold text-slate-900 font-display">
+            Eliminar producto
+          </div>
+
+          <div class="text-sm text-slate-500 mt-2">
+            ¿Querés eliminar <span id="deleteProductName" class="font-bold text-slate-700"></span>?
+          </div>
+
+          <div class="text-xs text-slate-400 mt-2">
+            Esta acción lo quitará del listado de productos.
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          id="cancelDeleteProduct"
+          class="soft-btn px-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-sm font-semibold">
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          id="confirmDeleteProduct"
+          class="soft-btn px-4 py-2.5 rounded-2xl bg-rose-500 text-white hover:bg-rose-600 text-sm font-semibold">
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toastContainer" class="fixed top-4 right-4 z-[10000] flex flex-col gap-3 pointer-events-none"></div>
   <script src="../assets/js/admin/admin-products.js"></script>
 
 </body>
