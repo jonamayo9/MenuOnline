@@ -18,7 +18,8 @@ const COPY_ITEMS = [
   "index.html",
   "config.json",
   "CNAME",
-  "netlify.toml"
+  "netlify.toml",
+  "_redirects"
 ];
 
 function rmDir(dir) {

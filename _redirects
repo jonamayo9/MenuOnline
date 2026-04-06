@@ -1,0 +1,2 @@
+/products/:slug   /products/index.html   200
+/menu/:slug       /menu/index.html       200
