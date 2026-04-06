@@ -12,6 +12,7 @@ const COPY_ITEMS = [
   "img",
   "payment",
   "products",
+  "menu",
   "SuperAdmin",
   "Tables",
   "404.html",
@@ -111,6 +112,17 @@ async function main() {
     if (fs.existsSync(src)) {
       copyRecursive(src, path.join(DIST, item));
     }
+  }
+
+  const distMenuIndex = path.join(DIST, "menu", "index.html");
+  const distProductsIndex = path.join(DIST, "products", "index.html");
+
+  if (fs.existsSync(distMenuIndex)) {
+    fs.copyFileSync(distMenuIndex, path.join(DIST, "menu", "__route.html"));
+  }
+
+  if (fs.existsSync(distProductsIndex)) {
+    fs.copyFileSync(distProductsIndex, path.join(DIST, "products", "__route.html"));
   }
 
   await minifyHtmlFiles();
