@@ -1621,7 +1621,24 @@ function getStockBadgeHtml(product) {
     openProductModal(product);
   });
 
-  return card;
+setTimeout(()=>adjustCardLayoutIfNeeded(card));
+
+return card;
+}
+
+function adjustCardLayoutIfNeeded(card){
+
+  const title = card.querySelector("h3");
+  if(!title) return;
+
+  const lineHeight = parseFloat(getComputedStyle(title).lineHeight);
+  const lines = Math.round(title.offsetHeight / lineHeight);
+
+  // si el título ocupa muchas líneas, activamos layout extendido
+  if(lines >= 3){
+    card.classList.add("card-title-long");
+  }
+
 }
 
  function renderProducts() {
@@ -2247,9 +2264,37 @@ function getSelectedVariantCombination() {
       }
     }
 
-    if (els.modalDescription) {
-      els.modalDescription.textContent = product.description || "Sin descripción.";
+const oldToggle = document.getElementById("modalDescriptionToggle");
+if (oldToggle) oldToggle.remove();
+
+if (els.modalDescription) {
+  const descText = String(product.description || "Sin descripción.");
+
+  els.modalDescription.classList.remove("expanded");
+  els.modalDescription.textContent = descText;
+
+  requestAnimationFrame(() => {
+    const needsToggle =
+      els.modalDescription.scrollHeight > els.modalDescription.clientHeight + 4;
+
+    if (needsToggle) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.id = "modalDescriptionToggle";
+      btn.className = "modal-desc-toggle";
+      btn.textContent = "Ver descripción completa";
+
+      btn.addEventListener("click", function () {
+        const expanded = els.modalDescription.classList.toggle("expanded");
+        btn.textContent = expanded ? "Ver menos" : "Ver descripción completa";
+      });
+
+      els.modalDescription.insertAdjacentElement("afterend", btn);
     }
+  });
+}
+
+ 
 
     if (els.modalBadges) {
       const badges = [];
