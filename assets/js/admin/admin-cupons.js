@@ -237,18 +237,18 @@ async function guardAdminCouponsAccess() {
     }
 
     async function apiGetCategories(companySlug) {
-      const url = `${configData.apiBaseUrl}/api/admin/${encodeURIComponent(companySlug)}/categories`;
+      const url = `${configData.apiBaseUrl}/api/admin/${encodeURIComponent(companySlug)}/product-categories`;
       const res = await fetchAuth(url);
       if (!res || !res.ok) throw new Error("No pude cargar categorías");
       return await res.json();
     }
 
-    async function apiGetItems(companySlug) {
-      const url = `${configData.apiBaseUrl}/api/admin/${encodeURIComponent(companySlug)}/items`;
-      const res = await fetchAuth(url);
-      if (!res || !res.ok) throw new Error("No pude cargar productos");
-      return await res.json();
-    }
+async function apiGetItems(companySlug) {
+  const url = `${configData.apiBaseUrl}/api/admin/${encodeURIComponent(companySlug)}/products`;
+  const res = await fetchAuth(url);
+  if (!res || !res.ok) throw new Error("No pude cargar productos");
+  return await res.json();
+}
 
     async function apiGetCoupons(companySlug) {
       const url = `${configData.apiBaseUrl}/api/admin/${encodeURIComponent(companySlug)}/coupons`;
@@ -326,59 +326,75 @@ async function guardAdminCouponsAccess() {
     }
 
     function renderItemsList() {
-      const container = document.getElementById("itemsContainer");
-      const term = normalizeText(document.getElementById("itemsSearchInput").value);
+  const container = document.getElementById("itemsContainer");
+  const term = normalizeText(document.getElementById("itemsSearchInput").value);
 
-      let visibleItems = allItems.filter(item => !(item.isDeleted ?? item.IsDeleted ?? false));
-      if (term) {
-        visibleItems = visibleItems.filter(item => itemMatchesSearch(item, term));
-      }
+  let visibleItems = allItems.filter(item => !(item.isDeleted ?? item.IsDeleted ?? false));
+  if (term) {
+    visibleItems = visibleItems.filter(item => itemMatchesSearch(item, term));
+  }
 
-      if (!visibleItems.length) {
-        container.innerHTML = `<div class="empty-state">No encontré productos para mostrar.</div>`;
-        return;
-      }
+  if (!visibleItems.length) {
+    container.innerHTML = `<div class="empty-state">No encontré productos para mostrar.</div>`;
+    return;
+  }
 
-      container.innerHTML = "";
+  container.innerHTML = "";
 
-      visibleItems.forEach(item => {
-        const itemId = Number(item.id ?? item.Id);
-        const itemName = item.name ?? item.Name ?? "";
-        const itemDescription = item.description ?? item.Description ?? "";
-        const itemPrice = Number(item.price ?? item.Price ?? 0);
-        const checked = selectedProductId === itemId;
+  visibleItems.forEach(item => {
+    const itemId = Number(item.id ?? item.Id ?? 0);
+    const itemName = item.name ?? item.Name ?? "";
+    const itemDescription = item.description ?? item.Description ?? "";
+    const itemPrice = Number(item.price ?? item.Price ?? 0);
+    const checked = Number(selectedProductId || 0) === itemId;
 
-        const row = document.createElement("label");
-        row.className = "item-row";
-        row.innerHTML = `
-          <input type="radio"
-                 name="coupon-product-selection"
-                 ${checked ? "checked" : ""}
-                 style="width:18px;height:18px;margin-top:2px;accent-color:#6d28d9;cursor:pointer;flex-shrink:0;" />
-          <div style="min-width:0;flex:1;">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-              <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;color:var(--ink);">
-                ${escapeHtml(itemName)}
-              </div>
-              <div class="pill-chip">${formatMoney(itemPrice)}</div>
-            </div>
-            <div class="muted-text" style="margin-top:4px;">
-              ${escapeHtml(itemDescription || "Sin descripción")}
-            </div>
+    const row = document.createElement("label");
+    row.className = "item-row";
+    row.innerHTML = `
+      <input type="radio"
+             name="coupon-product-selection"
+             value="${itemId}"
+             ${checked ? "checked" : ""}
+             style="width:18px;height:18px;margin-top:2px;accent-color:#6d28d9;cursor:pointer;flex-shrink:0;" />
+      <div style="min-width:0;flex:1;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;color:var(--ink);">
+            ${escapeHtml(itemName)}
           </div>
-        `;
+          <div class="pill-chip">${formatMoney(itemPrice)}</div>
+        </div>
+        <div class="muted-text" style="margin-top:4px;">
+          ${escapeHtml(itemDescription || "Sin descripción")}
+        </div>
+      </div>
+    `;
 
-        const input = row.querySelector("input");
-        input.addEventListener("change", () => {
-          selectedProductId = itemId;
-          updateSelectedProductChip();
-          updateSummary();
-          renderItemsList();
-        });
+    const input = row.querySelector("input");
 
-        container.appendChild(row);
+    const selectProduct = (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      selectedProductId = itemId;
+
+      document.querySelectorAll('input[name="coupon-product-selection"]').forEach(r => {
+        r.checked = Number(r.value) === itemId;
       });
-    }
+
+      updateSelectedProductChip();
+      updateSummary();
+
+      console.log("producto seleccionado", selectedProductId);
+    };
+
+    input.addEventListener("change", selectProduct);
+    row.addEventListener("click", selectProduct);
+
+    container.appendChild(row);
+  });
+}
 
     function updateSelectedProductChip() {
       const chip = document.getElementById("selectedProductChip");
@@ -422,47 +438,51 @@ async function guardAdminCouponsAccess() {
     }
 
     function buildPayload() {
-      const name = document.getElementById("couponNameInput").value.trim();
-      const code = document.getElementById("couponCodeInput").value.trim().toUpperCase();
-      const discountType = Number(document.getElementById("discountTypeSelect").value);
-      const discountValue = parseNumber(document.getElementById("discountValueInput").value);
-      const expiresAtUtc = toIsoOrNull(document.getElementById("expiresAtInput").value);
-      const maxUsesRaw = document.getElementById("maxUsesInput").value.trim();
-      const maxUses = maxUsesRaw ? Number(maxUsesRaw) : null;
-      const isActive = document.getElementById("isActiveInput").checked;
-      const categoryIdRaw = document.getElementById("categorySelect").value;
+  const name = document.getElementById("couponNameInput").value.trim();
+  const code = document.getElementById("couponCodeInput").value.trim().toUpperCase();
+  const discountType = Number(document.getElementById("discountTypeSelect").value);
+  const discountValue = parseNumber(document.getElementById("discountValueInput").value);
+  const expiresAtUtc = toIsoOrNull(document.getElementById("expiresAtInput").value);
+  const maxUsesRaw = document.getElementById("maxUsesInput").value.trim();
+  const maxUses = maxUsesRaw ? Number(maxUsesRaw) : null;
+  const isActive = document.getElementById("isActiveInput").checked;
+  const categoryIdRaw = document.getElementById("categorySelect").value;
 
-      if (!name) throw new Error("Ingresá un nombre para el cupón.");
-      if (!code) throw new Error("Ingresá un código.");
-      if (discountValue === null || discountValue <= 0) throw new Error("Ingresá un valor de descuento válido.");
-      if (discountType === 1 && discountValue > 100) throw new Error("Si el descuento es porcentaje, no puede ser mayor a 100.");
-      if (maxUses !== null && (!Number.isInteger(maxUses) || maxUses <= 0)) throw new Error("El máximo de usos debe ser mayor a 0.");
+  if (!name) throw new Error("Ingresá un nombre para el cupón.");
+  if (!code) throw new Error("Ingresá un código.");
+  if (discountValue === null || discountValue <= 0) throw new Error("Ingresá un valor de descuento válido.");
+  if (discountType === 1 && discountValue > 100) throw new Error("Si el descuento es porcentaje, no puede ser mayor a 100.");
+  if (maxUses !== null && (!Number.isInteger(maxUses) || maxUses <= 0)) throw new Error("El máximo de usos debe ser mayor a 0.");
 
-      const payload = {
-        code,
-        name,
-        discountType,
-        discountValue,
-        scopeType: currentScope === "global" ? 1 : currentScope === "category" ? 2 : 3,
-        categoryId: null,
-        menuItemId: null,
-        expiresAtUtc,
-        maxUses,
-        isActive
-      };
+  const payload = {
+    code,
+    name,
+    discountType,
+    discountValue,
+    scopeType: currentScope === "global" ? 1 : currentScope === "category" ? 2 : 3,
+    categoryId: null,
+    productId: null,
+    expiresAtUtc,
+    maxUses,
+    isActive
+  };
 
-      if (currentScope === "category") {
-        if (!categoryIdRaw) throw new Error("Seleccioná una categoría.");
-        payload.categoryId = Number(categoryIdRaw);
-      }
+  if (currentScope === "category") {
+    if (!categoryIdRaw) throw new Error("Seleccioná una categoría.");
+    payload.categoryId = Number(categoryIdRaw);
+  }
 
-      if (currentScope === "product") {
-        if (!selectedProductId) throw new Error("Seleccioná un producto.");
-        payload.menuItemId = Number(selectedProductId);
-      }
-
-      return payload;
+  if (currentScope === "product") {
+    const parsedProductId = Number(selectedProductId || 0);
+    if (!parsedProductId || parsedProductId <= 0) {
+      throw new Error("Seleccioná un producto.");
     }
+    payload.productId = parsedProductId;
+  }
+
+  console.log("BUILD PAYLOAD NUEVO", payload);
+  return payload;
+}
 
     function clearForm() {
       editingCouponId = null;
@@ -653,8 +673,16 @@ async function guardAdminCouponsAccess() {
       pendingDeleteCouponId = null;
       pendingDeleteCouponTitle = "";
 
-      document.getElementById("deleteCouponModal").classList.add("hidden-block");
+      const modal = document.getElementById("deleteCouponModal");
+      const confirmBtn = document.getElementById("btnConfirmDeleteCoupon");
+      const cancelBtn = document.getElementById("btnCancelDeleteCoupon");
+
+      modal.classList.add("hidden-block");
       document.body.style.overflow = "";
+
+      confirmBtn.disabled = false;
+      cancelBtn.disabled = false;
+      confirmBtn.textContent = "Eliminar";
     }
 
     async function handleDeleteCoupon() {
