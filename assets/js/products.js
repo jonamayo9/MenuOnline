@@ -2267,6 +2267,14 @@ function getSelectedVariantCombination() {
 const oldToggle = document.getElementById("modalDescriptionToggle");
 if (oldToggle) oldToggle.remove();
 
+els.productModal?.classList.remove("modal-has-long-description");
+const modalPositioner = document.getElementById("productModalPositioner");
+
+if(modalPositioner){
+  modalPositioner.classList.remove("items-start","pt-6","sm:pt-10");
+  modalPositioner.classList.add("items-center");
+}
+
 if (els.modalDescription) {
   const descText = String(product.description || "Sin descripción.");
 
@@ -2277,7 +2285,14 @@ if (els.modalDescription) {
     const needsToggle =
       els.modalDescription.scrollHeight > els.modalDescription.clientHeight + 4;
 
+      if(needsToggle && modalPositioner){
+  modalPositioner.classList.remove("items-center");
+  modalPositioner.classList.add("items-start","pt-6","sm:pt-10");
+}
+
     if (needsToggle) {
+      els.productModal?.classList.add("modal-has-long-description");
+
       const btn = document.createElement("button");
       btn.type = "button";
       btn.id = "modalDescriptionToggle";
@@ -2292,9 +2307,7 @@ if (els.modalDescription) {
       els.modalDescription.insertAdjacentElement("afterend", btn);
     }
   });
-}
-
- 
+} 
 
     if (els.modalBadges) {
       const badges = [];

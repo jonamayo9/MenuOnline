@@ -232,37 +232,38 @@
   </div>
 
   <!-- MODAL PRODUCTO -->
-  <div id="productModal" class="hidden fixed inset-0 z-[120]">
-    <div class="absolute inset-0 bg-slate-950/55 backdrop-blur-sm" data-close-modal="1"></div>
+<div id="productModal" class="hidden fixed inset-0 z-[120] overflow-y-auto">
+  <div class="absolute inset-0 bg-slate-950/55 backdrop-blur-sm" data-close-modal="1"></div>
 
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-      <div class="bg-white w-full max-w-6xl rounded-[2rem] shadow-2xl border border-slate-100 relative overflow-hidden max-h-[92vh]">
-        <button
-          id="modalCloseBtn"
-          type="button"
-          class="absolute top-4 right-4 z-10 w-11 h-11 rounded-2xl bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 transition"
-        >
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+  <div class="relative min-h-full flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-white w-full max-w-6xl rounded-[2rem] shadow-2xl border border-slate-100 relative overflow-hidden max-h-[96vh] flex flex-col">
+      <button
+        id="modalCloseBtn"
+        type="button"
+        class="absolute top-4 right-4 z-20 w-11 h-11 rounded-2xl bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 transition"
+      >
+        <i class="fa-solid fa-xmark"></i>
+      </button>
 
-        <div class="grid lg:grid-cols-[1.05fr_.95fr] max-h-[92vh]">
-          <div class="border-r border-slate-100 bg-slate-50 flex flex-col min-h-0">
-            <div class="relative min-h-[280px] sm:min-h-[420px] overflow-hidden">
-              <button id="galleryPrevBtn" type="button" class="gallery-nav hidden absolute left-4 top-1/2 -translate-y-1/2 z-10">
-                <i class="fa-solid fa-chevron-left"></i>
-              </button>
+      <div class="grid lg:grid-cols-[1.05fr_.95fr] flex-1 min-h-0">
+        <div class="border-r border-slate-100 bg-slate-50 flex flex-col min-h-0">
+          <div class="relative min-h-[280px] sm:min-h-[420px] lg:min-h-0 lg:h-full overflow-hidden">
+            <button id="galleryPrevBtn" type="button" class="gallery-nav hidden absolute left-4 top-1/2 -translate-y-1/2 z-10">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
 
-              <div id="galleryTrack" class="gallery-track h-full"></div>
+            <div id="galleryTrack" class="gallery-track h-full"></div>
 
-              <button id="galleryNextBtn" type="button" class="gallery-nav hidden absolute right-4 top-1/2 -translate-y-1/2 z-10">
-                <i class="fa-solid fa-chevron-right"></i>
-              </button>
-            </div>
+            <button id="galleryNextBtn" type="button" class="gallery-nav hidden absolute right-4 top-1/2 -translate-y-1/2 z-10">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
 
-            <div id="galleryThumbs" class="hidden p-4 border-t border-slate-100 bg-white flex gap-3 overflow-x-auto no-scrollbar"></div>
+            <div id="galleryThumbs" class="hidden"></div>
           </div>
+        </div>
 
-          <div class="p-6 sm:p-7 overflow-y-auto bg-[linear-gradient(180deg,#ffffff_0%,#fcfdff_100%)]">
+        <div class="flex flex-col min-h-0 bg-[linear-gradient(180deg,#ffffff_0%,#fcfdff_100%)]">
+          <div class="flex-1 min-h-0 overflow-y-auto p-6 sm:p-7">
             <div id="modalCategory" class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.18em] bg-slate-100 text-slate-700 border border-slate-200"></div>
 
             <h2 id="modalTitle" class="mt-4 text-2xl sm:text-3xl font-black tracking-tight text-slate-900">Producto</h2>
@@ -289,8 +290,10 @@
 
               <div id="modalStockOptions" class="flex flex-col gap-2"></div>
             </div>
+          </div>
 
-            <div class="mt-6 space-y-3">
+          <div class="shrink-0 border-t border-slate-100 bg-white p-4 sm:p-5">
+            <div class="space-y-3">
               <div id="modalQtyWrap" class="hidden qty-shell inline-flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-2 py-2">
                 <button id="modalQtyMinus" type="button" class="w-11 h-11 rounded-xl bg-white flex items-center justify-center text-slate-700 border border-slate-200 hover:bg-slate-100 transition text-lg">−</button>
                 <span id="modalQtyValue" class="font-black text-xl min-w-[28px] text-center text-slate-900">1</span>
@@ -310,12 +313,13 @@
       </div>
     </div>
   </div>
+</div>
 
   <!-- MODAL CHECKOUT -->
   <div id="checkoutModal" class="hidden fixed inset-0 z-[130]">
     <div class="absolute inset-0 bg-slate-950/55 backdrop-blur-sm" data-close-checkout="1"></div>
 
-    <div class="absolute inset-0 flex items-center justify-center p-4">
+    <div class="absolute inset-0 flex items-start justify-center p-4 pt-10">
       <div class="bg-white w-full max-w-lg rounded-[2.2rem] p-6 sm:p-8 shadow-2xl relative overflow-hidden border border-slate-100 max-h-[92vh] overflow-y-auto">
         <div class="absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top,rgba(245,158,11,.18),transparent_60%)] pointer-events-none"></div>
         <button id="checkoutCloseBtn" type="button" class="absolute top-4 right-4 w-11 h-11 rounded-2xl bg-slate-50 border border-slate-200 text-slate-500 hover:bg-slate-100 transition">
@@ -489,7 +493,7 @@
   <div id="addressMapModal" class="hidden fixed inset-0 z-[135]">
     <div class="absolute inset-0 bg-slate-950/55 backdrop-blur-sm" data-close-map="1"></div>
 
-    <div class="absolute inset-0 flex items-center justify-center p-4">
+    <div class="absolute inset-0 flex items-start justify-center p-4 pt-12 md:pt-16">
       <div class="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl border border-slate-100 relative overflow-hidden">
         <div class="absolute inset-x-0 top-0 h-24 bg-[radial-gradient(circle_at_top,rgba(16,185,129,.16),transparent_70%)] pointer-events-none"></div>
         <button id="mapCloseBtn" type="button" class="absolute top-4 right-4 z-10 w-11 h-11 rounded-2xl bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 transition">
